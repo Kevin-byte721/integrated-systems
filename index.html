@@ -179,7 +179,17 @@
         </div>
         
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
-            <div class="content-card" style="cursor: pointer; transition: transform 0.2s;" onclick="loadModule('crm')">
+            <div class="content-card" style="cursor: pointer; transition: transform 0.2s;" onclick="loadModule('dist')">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="background: #fffbeb; color: #d97706; padding: 15px; border-radius: 12px;"><i class="fas fa-boxes fa-2x"></i></div>
+                    <div>
+                        <h3 style="margin:0">Distribution / Stock</h3>
+                        <p style="font-size: 0.9rem; color: #64748b;">Inventory, Warehousing, and Stock Movement</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card" style="cursor: pointer;" onclick="loadModule('crm')">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="background: #eff6ff; color: #2563eb; padding: 15px; border-radius: 12px;"><i class="fas fa-users-cog fa-2x"></i></div>
                     <div>
@@ -248,17 +258,28 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="content-card" style="cursor: pointer;" onclick="loadModule('acc')">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="background: #fdf2f8; color: #db2777; padding: 15px; border-radius: 12px;"><i class="fas fa-file-invoice-dollar fa-2x"></i></div>
+                    <div>
+                        <h3 style="margin:0">Accounts / Finance</h3>
+                        <p style="font-size: 0.9rem; color: #64748b;">Invoices, Journal Entries, and Payments</p>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <button onclick="location.reload()" style="margin-top: 10px; padding: 12px 24px; background: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
+        <button onclick="location.reload()" style="margin-top: 30px; padding: 12px 24px; background: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer;">
             <i class="fas fa-sign-out-alt"></i> Exit Admin Mode
         </button>
     </div>
 `;
+
     // --- DASHBOARD CONTENT (HR) ---
-    const dashboardHTML = `
+    const hrdashboardHTML = `
         <nav class="sidebar">
-            <div class="logo-area"><i class="fas fa-shield-halved"></i> Integrated Systems HR</div>
+            <div class="logo-area"><i class="fas fa-shield-halved"></i>Human Resources</div>
             <div class="nav-group">
                 <div class="nav-item active" id="nav-dash" onclick="showView('dashboard-main')"><i class="fas fa-chart-line"></i> Dashboard</div>
                 <div class="nav-item" id="nav-reg" onclick="showView('registration-view')"><i class="fas fa-user-plus"></i>Employee Registration</div>
@@ -295,111 +316,226 @@
                 <div class="header"><h1>Employee Registration</h1></div>
                 <div class="content-card" style="max-width: 600px;">
                     <div class="form-grid">
-                        <div class="input-box full-width"><label>Employee ID</label><input type="text" placeholder="EMP-2026-001"></div>
-                        <div class="input-box"><label>First Name</label><input type="text" placeholder="Juan"></div>
-                        <div class="input-box"><label>Last Name</label><input type="text" placeholder="Dela Cruz"></div>
-                        <div class="input-box"><label>Department</label><input type="text" placeholder="IT"></div>
-                        <div class="input-box"><label>Status</label><select><option>Active</option><option>Inactive</option></select></div>
+                        <div class="input-box full-width">
+    <label>Employee ID</label>
+    <input type="text" id="reg-id" readonly 
+           style="background-color: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b;">
+</div>
+                        <div class="input-box"><label>First Name</label><input type="text" id="reg-fname" placeholder="Juan"></div>
+                        <div class="input-box"><label>Last Name</label><input type="text" id="reg-lname" placeholder="Dela Cruz"></div>
+                        <div class="input-box"><label>Department</label><input type="text" id="reg-dept" placeholder="IT"></div>
+                        <div class="input-box"><label>Status</label><select id="reg-status"><option>Active</option><option>Inactive</option></select></div>
                     </div>
-                    <div class="btn-group"><button class="text-btn">Save</button><button class="text-btn">Edit</button></div>
+                    <div class="btn-group">
+                        <button class="text-btn" onclick="saveEmployee()">Save</button>
+                    </div>
                 </div>
                 <div class="content-card">
                     <h3>Registered Employees</h3>
                     <table>
-                        <thead><tr><th>Emp ID</th><th>Name</th><th>Dept</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr><td>EMP-2026-001</td><td>Juan Dela Cruz</td><td>IT</td><td>Active</td></tr>
-                        </tbody>
+                        <thead><tr><th>Emp ID</th><th>Name</th><th>Dept</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="employee-list-body">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-            <div id="payroll-comp-view" style="display: none;">
-                <div class="header"><h1>Payroll Components</h1></div>
-                <div class="content-card" style="max-width: 600px;">
-                    <div class="form-grid">
-                        <div class="input-box full-width"><label>Component ID</label><input type="text" placeholder="B-SAL-01"></div>
-                        <div class="input-box full-width"><label>Component Name</label><input type="text" placeholder="Basic Salary"></div>
-                        <div class="input-box"><label>Type</label><select><option>Earning</option><option>Deduction</option></select></div>
-                        <div class="input-box"><label>Default Amount</label><input type="text" placeholder="PHP 3000"></div>
-                    </div>
-                    <div class="btn-group"><button class="text-btn">Save</button></div>
-                </div>
-                <div class="content-card">
-                    <h3>Configured Components</h3>
-                    <table>
-                        <thead><tr><th>Comp ID</th><th>Name</th><th>Type</th><th>Default Amount</th></tr></thead>
-                        <tbody>
-                            <tr><td>B-SAL-01</td><td>Basic Salary</td><td>Earning</td><td>PHP 30,000</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+<div id="payroll-comp-view" style="display: none;">
+    <div class="header"><h1>Payroll Components</h1></div>
+    <div class="content-card" style="max-width: 600px;">
+        <div class="form-grid">
+            <div class="input-box full-width">
+                <label>Component ID</label>
+                <input type="text" id="pay-comp-id" readonly style="background-color: #f1f5f9; cursor: default;">
             </div>
+            
+            <div class="input-box full-width">
+                <label>Component Name</label>
+                <select id="pay-comp-name">
+                    <option value="" disabled selected>Select Component</option>
+                    <option>Basic Pay</option>
+                    <option>House Rent Allowance (HRA)</option>
+                    <option>Conveyance Allowance</option>
+                    <option>Special Allowance</option>
+                    <option>Medical Reimbursement</option>
+                    <option>Leave Travel Allowance</option>
+                    <option>Performance Bonus</option>
+                    <option>Overtime Pay</option>
+                    <option>Shift Allowance</option>
+                    <option>Internet Allowance</option>
+                    <option>Professional Tax</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <label>Type</label>
+                <select id="pay-comp-type">
+                    <option>Earning</option>
+                    <option>Deduction</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label>Default Amount</label>
+                <input type="text" id="pay-comp-amount" placeholder="PHP 0.00">
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="text-btn" onclick="savePayrollComponent()">Save</button>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h3>Configured Components</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Comp ID</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Default Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="payroll-comp-body">
+                </tbody>
+        </table>
+    </div>
+</div>
 
             <div id="salary-struct-view" style="display: none;">
-                <div class="header"><h1>Salary Structures</h1></div>
-                <div class="content-card" style="max-width: 600px;">
-                    <div class="form-grid">
-                        <div class="input-box full-width"><label>Structure ID</label><input type="text" placeholder="SALES-MGR-GLB"></div>
-                        <div class="input-box full-width"><label>Employee ID</label><input type="text" placeholder="EMP-2026-001"></div>
-                        <div class="input-box"><label>Total CTC</label><input type="text" placeholder="PHP 49000"></div>
-                    </div>
-                    <div class="btn-group"><button class="text-btn">Save</button></div>
-                </div>
-                <div class="content-card">
-                    <h3>Current Assignments</h3>
-                    <table>
-                        <thead><tr><th>Structure ID</th><th>Emp ID</th><th>Total CTC</th></tr></thead>
-                        <tbody>
-                            <tr><td>SALES-MGR-GLB</td><td>EMP-2026-001</td><td>PHP 49,000</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+    <div class="header"><h1>Salary Structures</h1></div>
+    <div class="content-card" style="max-width: 600px;">
+        <div class="form-grid">
+            <div class="input-box full-width">
+                <label>Structure ID</label>
+                <input type="text" id="struct-id" readonly style="background-color: #f1f5f9;">
             </div>
+            <div class="input-box full-width">
+                <label>Employee ID</label>
+                <select id="struct-emp-id">
+                    <option value="" disabled selected>Select Registered Employee</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label>Total CTC</label>
+                <input type="text" id="struct-ctc" placeholder="PHP 49000">
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="text-btn" onclick="saveSalaryStructure()">Save</button>
+        </div>
+    </div>
+    <div class="content-card">
+        <h3>Current Assignments</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Structure ID</th>
+                    <th>Emp ID</th>
+                    <th>Total CTC</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="salary-struct-body">
+                </tbody>
+        </table>
+    </div>
+</div>
 
             <div id="payroll-entry-view" style="display: none;">
-                <div class="header"><h1>Payroll Entry</h1></div>
-                <div class="content-card" style="max-width: 600px;">
-                    <div class="form-grid">
-                        <div class="input-box full-width"><label>Payroll ID</label><input type="text" placeholder="PR-2026-301"></div>
-                        <div class="input-box"><label>Posting Date</label><input type="date"></div>
-                        <div class="input-box"><label>Journal Entry ID</label><input type="text" placeholder="JV-2026-001"></div>
-                    </div>
-                    <div class="btn-group"><button class="text-btn">Process</button></div>
-                </div>
-                <div class="content-card">
-                    <h3>Payroll Batch History</h3>
-                    <table>
-                        <thead><tr><th>Payroll ID</th><th>Post Date</th><th>JV ID</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr><td>PR-2026-301</td><td>2026-01-31</td><td>JV-2026-001</td><td><span class="status-pill">Posted</span></td></tr>
-                        </tbody>
-                    </table>
-                </div>
+    <div class="header"><h1>Payroll Entry</h1></div>
+    <div class="content-card" style="max-width: 600px;">
+        <div class="form-grid">
+            <div class="input-box full-width">
+                <label>Payroll ID</label>
+                <input type="text" id="pay-entry-id" readonly style="background-color: #f1f5f9;">
             </div>
+            <div class="input-box">
+                <label>Posting Date</label>
+                <input type="date" id="pay-entry-date">
+            </div>
+            <div class="input-box">
+                <label>Journal Entry (From Accounts)</label>
+                <select id="pay-entry-jv">
+                    <option value="" disabled selected>Select Journal Entry</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="text-btn" id="process-btn" onclick="savePayrollEntry()">Process</button>
+        </div>
+    </div>
+    <div class="content-card">
+        <h3>Payroll Batch History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Payroll ID</th>
+                    <th>Post Date</th>
+                    <th>JV ID</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="payroll-history-body">
+                </tbody>
+        </table>
+    </div>
+</div>
 
             <div id="expense-claim-view" style="display: none;">
-                <div class="header"><h1>Expense Claims</h1></div>
-                <div class="content-card" style="max-width: 600px;">
-                    <div class="form-grid">
-                        <div class="input-box full-width"><label>Claim ID</label><input type="text" placeholder="EXP-2017-821"></div>
-                        <div class="input-box full-width"><label>Employee ID</label><input type="text" placeholder="EMP-2026-001"></div>
-                        <div class="input-box"><label>Expense Type</label><select><option>Travel</option><option>Meal</option></select></div>
-                        <div class="input-box"><label>Claim Amount</label><input type="text" placeholder="PHP 8219"></div>
-                    </div>
-                    <div class="btn-group"><button class="text-btn">Submit</button></div>
-                </div>
-                <div class="content-card">
-                    <h3>Recent Claims</h3>
-                    <table>
-                        <thead><tr><th>Claim ID</th><th>Emp ID</th><th>Type</th><th>Amount</th></tr></thead>
-                        <tbody>
-                            <tr><td>EXP-2017-821</td><td>EMP-2026-001</td><td>Travel</td><td>PHP 8,219</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+    <div class="header"><h1>Expense Claims</h1></div>
+    <div class="content-card" style="max-width: 600px;">
+        <div class="form-grid">
+            <div class="input-box full-width">
+    <label>Claim ID</label>
+    <input type="text" id="exp-claim-id" readonly> 
+</div>
+<div class="input-box full-width">
+    <label>Employee ID</label>
+    <select id="exp-emp-id">
+        <option value="" disabled selected>Select Registered Employee</option>
+    </select>
+</div>
+            <div class="input-box">
+                <label>Expense Type</label>
+                <select id="exp-type">
+                    <option>Travel</option>
+                    <option>Meal</option>
+                    <option>Supplies</option>
+                    <option>Utilities</option>
+                </select>
             </div>
+            <div class="input-box">
+                <label>Claim Amount</label>
+                <input type="number" id="exp-amount" placeholder="0.00">
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="text-btn" id="exp-submit-btn" style="" onclick="saveExpenseClaim()">Submit</button>
+        </div>
+    </div>
+    <div class="content-card">
+        <h3>Recent Claims</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Emp ID</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="expense-table-body">
+                </tbody>
+        </table>
+    </div>
+</div>
         </main>`;
+        
+// --- DATABASE INITIALIZATION ---
+// Load saved data or start with an empty list
 
     // --- CRM DASHBOARD CONTENT ---
     const crmDashboardHTML = `
@@ -2225,11 +2361,33 @@ const buyingDashboardHTML = `
         </table>
     </div>
 </div>
-<div id="journal-entries-view" style="display:none;">
+<div id="journal-entries-view">
     <div class="header">
         <h1>Journal Entries</h1>
         <p>Record non-standard transactions and maintain the integrity of the General Ledger.</p>
     </div>
+
+    <div class="content-card" id="jv-form-container" style="margin-bottom: 20px; border-left: 4px solid #2563eb;">
+        <h3 id="jv-form-title">New Journal Entry</h3>
+        <div class="form-grid">
+            <div class="input-box"><label>Journal ID</label><input type="text" id="jv-id" readonly></div>
+            <div class="input-box"><label>Entry Type</label>
+                <select id="jv-type">
+                    <option value="Journal Entry">Journal Entry</option>
+                    <option value="Sales Invoice">Sales Invoice</option>
+                    <option value="Purchase Invoice">Purchase Invoice</option>
+                    <option value="Depreciation">Depreciation</option>
+                </select>
+            </div>
+            <div class="input-box"><label>Date</label><input type="date" id="jv-date"></div>
+            <div class="input-box"><label>Amount (Debit/Credit)</label><input type="number" id="jv-amount" placeholder="0.00"></div>
+        </div>
+        <div class="btn-group" style="margin-top: 15px;">
+            <button class="text-btn" onclick="saveJournalEntry()">Save Entry</button>
+            <button class="text-btn" onclick="toggleJVForm(false)">Cancel</button>
+        </div>
+    </div>
+
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div class="search-container">
@@ -2237,8 +2395,7 @@ const buyingDashboardHTML = `
                 <input type="text" placeholder="Search entries by ID or Type...">
             </div>
             <div style="display: flex; gap: 10px;">
-                <button class="text-btn" style="border: 1px solid #cbd5e1;"><i class="fas fa-filter"></i> Filter</button>
-                <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
+                <button class="text-btn" onclick="toggleJVForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
                     <i class="fas fa-plus"></i> New Journal Entry
                 </button>
             </div>
@@ -2255,35 +2412,8 @@ const buyingDashboardHTML = `
                     <th>ACTIONS</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong style="color: #2563eb;">JV-2024-001</strong></td>
-                    <td>Sales Invoice</td>
-                    <td>2024-02-14</td>
-                    <td>$1,200.00</td>
-                    <td>$1,200.00</td>
-                    <td><span class="status-pill" style="background: #dbeafe; color: #1e40af;">Submitted</span></td>
-                    <td><button class="text-btn"><i class="fas fa-file-invoice"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #2563eb;">JV-2024-002</strong></td>
-                    <td>Purchase Invoice</td>
-                    <td>2024-02-10</td>
-                    <td>$5,000.00</td>
-                    <td>$5,000.00</td>
-                    <td><span class="status-pill" style="background: #dbeafe; color: #1e40af;">Submitted</span></td>
-                    <td><button class="text-btn"><i class="fas fa-file-invoice"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #2563eb;">JV-2024-003</strong></td>
-                    <td>Depreciation</td>
-                    <td>2024-01-31</td>
-                    <td>$250.00</td>
-                    <td>$250.00</td>
-                    <td><span class="status-pill" style="background: #f1f5f9; color: #475569;">Draft</span></td>
-                    <td><button class="text-btn"><i class="fas fa-edit"></i></button></td>
-                </tr>
-            </tbody>
+            <tbody id="jv-table-body">
+                </tbody>
         </table>
     </div>
 </div>
@@ -3273,71 +3403,203 @@ const buyingDashboardHTML = `
         </table>
     </div>
 </div>    </main>`;
-let isAdmin = false; 
+// --- GLOBAL STORAGE KEYS ---
+let employeeDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+let expenseClaimsDb = JSON.parse(localStorage.getItem('expense_claims_records')) || [];
+let payrollDb = JSON.parse(localStorage.getItem('payroll_components_records')) || [];
+let payrollEntryDb = JSON.parse(localStorage.getItem('payroll_entry_records')) || [];
+let journalEntriesDb = JSON.parse(localStorage.getItem('journal_entries_records')) || [];
+let editJVIndex = -1;
+let editIndex = -1;
+let editPayIndex = -1;
+let editEntryIndex = -1;
+let editExpIndex = -1;
+let isAdmin = false;
+function generateNextId(database, prefix) {
+    // If no records exist, start with 001
+    if (!database || database.length === 0) {
+        return `${prefix}-001`;
+    }
+
+    // Extract numbers from existing IDs to find the maximum
+    const idNumbers = database.map(item => {
+        const idStr = item.id || "";
+        const parts = idStr.split('-');
+        const lastPart = parts[parts.length - 1];
+        return parseInt(lastPart) || 0;
+    });
+
+    const maxNum = Math.max(0, ...idNumbers);
+    
+    // Return the prefix plus the next number, padded to 3 digits
+    return `${prefix}-${String(maxNum + 1).padStart(3, '0')}`;
+}
+// --- 2. INITIALIZATION FUNCTIONS ---
+window.initId = function() {
+    const idField = document.getElementById('reg-id');
+    if (idField && editIndex === -1) {
+        idField.value = generateNextId(employeeDb, "EMP-2026");
+    }
+};
+
+window.initPayrollId = function() {
+    const idField = document.getElementById('pay-comp-id');
+    if (idField && editPayIndex === -1) {
+        idField.value = generateNextId(payrollDb, "B-SAL");
+    }
+};
+
+// --- 3. RENDERING TABLES ---
+window.renderEmployeeTable = function() {
+    const tbody = document.getElementById('employee-list-body');
+    if (!tbody) return;
+    tbody.innerHTML = employeeDb.map((emp, index) => `
+        <tr>
+            <td style="font-weight: 600; color: #1e293b;">${emp.id || '---'}</td> 
+            <td>${emp.name}</td>
+            <td>${emp.dept}</td>
+            <td><span class="status-badge">${emp.status}</span></td>
+            <td>
+                <button onclick="editEmployee(${index})" style="color:#2563eb; background:none; border:none; cursor:pointer; margin-right:10px;">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button onclick="deleteEmployee(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>`).join('');
+};
+
+window.renderPayrollTable = function() {
+    const tbody = document.getElementById('payroll-comp-body');
+    if (!tbody) return;
+    tbody.innerHTML = payrollDb.map((comp, index) => `
+        <tr>
+            <td style="font-weight: 600; color: #1e293b;">${comp.id || '---'}</td>
+            <td>${comp.name}</td>
+            <td>${comp.type}</td>
+            <td>PHP ${parseFloat(comp.amount).toLocaleString()}</td>
+            <td>
+                <button onclick="deletePayrollComp(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>`).join('');
+};
+
+// --- 4. SAVE FUNCTIONS ---
+window.saveEmployee = function() {
+    const fnVal = document.getElementById('reg-fname').value;
+    const lnVal = document.getElementById('reg-lname').value;
+    if (!fnVal) return alert("First Name is required.");
+
+    const empData = {
+        id: document.getElementById('reg-id').value,
+        name: `${fnVal} ${lnVal}`.trim(),
+        dept: document.getElementById('reg-dept').value,
+        status: document.getElementById('reg-status').value
+    };
+
+    if (editIndex === -1) employeeDb.push(empData);
+    else { employeeDb[editIndex] = empData; editIndex = -1; }
+
+    localStorage.setItem('hr_employee_records', JSON.stringify(employeeDb));
+    renderEmployeeTable();
+    window.clearForm(); 
+};
+
+window.savePayrollComponent = function() {
+    const nameSelect = document.getElementById('pay-comp-name');
+    if (!nameSelect.value) return alert("Please select a Component Name.");
+
+    const compData = {
+        id: document.getElementById('pay-comp-id').value,
+        name: nameSelect.value,
+        type: document.getElementById('pay-comp-type').value,
+        amount: document.getElementById('pay-comp-amount').value || 'PHP 0.00'
+    };
+
+    if (editPayIndex === -1) payrollDb.push(compData);
+    else { payrollDb[editPayIndex] = compData; editPayIndex = -1; }
+
+    localStorage.setItem('payroll_components_records', JSON.stringify(payrollDb));
+    renderPayrollTable();
+    nameSelect.selectedIndex = 0;
+    document.getElementById('pay-comp-amount').value = '';
+    window.initPayrollId(); 
+};
+
+// --- 5. EDIT & DELETE ---
+window.editEmployee = function(index) {
+    const emp = employeeDb[index];
+    editIndex = index;
+    document.getElementById('reg-id').value = emp.id;
+    const names = emp.name.split(' ');
+    document.getElementById('reg-fname').value = names[0] || '';
+    document.getElementById('reg-lname').value = names.slice(1).join(' ') || '';
+    document.getElementById('reg-dept').value = emp.dept;
+    document.getElementById('reg-status').value = emp.status;
+    document.querySelector('.btn-group .text-btn:nth-child(1)').innerText = 'Update Record';
+};
+
+window.deleteEmployee = function(index) {
+    if(confirm("Delete this employee?")) {
+        employeeDb.splice(index, 1);
+        localStorage.setItem('hr_employee_records', JSON.stringify(employeeDb));
+        renderEmployeeTable();
+        window.initId();
+    }
+};
+
+window.deletePayrollComp = function(index) {
+    if(confirm("Delete this component?")) {
+        payrollDb.splice(index, 1);
+        localStorage.setItem('payroll_components_records', JSON.stringify(payrollDb));
+        renderPayrollTable();
+        window.initPayrollId();
+    }
+};
+
+window.clearForm = function() {
+    document.getElementById('reg-fname').value = '';
+    document.getElementById('reg-lname').value = '';
+    document.querySelector('.btn-group .text-btn:nth-child(1)').innerText = 'Save';
+    window.initId();
+};
+
+// --- 6. LOGIN & MODULE LOGIC ---
 function showDashboard() {
-    // Correctly targeting the ID 'dept-select' and 'password-input' we added to your style
     const selectedUser = document.getElementById('dept-select').value;
     const passwordInput = document.getElementById('password-input').value;
     const container = document.getElementById('dashboard-container');
 
-    // 1. Check if a user was actually selected
     if (!selectedUser) {
-        alert("Please select a department role from the dropdown.");
+        alert("Please select a department role.");
         return;
     }
 
-    // 2. Validate Password (using 'admin' for all users as requested)
     if (passwordInput === "admin") {
-        
-        // 3. Routing based on the dropdown value
-        if (selectedUser === "adm_user") {
-            isAdmin = true;
-            container.innerHTML = adminMasterHubHTML;
-        }
-        else if (selectedUser === "acc_user") {
-            isAdmin = false;
-            container.innerHTML = accountsDashboardHTML;
+        isAdmin = (selectedUser === "adm_user");
+        if (selectedUser === "hr_user") {
+            container.innerHTML = hrdashboardHTML;
+            renderEmployeeTable(); 
         } 
-        else if (selectedUser === "hr_user") {
-            isAdmin = false;
-            container.innerHTML = dashboardHTML;
-        }
-        else if (selectedUser === "crm_user") {
-            isAdmin = false;
-            container.innerHTML = crmDashboardHTML;
-        }
-        else if (selectedUser === "dist_user") {
-            isAdmin = false;
-            container.innerHTML = distributionDashboardHTML;
-        }
-        else if (selectedUser === "buy_user") {
-            isAdmin = false;
-            container.innerHTML = buyingDashboardHTML;
-        }
-        else if (selectedUser === "proj_user") {
-            isAdmin = false;
-            container.innerHTML = projectDashboardHTML;
-        }
-        else if (selectedUser === "sell_user") {
-            isAdmin = false;
-            container.innerHTML = sellingDashboardHTML;
-        }
-        else if (selectedUser === "serv_user") {
-            isAdmin = false;
-            container.innerHTML = serviceDashboardHTML;
-        }
-        else if (selectedUser === "mfg_user") {
-            isAdmin = false;
-            container.innerHTML = manufacturingDashboardHTML;
-        }
+        else if (selectedUser === "adm_user") { container.innerHTML = adminMasterHubHTML; }
+        else if (selectedUser === "acc_user") { container.innerHTML = accountsDashboardHTML; }
+        else if (selectedUser === "crm_user") { container.innerHTML = crmDashboardHTML; }
+        else if (selectedUser === "dist_user") { container.innerHTML = distributionDashboardHTML; }
+        else if (selectedUser === "buy_user") { container.innerHTML = buyingDashboardHTML; }
+        else if (selectedUser === "proj_user") { container.innerHTML = projectDashboardHTML; }
+        else if (selectedUser === "sell_user") { container.innerHTML = sellingDashboardHTML; }
+        else if (selectedUser === "serv_user") { container.innerHTML = serviceDashboardHTML; }
+        else if (selectedUser === "mfg_user") { container.innerHTML = manufacturingDashboardHTML; }
 
-        // Switch from login screen to dashboard
         finalizeLogin();
-    } 
-    else {
+    } else {
         alert("Access Denied: Invalid password.");
     }
 }
+
 function finalizeLogin() {
     document.getElementById('login-container').style.display = 'none';
     document.getElementById('dashboard-container').style.display = 'flex';
@@ -3345,67 +3607,522 @@ function finalizeLogin() {
 
 function loadModule(moduleKey) {
     const container = document.getElementById('dashboard-container');
-    
-    // Map keys to your existing dashboard constants
     const moduleMap = {
+        'acc':accountsDashboardHTML,
+        'dist':distributionDashboardHTML,
         'crm': crmDashboardHTML,
         'buying': buyingDashboardHTML,
         'selling': sellingDashboardHTML,
         'service': serviceDashboardHTML,
         'mfg': manufacturingDashboardHTML,
-        'hr': dashboardHTML,
+        'hr': hrdashboardHTML,
         'project': projectDashboardHTML
     };
 
     container.innerHTML = moduleMap[moduleKey];
+    if (moduleKey === 'hr') renderEmployeeTable();
 
-    // If admin, inject a "Return to Hub" button at the top of the sidebar
     if (isAdmin) {
         const sidebar = container.querySelector('.nav-group');
-        const hubBtn = document.createElement('div');
-        hubBtn.className = 'nav-item';
-        hubBtn.style.color = '#2563eb';
-        hubBtn.style.fontWeight = 'bold';
-        hubBtn.style.borderBottom = '1px solid #e2e8f0';
-        hubBtn.style.marginBottom = '10px';
-        hubBtn.innerHTML = '<i class="fas fa-th"></i> Return to Master Hub';
-        hubBtn.onclick = () => { container.innerHTML = adminMasterHubHTML; };
-        sidebar.prepend(hubBtn);
+        if(sidebar) {
+            const hubBtn = document.createElement('div');
+            hubBtn.className = 'nav-item';
+            hubBtn.style.color = '#2563eb';
+            hubBtn.style.fontWeight = 'bold';
+            hubBtn.innerHTML = '<i class="fas fa-th"></i> Return to Master Hub';
+            hubBtn.onclick = () => { container.innerHTML = adminMasterHubHTML; };
+            sidebar.prepend(hubBtn);
+        }
     }
 }
+// --- NEW STORAGE KEY ---
+let salaryStructDb = JSON.parse(localStorage.getItem('salary_structures_records')) || [];
+let editStructIndex = -1;
+
+// 1. INITIALIZE STRUCTURE ID & DROPDOWN
+window.initSalaryStruct = function() {
+    // Set Auto-Increment ID
+    const idField = document.getElementById('struct-id');
+    if (idField && editStructIndex === -1) {
+        idField.value = generateNextId(salaryStructDb, "Salary_Struct_2026");
+    }
+
+    // Populate Employee Dropdown from employeeDb
+    const empSelect = document.getElementById('struct-emp-id');
+    if (empSelect) {
+        empSelect.innerHTML = '<option value="" disabled selected>Select Registered Employee</option>';
+        employeeDb.forEach(emp => {
+            empSelect.innerHTML += `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`;
+        });
+    }
+};
+
+// 2. RENDER TABLE
+window.renderSalaryStructTable = function() {
+    const tbody = document.getElementById('salary-struct-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = salaryStructDb.map((struct, index) => `
+        <tr>
+            <td style="font-weight: 600;">${struct.id}</td>
+            <td>${struct.empId}</td>
+            <td>PHP ${parseFloat(struct.ctc).toLocaleString()}</td>
+            <td>
+                <button onclick="editSalaryStructure(${index})" style="color:#2563eb; background:none; border:none; cursor:pointer; margin-right:10px;">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button onclick="deleteSalaryStruct(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>`).join('');
+};
+
+window.saveSalaryStructure = function() {
+    const empId = document.getElementById('struct-emp-id').value;
+    const ctc = document.getElementById('struct-ctc').value;
+
+    if (!empId) return alert("Please select an Employee.");
+
+    const structData = {
+        id: document.getElementById('struct-id').value,
+        empId: empId,
+        ctc: ctc || 'PHP 0.00'
+    };
+
+    if (editStructIndex === -1) {
+        salaryStructDb.push(structData);
+    } else {
+        // Update existing record
+        salaryStructDb[editStructIndex] = structData;
+        editStructIndex = -1; // Reset index
+        
+        // Reset button text
+        const saveBtn = document.querySelector('#salary-struct-view .text-btn');
+        if (saveBtn) saveBtn.innerText = "Save";
+    }
+
+    localStorage.setItem('salary_structures_records', JSON.stringify(salaryStructDb));
+    renderSalaryStructTable();
+    
+    // Clear form and generate next ID for the next entry
+    document.getElementById('struct-ctc').value = '';
+    window.initSalaryStruct();
+};
+
+window.editSalaryStructure = function(index) {
+    const struct = salaryStructDb[index];
+    editStructIndex = index; // Set the global tracking index
+
+    // Populate the form
+    document.getElementById('struct-id').value = struct.id;
+    document.getElementById('struct-emp-id').value = struct.empId;
+    document.getElementById('struct-ctc').value = struct.ctc;
+
+    // Change button text to indicate update mode
+    const saveBtn = document.querySelector('#salary-struct-view .text-btn');
+    if (saveBtn) saveBtn.innerText = "Update Assignment";
+};
+window.deleteSalaryStruct = function(index) {
+    if(confirm("Delete this assignment?")) {
+        salaryStructDb.splice(index, 1);
+        localStorage.setItem('salary_structures_records', JSON.stringify(salaryStructDb));
+        renderSalaryStructTable();
+        window.initSalaryStruct();
+    }
+};
+
+
+// --- 1. THE DELETE FUNCTION (PRESERVED) ---
+window.deletePayrollEntry = function(index) {
+    if(confirm("Delete this payroll batch?")) {
+        // Remove from database
+        payrollEntryDb.splice(index, 1);
+        // Sync with LocalStorage
+        localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
+        // Refresh the table display
+        renderPayrollHistoryTable();
+        // Crucial: Recalculate the next PR-2026-XXX ID
+        window.initPayrollEntry();
+    }
+};
+
+window.savePayrollEntry = function() {
+    const dateVal = document.getElementById('pay-entry-date').value;
+    const jvIdVal = document.getElementById('pay-entry-jv').value;
+    const payIdVal = document.getElementById('pay-entry-id').value;
+
+    console.log("Attempting to save:", { payIdVal, dateVal, jvIdVal });
+
+    if (!dateVal) {
+        alert("Please select a posting date.");
+        return;
+    }
+    
+    // This is the most likely reason it 'doesnt work'
+    if (!jvIdVal || jvIdVal === "") {
+        alert("Selection Required: Please select a Journal Entry from the dropdown.");
+        return;
+    }
+
+    const entryData = {
+        payId: payIdVal,
+        date: dateVal,
+        jvId: jvIdVal
+    };
+
+    if (editEntryIndex === -1) {
+        payrollEntryDb.push(entryData);
+    } else {
+        payrollEntryDb[editEntryIndex] = entryData;
+        editEntryIndex = -1;
+        document.getElementById('process-btn').innerText = "Process";
+    }
+
+    localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
+    renderPayrollHistoryTable();
+    window.initPayrollEntry();
+    alert("Payroll Entry Processed Successfully!");
+};
+
+// --- 2. UPDATED INITIALIZATION (PR Increment & JV Dropdown) ---
+window.initPayrollEntry = function() {
+    const payIdField = document.getElementById('pay-entry-id');
+    const jvSelect = document.getElementById('pay-entry-jv');
+    
+    // Auto-Increment Logic for PR-2026-001
+    if (payIdField && editEntryIndex === -1) {
+        // Force 3-digit padding for the PR prefix
+        payIdField.value = generateNextId(payrollEntryDb, "PR-2026");
+    }
+
+    // Populate Journal Entry Dropdown from Accounts Module
+    if (jvSelect) {
+        // Pull latest from local storage in case it changed in the Accounts module
+        const latestJV = JSON.parse(localStorage.getItem('journal_entries_records')) || [];
+        
+        jvSelect.innerHTML = '<option value="" disabled selected>Select Journal Entry</option>';
+        if (latestJV.length === 0) {
+            jvSelect.innerHTML += '<option value="" disabled>No JV records found in Accounts</option>';
+        } else {
+            latestJV.forEach(jv => {
+                const id = jv.id || jv.jvId; 
+                jvSelect.innerHTML += `<option value="${id}">${id}</option>`;
+            });
+        }
+    }
+    
+    if (editEntryIndex === -1) {
+        const dateInput = document.getElementById('pay-entry-date');
+        if(dateInput) dateInput.valueAsDate = new Date();
+    }
+};
+
+// --- 3. UPDATED RENDER TABLE (Includes Edit/Delete) ---
+window.renderPayrollHistoryTable = function() {
+    const tbody = document.getElementById('payroll-history-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = payrollEntryDb.map((entry, index) => `
+        <tr>
+            <td style="font-weight: 600; color: #1e293b;">${entry.payId}</td>
+            <td>${entry.date}</td>
+            <td><span style="color: #2563eb; font-family: monospace;">${entry.jvId}</span></td>
+            <td><span class="status-badge" style="background:#dcfce7; color:#166534;">Posted</span></td>
+            <td>
+                <button onclick="editPayrollEntry(${index})" style="color:#2563eb; background:none; border:none; cursor:pointer; margin-right:10px;">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button onclick="deletePayrollEntry(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>`).join('');
+};
+// --- DATABASE ---
+
+
+window.toggleJVForm = function(show) {
+    const form = document.getElementById('jv-form-container');
+    
+    if (show) {
+        // 1. Generate the next sequential ID (e.g., JV-2026-001)
+        window.initJournalEntry(); 
+        
+        // 2. Show the form
+        form.style.display = 'block';
+        
+        // 3. Auto-focus the Amount field so the user can start typing immediately
+        setTimeout(() => {
+            const amountField = document.getElementById('jv-amount');
+            if (amountField) amountField.focus();
+        }, 50);
+    } else {
+        form.style.display = 'none';
+        editJVIndex = -1; 
+    }
+};
+
+window.initJournalEntry = function() {
+    const jvIdField = document.getElementById('jv-id');
+    const jvDateField = document.getElementById('jv-date');
+
+    // Only generate a new ID if we are NOT in edit mode
+    if (editJVIndex === -1 && jvIdField) {
+        // Calculate next ID based on your records
+        jvIdField.value = generateNextId(journalEntriesDb, "JV-2026");
+        
+        // Set the date to today's date by default
+        if (jvDateField) {
+            const today = new Date().toISOString().split('T')[0];
+            jvDateField.value = today;
+        }
+    }
+};
+// 2. RENDER TABLE
+window.renderJVTable = function() {
+    const tbody = document.getElementById('jv-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = journalEntriesDb.map((jv, index) => `
+        <tr>
+            <td><strong style="color: #2563eb;">${jv.id}</strong></td>
+            <td>${jv.type}</td>
+            <td>${jv.date}</td>
+            <td>$${parseFloat(jv.amount).toLocaleString()}</td>
+            <td>$${parseFloat(jv.amount).toLocaleString()}</td>
+            <td><span class="status-pill" style="background: #dbeafe; color: #1e40af;">Submitted</span></td>
+            <td>
+                <button onclick="editJV(${index})" style="color:#2563eb; background:none; border:none; cursor:pointer; margin-right:10px;">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteJV(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`).join('');
+};
+
+window.saveJournalEntry = function() {
+    const idField = document.getElementById('jv-id');
+    const amountField = document.getElementById('jv-amount');
+    const typeField = document.getElementById('jv-type');
+    const dateField = document.getElementById('jv-date');
+
+    const idValue = idField.value;
+    const amountValue = amountField.value;
+
+    // Validation
+    if (!amountValue || amountValue <= 0) return alert("Please enter an amount.");
+
+    const jvData = {
+        id: idValue,
+        type: typeField.value,
+        date: dateField.value,
+        amount: amountValue,
+        status: "Submitted" // Matches the status-pill in your screenshots
+    };
+
+    if (editJVIndex === -1) {
+        // Create new record
+        journalEntriesDb.push(jvData);
+    } else {
+        // Update existing record
+        journalEntriesDb[editJVIndex] = jvData;
+        editJVIndex = -1; // Reset index after update
+        
+        // Reset form title if you have one
+        const formTitle = document.getElementById('jv-form-title');
+        if (formTitle) formTitle.innerText = "New Journal Entry";
+    }
+    
+    // Sync with LocalStorage
+    localStorage.setItem('journal_entries_records', JSON.stringify(journalEntriesDb));
+    
+    // Update the UI Table
+    renderJVTable();
+
+    // --- PREPARE FOR NEXT ENTRY (KEEPING FORM OPEN) ---
+    
+    // 1. Clear the amount field
+    amountField.value = '';
+    
+    // 2. Generate and display the NEXT ID (e.g., JV-2026-002)
+    idField.value = generateNextId(journalEntriesDb, "JV-2026");
+    
+    // 3. Keep focus on the amount field for rapid entry
+    amountField.focus();
+    
+    console.log("Record saved. Ready for next ID: " + idField.value);
+};
+
+// 4. EDIT & DELETE
+window.editJV = function(index) {
+    const jv = journalEntriesDb[index];
+    editJVIndex = index;
+    
+    toggleJVForm(true);
+    document.getElementById('jv-form-title').innerText = "Update Journal Entry";
+    document.getElementById('jv-id').value = jv.id;
+    document.getElementById('jv-type').value = jv.type;
+    document.getElementById('jv-date').value = jv.date;
+    document.getElementById('jv-amount').value = jv.amount;
+};
+
+window.deleteJV = function(index) {
+    if(confirm("Are you sure you want to delete this Journal Entry?")) {
+        journalEntriesDb.splice(index, 1);
+        localStorage.setItem('journal_entries_records', JSON.stringify(journalEntriesDb));
+        renderJVTable();
+    }
+};
+
+// 1. INITIALIZE EXPENSE ID & DROPDOWN
+window.initExpenseClaim = function() {
+    // Set Auto-Increment ID
+    const idField = document.getElementById('exp-claim-id');
+    if (idField && editExpIndex === -1) {
+        // Generates EXP-2026-001, etc.
+        idField.value = generateNextId(expenseClaimsDb, "EXP-2026");
+    }
+
+    // Populate Employee Dropdown from the same employeeDb used in Salary Structures
+    const empSelect = document.getElementById('exp-emp-id');
+    if (empSelect) {
+        empSelect.innerHTML = '<option value="" disabled selected>Select Registered Employee</option>';
+        
+        // Ensure this uses 'employeeDb' to sync with your Registration module
+        employeeDb.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.text = `${emp.id} - ${emp.name}`;
+            empSelect.appendChild(option);
+        });
+    }
+};
+
+window.saveExpenseClaim = function() {
+    const idValue = document.getElementById('exp-claim-id').value;
+    const empId = document.getElementById('exp-emp-id').value;
+    const amount = document.getElementById('exp-amount').value;
+
+    if (!empId) return alert("Please select a registered employee.");
+    if (!amount || amount <= 0) return alert("Please enter a valid amount.");
+
+    const claimData = {
+        id: idValue,
+        empId: empId,
+        type: document.getElementById('exp-type').value,
+        amount: amount
+    };
+
+    if (editExpIndex === -1) {
+        expenseClaimsDb.push(claimData);
+    } else {
+        expenseClaimsDb[editExpIndex] = claimData;
+        editExpIndex = -1;
+    }
+
+    localStorage.setItem('expense_claims_records', JSON.stringify(expenseClaimsDb));
+    renderExpenseTable();
+
+    // Reset for next entry without hiding the form
+    document.getElementById('exp-amount').value = '';
+    window.initExpenseClaim(); // Immediately shows the next ID (e.g., EXP-2026-002)
+    document.getElementById('exp-amount').focus();
+};
+
+window.renderExpenseTable = function() {
+    const tbody = document.getElementById('expense-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = expenseClaimsDb.map((claim, index) => `
+        <tr>
+            <td style="font-weight: 600; color: #2563eb;">${claim.id}</td>
+            <td>${claim.empId}</td>
+            <td>${claim.type}</td>
+            <td>PHP ${parseFloat(claim.amount).toLocaleString()}</td>
+            <td>
+                <button onclick="editExpense(${index})" style="color:#2563eb; background:none; border:none; cursor:pointer; margin-right:10px;">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteExpense(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`).join('');
+};
+
+window.editExpense = function(index) {
+    const claim = expenseClaimsDb[index];
+    editExpIndex = index;
+    
+    document.getElementById('exp-claim-id').value = claim.id;
+    document.getElementById('exp-emp-id').value = claim.empId;
+    document.getElementById('exp-type').value = claim.type;
+    document.getElementById('exp-amount').value = claim.amount;
+    document.getElementById('exp-submit-btn').innerText = "Update Claim";
+};
+
+window.deleteExpense = function(index) {
+    if(confirm("Are you sure you want to delete this expense claim?")) {
+        expenseClaimsDb.splice(index, 1);
+        localStorage.setItem('expense_claims_records', JSON.stringify(expenseClaimsDb));
+        renderExpenseTable();
+        window.initExpenseClaim();
+    }
+};
+
+// --- 7. NAVIGATION LOGIC (UNALTERED NAVMAP) ---
 function showView(viewId) {
-    // Find all view divs inside the main container and toggle based on ID
     const views = document.querySelectorAll('.main-container > div');
     views.forEach(v => {
         v.style.display = (v.id === viewId || v.id.includes(viewId)) ? 'block' : 'none';
     });
 
-    // Expanded navMap to include HR, CRM, Buying, Projects, and Selling
+    // Auto-refresh logic for IDs and Tables
+    if (viewId === 'registration-view') {
+        renderEmployeeTable();
+        window.initId();
+    } else if (viewId === 'payroll-comp-view') {
+        renderPayrollTable();
+        window.initPayrollId(); 
+    } else if (viewId === 'salary-struct-view') { // Trigger for the new module
+        renderSalaryStructTable();
+        window.initSalaryStruct();
+    }  else if (viewId === 'payroll-entry-view') {
+        renderPayrollHistoryTable();
+        window.initPayrollEntry();
+    } else if (viewId === 'journal-entries-view') {
+        // Renders the table of existing JV records
+        renderJVTable();
+        // Generates the next JV-2026-XXX ID and sets today's date
+        window.initJournalEntry();
+    } else if (viewId === 'expense-claim-view') {
+    renderExpenseTable();    // Load the Recent Claims table
+    window.initExpenseClaim(); // Generates the ID and populates the Employee list
+}
+
     const navMap = {
-        // HR Views
         'dashboard-main': 'nav-dash', 
         'registration-view': 'nav-reg', 
         'payroll-comp-view': 'nav-pay-comp', 
         'salary-struct-view': 'nav-sal-struct',
         'payroll-entry-view': 'nav-pay-entry', 
         'expense-claim-view': 'nav-exp-claim',
-        // CRM Views
         'customer-view': 'nav-cust', 
         'leads-view': 'nav-leads', 
         'opp-view': 'nav-opps', 
         'prod-view': 'nav-prods',
         'bundle-view': 'nav-bundles',
-        // Buying Views
         'supplier-view': 'nav-suppliers',
         'mat-req-view': 'nav-mat-req',
-        // Project Management Views
         'project-list-view': 'nav-projects',
         'tasks-view': 'nav-tasks',
         'timesheets-view': 'nav-timesheets',
         'project-users-view': 'nav-users',
         'task-types-view': 'nav-task-types',
         'activity-costs-view': 'nav-activity-costs',
-        // Selling Views
         'customers-view': 'nav-customers',
         'products-view': 'nav-products',
         'sales-orders-view': 'nav-sales-orders',
@@ -3413,25 +4130,21 @@ function showView(viewId) {
         'payments-view': 'nav-payments',
         'deliveries-view': 'nav-deliveries',
         'returns-view': 'nav-returns',
-        // Distribution Views
         'items-view': 'nav-items',
         'warehouses-view': 'nav-warehouses',
         'stock-balance-view': 'nav-stock-balance',
         'purchase-receipts-view': 'nav-purchase-receipts',
         'delivery-notes-view': 'nav-delivery-notes',
-        // Accounts Views
         'sales-invoices-view': 'nav-sales-invoices',
         'purchase-invoices-view': 'nav-purchase-invoices',
         'acc-payments-view': 'nav-acc-payments',
         'journal-entries-view': 'nav-journal-entries',
         'masters-view': 'nav-masters',
         'landed-cost-view': 'nav-landed-cost',
-        // Service Views
         'maint-service-view': 'nav-maint-service',
         'maint-visit-view': 'nav-maint-visit',
         'warranty-claim-view': 'nav-warranty-claim',
         'issue-view': 'nav-issue',
-        // Manufacturing Views
         'item-master-view': 'nav-item-master',
         'op-master-view': 'nav-op-master',
         'ws-master-view': 'nav-ws-master',
@@ -3443,16 +4156,15 @@ function showView(viewId) {
         'stock-trans-view': 'nav-stock-trans'
     };
 
-    // Reset all navigation items across all possible sidebars
     Object.values(navMap).forEach(id => {
-        const navItem = document.getElementById(id);
-        if(navItem) navItem.classList.remove('active');
+        const el = document.getElementById(id);
+        if(el) el.classList.remove('active');
     });
 
-    // Set the active class on the currently selected nav item
-    const activeNavId = navMap[viewId];
-    const activeNav = document.getElementById(activeNavId);
-    if(activeNav) activeNav.classList.add('active');
+    const activeId = navMap[viewId];
+    if(activeId && document.getElementById(activeId)) {
+        document.getElementById(activeId).classList.add('active');
+    }
 }
 </script>
 </body>
