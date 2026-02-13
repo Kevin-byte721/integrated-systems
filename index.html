@@ -205,7 +205,18 @@
         <button class="login-btn" onclick="showDashboard()">Login to Dashboard</button>
     </div>
 </div>
+<div id="global-delete-banner" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 800px; background: #fff1f2; color: #991b1b; padding: 16px 24px; border-radius: 12px; border: 1px solid #fecaca; justify-content: space-between; align-items: center; font-weight: 500; z-index: 9999; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 1.2rem;"></i> 
+        <span id="delete-message">Are you sure you want to delete this item?</span>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <button id="global-confirm-delete-btn" style="background: #ef4444; color: white; padding: 8px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s;">Delete</button>
+        <button onclick="closeGlobalDeleteBanner()" style="background: #64748b; color: white; padding: 8px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s;">Cancel</button>
+    </div>
+</div>
 
+<div id="dashboard-container"></div>
     <div id="dashboard-container"></div>
 
     <script>
@@ -3658,21 +3669,45 @@ window.editEmployee = function(index) {
 };
 
 window.deleteEmployee = function(index) {
-    if(confirm("Delete this employee?")) {
+    // Triggers the floating red popup
+    requestDelete("Are you sure you want to remove this employee record?", () => {
+        
+        // 1. Fetch current records
+        let employeeDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+        
+        // 2. Remove specific employee
         employeeDb.splice(index, 1);
+        
+        // 3. Update storage and refresh UI
         localStorage.setItem('hr_employee_records', JSON.stringify(employeeDb));
         renderEmployeeTable();
-        window.initId();
-    }
+        
+        // 4. Reset ID sequence
+        if (typeof window.initId === 'function') {
+            window.initId();
+        }
+    });
 };
 
 window.deletePayrollComp = function(index) {
-    if(confirm("Delete this component?")) {
+    // Triggers the floating red popup
+    requestDelete("Are you sure you want to delete this payroll component?", () => {
+        
+        // 1. Fetch current payroll records
+        let payrollDb = JSON.parse(localStorage.getItem('payroll_components_records')) || [];
+        
+        // 2. Remove component using index
         payrollDb.splice(index, 1);
+        
+        // 3. Update storage and refresh UI
         localStorage.setItem('payroll_components_records', JSON.stringify(payrollDb));
         renderPayrollTable();
-        window.initPayrollId();
-    }
+        
+        // 4. Reset ID sequence
+        if (typeof window.initPayrollId === 'function') {
+            window.initPayrollId();
+        }
+    });
 };
 
 window.clearForm = function() {
@@ -3682,51 +3717,13 @@ window.clearForm = function() {
     window.initId();
 };
 
-// Database initialization
-let leadsDb = JSON.parse(localStorage.getItem('leads_records')) || [];
-let editLeadIndex = -1;
+// --- 1. Global Initialization (Place at the top of your script) ---
+window.leadsDb = JSON.parse(localStorage.getItem('leads_records')) || [];
+window.editLeadIndex = -1;
 
-// --- Initialize Lead View ---
-window.initLeads = function() {
-    const idField = document.getElementById('lead-id');
-    const assigneeField = document.getElementById('lead-assignee');
-    const custSelect = document.getElementById('lead-cust-id');
-    const bundleSelect = document.getElementById('lead-bundle-id');
-
-    // 1. Set Lead ID (LEAD-001)
-    if (idField && editLeadIndex === -1) {
-        idField.value = generateNextId(leadsDb, "LEAD");
-    }
-
-    // 2. Set Assigned To (SU-001)
-    if (assigneeField && editLeadIndex === -1) {
-        assigneeField.value = generateNextId(leadsDb, "SU", "assignee");
-    }
-
-    // 3. Populate Customers Dropdown
-    if (custSelect) {
-        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
-        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
-        customers.forEach(c => {
-            custSelect.innerHTML += `<option value="${c.id}">${c.id} - ${c.name}</option>`;
-        });
-    }
-
-    // 4. Populate Bundles Dropdown
-    if (bundleSelect) {
-        const bundles = JSON.parse(localStorage.getItem('bundle_records')) || [];
-        bundleSelect.innerHTML = '<option value="" disabled selected>Select Bundle</option>';
-        bundles.forEach(b => {
-            bundleSelect.innerHTML += `<option value="${b.id}">${b.id} - ${b.name || 'Standard Bundle'}</option>`;
-        });
-    }
-
-    // Default Date to Today
-    document.getElementById('lead-date').valueAsDate = new Date();
-};
-
-// --- Save Function ---
+// --- 2. Corrected Save Function ---
 window.saveLead = function() {
+    // Collect Data
     const leadData = {
         id: document.getElementById('lead-id').value,
         custId: document.getElementById('lead-cust-id').value,
@@ -3738,25 +3735,108 @@ window.saveLead = function() {
         status: "New"
     };
 
-    if (!leadData.custId || !leadData.bundleId) {
-        alert("Please select a Customer and a Product Bundle.");
+    // Validation
+    if (!leadData.custId || leadData.custId.includes("Select")) {
+        alert("Please select a valid Customer.");
         return;
     }
 
-    if (editLeadIndex === -1) {
-        leadsDb.push(leadData);
+    // Update the Global Array immediately
+    if (window.editLeadIndex === -1) {
+        window.leadsDb.push(leadData);
     } else {
-        leadsDb[editLeadIndex] = leadData;
-        editLeadIndex = -1;
+        window.leadsDb[window.editLeadIndex] = leadData;
+        window.editLeadIndex = -1;
     }
-    localStorage.setItem('leads_records', JSON.stringify(leadsDb));
-    renderLeadsTable();
+
+    // Save to LocalStorage using the EXACT same key as render
+    localStorage.setItem('leads_records', JSON.stringify(window.leadsDb));
     
-    // Collapse and show the Add button again
-    toggleLeadForm(false);
-    renderLeadsTable();
-    resetLeadForm();
+    // Refresh UI
+    window.renderLeadsTable();
+    window.toggleLeadForm(false);
+    if (window.initLeads) window.initLeads(); // Reset IDs for next record
 };
+
+// --- 3. Corrected Render Function ---
+window.renderLeadsTable = function() {
+    const tbody = document.getElementById('leads-table-body');
+    if (!tbody) return;
+
+    // Always pull fresh from storage to be 100% sure
+    window.leadsDb = JSON.parse(localStorage.getItem('leads_records')) || [];
+
+    if (window.leadsDb.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:#94a3b8;">No records found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = window.leadsDb.map((lead, index) => `
+        <tr>
+            <td style="font-weight:700; color:var(--sidebar-active);">${lead.id}</td>
+            <td>${lead.custId}</td>
+            <td>${lead.source}</td>
+            <td>${lead.date}</td>
+            <td>${lead.bundleId}</td>
+            <td>${lead.assignee}</td>
+            <td>${lead.followup}</td>
+            <td><span class="status-pill">${lead.status || 'New'}</span></td>
+            <td>
+                <i class="fas fa-edit" onclick="window.editLead(${index})" 
+                   style="color:var(--sidebar-active); cursor:pointer; margin-right:10px;"></i>
+                <i class="fas fa-trash" onclick="window.deleteLead(${index})" 
+                   style="color:var(--accent-red); cursor:pointer;"></i>
+            </td>
+        </tr>
+    `).join('');
+};
+// --- Updated Initialize Lead View ---
+window.initLeads = function() {
+    const idField = document.getElementById('lead-id');
+    const assigneeField = document.getElementById('lead-assignee');
+    const custSelect = document.getElementById('lead-cust-id');
+    const bundleSelect = document.getElementById('lead-bundle-id');
+
+    // 1. Always pull fresh data to ensure accurate counting after deletions
+    window.leadsDb = JSON.parse(localStorage.getItem('leads_records')) || [];
+
+    // 2. Calculate the next sequence number (e.g., 001 if empty)
+    const nextNum = (window.leadsDb.length + 1).toString().padStart(3, '0');
+
+    // 3. Set Formatted Lead ID (LEAD_XXX)
+    if (idField && window.editLeadIndex === -1) {
+        idField.value = `LEAD_${nextNum}`;
+    }
+
+    // 4. Set Formatted Assigned To (SU_XXX)
+    if (assigneeField && window.editLeadIndex === -1) {
+        assigneeField.value = `SU_${nextNum}`;
+    }
+
+    // 5. Populate Customers Dropdown
+    if (custSelect) {
+        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
+        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
+        customers.forEach(c => {
+            custSelect.innerHTML += `<option value="${c.id}">${c.id} - ${c.name}</option>`;
+        });
+    }
+
+    // 6. Populate Bundles Dropdown
+    if (bundleSelect) {
+        const bundles = JSON.parse(localStorage.getItem('bundle_records')) || [];
+        bundleSelect.innerHTML = '<option value="" disabled selected>Select Bundle</option>';
+        bundles.forEach(b => {
+            bundleSelect.innerHTML += `<option value="${b.id}">${b.id} - ${b.name || 'Standard Bundle'}</option>`;
+        });
+    }
+
+    // 7. Default Date to Today
+    const today = new Date().toISOString().split('T')[0];
+    const dateField = document.getElementById('lead-date');
+    if (dateField) dateField.value = today;
+};
+
 window.editLead = function(index) {
     // 1. Set the global index so saveLead() knows we are updating, not creating
     editLeadIndex = index;
@@ -3782,28 +3862,41 @@ window.editLead = function(index) {
     // Optional: Scroll to the top of the form for better UX
     document.getElementById('lead-form-container').scrollIntoView({ behavior: 'smooth' });
 };
-// --- Table Rendering ---
-window.renderLeadsTable = function() {
-    const tbody = document.getElementById('leads-table-body');
-    if (!tbody) return;
+// Ensure leadsDb is globally available and synced with storage
+window.leadsDb = JSON.parse(localStorage.getItem('leads_records')) || [];
 
-    tbody.innerHTML = leadsDb.map((lead, index) => `
-        <tr>
-            <td style="font-weight:700; color:var(--sidebar-active);">${lead.id}</td>
-            <td>${lead.custId}</td>
-            <td>${lead.source}</td>
-            <td>${lead.date}</td>
-            <td>${lead.bundleId}</td>
-            <td>${lead.assignee}</td>
-            <td>${lead.followup}</td>
-            <td><span class="status-pill">${lead.status}</span></td>
-            <td>
-                <i class="fas fa-edit" onclick="editLead(${index})" style="color:var(--sidebar-active); cursor:pointer; margin-right:10px;"></i>
-                <i class="fas fa-trash" onclick="deleteLead(${index})" style="color:var(--accent-red); cursor:pointer;"></i>
-            </td>
-        </tr>
-    `).join('');
+// Initial render call when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    window.renderLeadsTable();
+});
+window.deleteLead = function(index) {
+    // Triggers the floating red popup banner
+    requestDelete("Are you sure you want to delete this lead?", () => {
+        
+        // 1. Fetch latest data from storage
+        let db = JSON.parse(localStorage.getItem('leads_records')) || [];
+        
+        // 2. Remove the specific lead using the index
+        db.splice(index, 1);
+        
+        // 3. Sync the updated array back to localStorage
+        localStorage.setItem('leads_records', JSON.stringify(db));
+
+        // 4. Update the global leadsDb variable so the table sees the change
+        window.leadsDb = db;
+        
+        // 5. Refresh the UI table
+        if (typeof window.renderLeadsTable === 'function') {
+            window.renderLeadsTable();
+        }
+
+        // 6. Recalculate next ID to keep the sequence accurate
+        if (typeof window.initLeadId === 'function') {
+            window.initLeadId();
+        }
+    });
 };
+
 window.toggleLeadForm = function(show) {
     const form = document.getElementById('lead-form-container');
     const btnContainer = document.getElementById('add-lead-btn-container');
@@ -3829,7 +3922,7 @@ document.getElementById('lead-save-btn').innerText = "Save Lead";
     document.querySelectorAll('#lead-form-container input:not([readonly]), #lead-form-container select').forEach(i => i.value = "");
 };
 // --- 1. Consolidated Auto-Login and View Fix ---
-/*
+
 window.onload = function() {
     const deptSelect = document.getElementById('dept-select');
     const passwordInput = document.getElementById('password-input');
@@ -3842,7 +3935,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     }
-}; */
+}; 
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -4008,27 +4101,47 @@ window.editSalaryStructure = function(index) {
     if (saveBtn) saveBtn.innerText = "Update Assignment";
 };
 window.deleteSalaryStruct = function(index) {
-    if(confirm("Delete this assignment?")) {
+    // Triggers the floating red popup banner
+    requestDelete("Are you sure you want to delete this assignment?", () => {
+        
+        // 1. Fetch latest data
+        let salaryStructDb = JSON.parse(localStorage.getItem('salary_structures_records')) || [];
+        
+        // 2. Remove specific structure using index
         salaryStructDb.splice(index, 1);
+        
+        // 3. Update storage and refresh table
         localStorage.setItem('salary_structures_records', JSON.stringify(salaryStructDb));
         renderSalaryStructTable();
-        window.initSalaryStruct();
-    }
+        
+        // 4. Recalculate ID sequence
+        if (typeof window.initSalaryStruct === 'function') {
+            window.initSalaryStruct();
+        }
+    });
 };
 
-
-// --- 1. THE DELETE FUNCTION (PRESERVED) ---
 window.deletePayrollEntry = function(index) {
-    if(confirm("Delete this payroll batch?")) {
-        // Remove from database
+    // Triggers the floating red popup banner
+    requestDelete("Are you sure you want to delete this payroll batch?", () => {
+        
+        // 1. Fetch latest data
+        let payrollEntryDb = JSON.parse(localStorage.getItem('payroll_entry_records')) || [];
+        
+        // 2. Remove batch from database
         payrollEntryDb.splice(index, 1);
-        // Sync with LocalStorage
+        
+        // 3. Sync with LocalStorage
         localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
-        // Refresh the table display
+        
+        // 4. Refresh the history table
         renderPayrollHistoryTable();
-        // Crucial: Recalculate the next PR-2026-XXX ID
-        window.initPayrollEntry();
-    }
+        
+        // 5. Recalculate the next PR ID (e.g., PR-2026-XXX)
+        if (typeof window.initPayrollEntry === 'function') {
+            window.initPayrollEntry();
+        }
+    });
 };
 
 window.savePayrollEntry = function() {
@@ -4254,11 +4367,23 @@ window.editJV = function(index) {
 };
 
 window.deleteJV = function(index) {
-    if(confirm("Are you sure you want to delete this Journal Entry?")) {
+    // Triggers the floating red popup instead of the window.confirm alert
+    requestDelete("Are you sure you want to delete this Journal Entry?", () => {
+        
+        // 1. Fetch the current records from storage
+        let journalEntriesDb = JSON.parse(localStorage.getItem('journal_entries_records')) || [];
+        
+        // 2. Remove the specific entry using the index
         journalEntriesDb.splice(index, 1);
+        
+        // 3. Save the updated array back to localStorage
         localStorage.setItem('journal_entries_records', JSON.stringify(journalEntriesDb));
-        renderJVTable();
-    }
+        
+        // 4. Refresh the Journal Voucher table UI
+        if (typeof renderJVTable === 'function') {
+            renderJVTable();
+        }
+    });
 };
 
 // 1. INITIALIZE EXPENSE ID & DROPDOWN
@@ -4349,12 +4474,28 @@ window.editExpense = function(index) {
 };
 
 window.deleteExpense = function(index) {
-    if(confirm("Are you sure you want to delete this expense claim?")) {
+    // Triggers the red floating popup instead of the browser alert
+    requestDelete("Are you sure you want to delete this expense claim?", () => {
+        
+        // 1. Fetch the latest expense data from local storage
+        let expenseClaimsDb = JSON.parse(localStorage.getItem('expense_claims_records')) || [];
+        
+        // 2. Remove the specific claim using the index
         expenseClaimsDb.splice(index, 1);
+        
+        // 3. Save the updated list back to storage
         localStorage.setItem('expense_claims_records', JSON.stringify(expenseClaimsDb));
-        renderExpenseTable();
-        window.initExpenseClaim();
-    }
+        
+        // 4. Refresh the table UI to show the change
+        if (typeof renderExpenseTable === 'function') {
+            renderExpenseTable();
+        }
+        
+        // 5. Reset or update the ID auto-increment
+        if (typeof window.initExpenseClaim === 'function') {
+            window.initExpenseClaim();
+        }
+    });
 };
 
 // 1. INITIALIZE CRM ID (Triggered when entering the CRM view)
@@ -4500,12 +4641,28 @@ window.editCustomer = function(index) {
 };
 
 window.deleteCustomer = function(index) {
-    if (confirm("Are you sure you want to delete this customer record?")) {
+    // Triggers the floating red popup banner instead of the browser alert
+    requestDelete("Are you sure you want to delete this customer record?", () => {
+        
+        // 1. Fetch the latest CRM data
+        let crmDb = JSON.parse(localStorage.getItem('crm_records')) || [];
+        
+        // 2. Remove the specific customer from the array
         crmDb.splice(index, 1);
+        
+        // 3. Save the updated database to localStorage
         localStorage.setItem('crm_records', JSON.stringify(crmDb));
-        renderCrmTable();
-        window.initCrm(); // Recalculate next ID in case the "last" one was deleted
-    }
+        
+        // 4. Refresh the CRM table UI
+        if (typeof renderCrmTable === 'function') {
+            renderCrmTable();
+        }
+        
+        // 5. Recalculate the next ID to keep the sequence accurate
+        if (typeof window.initCrm === 'function') {
+            window.initCrm();
+        }
+    });
 };
 
 // Helper to specifically increment the SU-001 pattern
@@ -4601,8 +4758,7 @@ window.renderBundleGrid = function() {
         </div>`;
     }).join('');
 };
-
-// 3. SAVE ACTION
+// 3. UPDATED SAVE ACTION
 window.saveBundle = function() {
     const bundleData = {
         id: document.getElementById('bundle-id').value,
@@ -4614,26 +4770,32 @@ window.saveBundle = function() {
 
     if (!bundleData.prodId || !bundleData.name) return alert("Please fill in all fields.");
 
-    if (editBundleIndex === -1) {
+    // Sync from storage first to prevent data loss
+    let bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
+
+    if (window.editBundleIndex === -1) {
         bundleDb.push(bundleData);
     } else {
-        bundleDb[editBundleIndex] = bundleData;
-        editBundleIndex = -1;
+        bundleDb[window.editBundleIndex] = bundleData;
+        window.editBundleIndex = -1;
     }
-    // After successful save:
+
+    // Update LocalStorage
     localStorage.setItem('bundle_records', JSON.stringify(bundleDb));
-    renderBundleGrid();
     
-    // Collapse the form and show the "Create" button again
-    toggleBundleForm(false);
-    renderBundleGrid();
+    // CRUCIAL: Update the global variable used by the grid
+    window.bundleDb = bundleDb;
+    
+    // Refresh UI immediately
+    window.renderBundleGrid();
+    window.toggleBundleForm(false);
     
     // Reset inputs
     ["bundle-name", "bundle-prod-id", "bundle-qty", "bundle-price"].forEach(id => {
-        document.getElementById(id).value = id === "bundle-qty" ? "1" : "";
+        const el = document.getElementById(id);
+        if (el) el.value = id === "bundle-qty" ? "1" : "";
     });
 };
-
 // 4. EDIT & DELETE
 window.editBundle = function(index) {
     const bundle = bundleDb[index];
@@ -4648,12 +4810,29 @@ window.editBundle = function(index) {
     document.getElementById('bundle-price').value = bundle.price;
 };
 
+// 4. NEW DELETE ACTION
 window.deleteBundle = function(index) {
-    if(confirm("Permanently remove this bundle?")) {
+    // Triggers your custom floating red banner
+    requestDelete("Are you sure you want to delete this bundle?", () => {
+        
+        // 1. Fetch latest data
+        let bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
+        
+        // 2. Remove item
         bundleDb.splice(index, 1);
+        
+        // 3. Sync storage
         localStorage.setItem('bundle_records', JSON.stringify(bundleDb));
-        renderBundleGrid();
-    }
+        
+        // 4. Update global reference to trigger reactive refresh
+        window.bundleDb = bundleDb;
+        
+        // 5. Re-render the grid
+        window.renderBundleGrid();
+        
+        // 6. Reset ID sequence if necessary
+        if (typeof window.initBundleId === 'function') window.initBundleId();
+    });
 };
 
 let productDb = JSON.parse(localStorage.getItem('product_records')) || [];
@@ -4677,20 +4856,28 @@ window.toggleProductForm = function() {
     const form = document.getElementById('product-form-container');
     const addBtn = document.getElementById('add-prod-btn');
 
-    if (form.style.display === 'none') {
+    if (!form || !addBtn) return;
+
+    if (form.style.display === 'none' || form.style.display === '') {
         // EXPAND: Show form, hide the + Add Product button
         form.style.display = 'block';
         addBtn.style.display = 'none';
         
-        // Only generate a new ID if we aren't editing
-        if (editProductIndex === -1) {
-            window.initProd(); 
+        // Only generate a new ID if we aren't currently editing a product
+        if (window.editProductIndex === -1) {
+            if (typeof window.initProd === 'function') {
+                window.initProd(); 
+            }
         }
     } else {
         // COLLAPSE: Hide form, show the + Add Product button
         form.style.display = 'none';
         addBtn.style.display = 'block';
-        resetProductForm();
+        
+        // Ensure form fields are cleared when closing
+        if (typeof window.resetProductForm === 'function') {
+            window.resetProductForm();
+        }
     }
 };
 
@@ -4751,16 +4938,22 @@ window.renderProductTable = function() {
     const tbody = document.getElementById('product-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = productDb.map((p, index) => `
+    // Use window.productDb to ensure the table stays in sync with LocalStorage updates
+    const db = window.productDb || JSON.parse(localStorage.getItem('product_records')) || [];
+
+    tbody.innerHTML = db.map((p, index) => `
         <tr>
             <td style="font-weight:700; color:var(--sidebar-active);">${p.id}</td>
             <td><strong>${p.name}</strong></td>
             <td>${p.category}</td>
-            <td>₱${parseFloat(p.price).toLocaleString()}</td>
+            <td>₱${parseFloat(p.price || 0).toLocaleString()}</td>
             <td><span class="status-pill">Active</span></td>
             <td>
-                <i class="fas fa-edit" onclick="editProduct(${index})" style="color:var(--sidebar-active); cursor:pointer; margin-right:12px;"></i>
-                <i class="fas fa-trash" onclick="deleteProduct(${index})" style="color:var(--accent-red); cursor:pointer;"></i>
+                <i class="fas fa-edit" onclick="editProduct(${index})" 
+                   style="color:var(--sidebar-active); cursor:pointer; margin-right:12px;"></i>
+                
+                <i class="fas fa-trash" onclick="deleteProduct(${index})" 
+                   style="color:var(--accent-red); cursor:pointer;"></i>
             </td>
         </tr>
     `).join('');
@@ -4780,13 +4973,25 @@ window.editProduct = function(index) {
     document.getElementById('prod-price').value = p.price;
 };
 
-// --- Delete Action ---
 window.deleteProduct = function(index) {
-    if (confirm("Are you sure you want to delete this product?")) {
-        productDb.splice(index, 1);
-        localStorage.setItem('product_records', JSON.stringify(productDb));
-        renderProductTable();
-    }
+    requestDelete("Are you sure you want to delete this product?", () => {
+        // 1. Fetch from the specific 'product_records' key
+        let db = JSON.parse(localStorage.getItem('product_records')) || [];
+        
+        // 2. Remove the item at the specific index
+        db.splice(index, 1);
+        
+        // 3. Update LocalStorage
+        localStorage.setItem('product_records', JSON.stringify(db));
+        
+        // 4. Update the global variable so the table is in sync
+        window.productDb = db;
+        
+        // 5. Refresh the UI table
+        if (typeof window.renderProductTable === 'function') {
+            window.renderProductTable();
+        }
+    });
 };
 
 let oppDb = JSON.parse(localStorage.getItem('opportunity_records')) || [];
@@ -4805,102 +5010,92 @@ window.calculateProbability = function() {
     else probField.value = "0%";
 };
 
-// --- Toggle Form Logic ---
+// --- Updated Toggle Form Logic ---
 window.toggleOppForm = function(show) {
     const form = document.getElementById('opp-form-container');
-    const btn = document.getElementById('add-opp-btn-container');
+    const btnContainer = document.getElementById('add-opp-btn-container');
 
     if (show) {
-        form.style.display = 'block';
-        btn.style.display = 'none';
-        if (editOppIndex === -1) initOppID();
+        // 1. Show the form container
+        if (form) form.style.display = 'block';
+        if (btnContainer) btnContainer.style.display = 'none';
+        
+        // 2. Refresh edit index and generate fresh ID
+        if (window.editOppIndex === undefined) window.editOppIndex = -1;
+        
+        if (window.editOppIndex === -1) {
+            window.initOpp(); // Triggers the ID generation immediately
+        }
     } else {
-        form.style.display = 'none';
-        btn.style.display = 'flex';
-        resetOppForm();
+        // 3. Hide and Reset
+        if (form) form.style.display = 'none';
+        if (btnContainer) btnContainer.style.display = 'flex';
+        window.editOppIndex = -1; // Reset edit state
+        if (typeof resetOppForm === 'function') resetOppForm();
     }
 };
+// --- Final Opportunity Initialization (Visibility Fix) ---
 window.initOpp = function() {
     const idField = document.getElementById('opp-id');
     const leadSelect = document.getElementById('opp-lead-id');
     const custSelect = document.getElementById('opp-cust-id');
     const suSelect = document.getElementById('opp-assignee');
 
-    // 1. Set Opportunity ID (Incrementing OPP-001, OPP-002...)
-    if (idField && editOppIndex === -1) {
-        // Fetch fresh data from storage to calculate the next ID
-        const oppsDb = JSON.parse(localStorage.getItem('opportunity_records')) || [];
+    // Always fetch fresh data to calculate IDs
+    const currentOpps = JSON.parse(localStorage.getItem('opportunity_records')) || [];
+
+    // 1. Set Opportunity ID (Recalculating OPP_XXX)
+    if (idField && window.editOppIndex === -1) {
+        // Calculate based on current length + 1
+        const nextNum = (currentOpps.length + 1).toString().padStart(3, '0');
+        const nextId = `OPP_${nextNum}`;
         
-        let lastNum = 0;
-        if (oppsDb.length > 0) {
-            // Extract the numerical part from all existing IDs using the dash as a separator
-            const nums = oppsDb.map(o => {
-                const parts = o.id.split('-');
-                return parts.length > 1 ? parseInt(parts[1]) : 0;
-            });
-            // Find the highest number currently in the database
-            lastNum = Math.max(...nums);
-        }
-        
-        // Assign the next incremented ID with 3-digit padding
-        idField.value = `OPP-${String(lastNum + 1).padStart(3, '0')}`;
+        // Force value assignment to fix blank display
+        idField.value = nextId; 
+        console.log("Generated ID:", nextId); // Debugging check
     }
 
-    // 2. Populate Leads (LEAD-001 format)
+    // 2. Populate Leads
     if (leadSelect) {
         const leads = JSON.parse(localStorage.getItem('leads_records')) || [];
         leadSelect.innerHTML = '<option value="" disabled selected>Select Lead</option>';
         leads.forEach(l => {
-            const numeric = l.id.toString().replace(/\D/g, '');
-            const formattedId = `LEAD-${numeric.padStart(3, '0')}`;
-            leadSelect.innerHTML += `<option value="${formattedId}">${formattedId}</option>`;
+            leadSelect.innerHTML += `<option value="${l.id}">${l.id}</option>`;
         });
     }
 
-    // 3. Populate Customers (CUST-001 format) - PULLING FROM crm_records
+    // 3. Populate Customers
     if (custSelect) {
         const customers = JSON.parse(localStorage.getItem('crm_records')) || []; 
         custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
         customers.forEach(c => {
-            const numeric = c.id.toString().replace(/\D/g, '');
-            const formattedId = `CUST-${numeric.padStart(3, '0')}`;
-            // Value is JUST the ID for clean storage/matching
-            custSelect.innerHTML += `<option value="${formattedId}">${formattedId} - ${c.name}</option>`;
+            custSelect.innerHTML += `<option value="${c.id}">${c.id} - ${c.name}</option>`;
         });
     }
 
-    // 4. Populate Sales Reps (SU-001 format)
+    // 4. Populate Sales Reps
     if (suSelect) {
         const leads = JSON.parse(localStorage.getItem('leads_records')) || [];
         suSelect.innerHTML = '<option value="" disabled selected>Select Sales Rep</option>';
-        
-        const uniqueSUs = new Set();
-        leads.forEach(l => {
-            if (l.assignee) {
-                const numeric = l.assignee.toString().replace(/\D/g, '');
-                uniqueSUs.add(`SU-${numeric.padStart(3, '0')}`);
-            }
-        });
-
+        const uniqueSUs = [...new Set(leads.map(l => l.assignee))].filter(Boolean);
         uniqueSUs.forEach(su => {
             suSelect.innerHTML += `<option value="${su}">${su}</option>`;
         });
     }
 };
-
 window.saveOpportunity = function() {
     const leadVal = document.getElementById('opp-lead-id').value;
     const custVal = document.getElementById('opp-cust-id').value;
     const suVal = document.getElementById('opp-assignee').value;
 
-    // Strict validation against the formatted strings
-    if (!leadVal || !custVal || !suVal) {
-        alert("Please select a Lead, Customer, and Assigned Sales Rep.");
+    // Strict validation against the placeholder or empty values
+    if (!leadVal || leadVal.includes("Select") || !custVal || custVal.includes("Select")) {
+        alert("Please select a Lead and a Customer.");
         return;
     }
 
     const newRecord = {
-        id: document.getElementById('opp-id').value, // This is already formatted by initOpp
+        id: document.getElementById('opp-id').value, 
         leadId: leadVal,
         custId: custVal,
         assignee: suVal,
@@ -4911,17 +5106,29 @@ window.saveOpportunity = function() {
         dateCreated: new Date().toLocaleDateString()
     };
 
+    // 1. Always pull the latest array to avoid overwriting
     let db = JSON.parse(localStorage.getItem('opportunity_records')) || [];
-    if (editOppIndex === -1) {
+    
+    // 2. Add or update based on the global edit index
+    if (window.editOppIndex === -1) {
         db.push(newRecord);
     } else {
-        db[editOppIndex] = newRecord;
-        editOppIndex = -1;
+        db[window.editOppIndex] = newRecord;
+        window.editOppIndex = -1; // Reset global edit state
     }
 
+    // 3. Sync storage and memory
     localStorage.setItem('opportunity_records', JSON.stringify(db));
+    window.oppDb = db; 
+
+    // 4. Refresh UI immediately
     window.renderOppTable(); 
     window.toggleOppForm(false);
+    
+    // 5. CRUCIAL: Recalculate IDs for the next fresh form
+    if (typeof window.initOpp === 'function') {
+        window.initOpp();
+    }
 };
 
 // --- Edit & Delete ---
@@ -4940,11 +5147,29 @@ window.editOpp = function(index) {
 };
 
 window.deleteOpp = function(index) {
-    if (confirm("Delete this opportunity?")) {
+    // Triggers the floating red popup banner instead of the browser alert
+    requestDelete("Are you sure you want to delete this opportunity?", () => {
+        
+        // 1. Fetch the latest data from storage
+        let oppDb = JSON.parse(localStorage.getItem('opportunity_records')) || [];
+        
+        // 2. Remove the specific opportunity using the index
         oppDb.splice(index, 1);
+        
+        // 3. Sync the updated array back to localStorage
         localStorage.setItem('opportunity_records', JSON.stringify(oppDb));
-        renderOppTable();
-    }
+        
+        // 4. Refresh the Opportunity table UI
+        if (typeof renderOppTable === 'function') {
+            renderOppTable();
+        }
+
+        // 5. CRUCIAL: Immediately refresh the form ID (e.g., reset to OPP_002)
+        // This ensures the next "Add" starts with the correct sequential ID
+        if (typeof window.initOpp === 'function') {
+            window.initOpp();
+        }
+    });
 };
 // --- PLACE THIS AT THE BOTTOM OF YOUR SCRIPT ---
 document.addEventListener('change', function(e) {
@@ -5143,14 +5368,30 @@ window.editMatReq = function(index) {
     if (saveBtn) saveBtn.innerText = "Update Request";
 };
 
-// 7. Delete Action
+// 7. Updated Delete Action using Global Popup
 window.deleteMatReq = function(index) {
-    if (confirm("Are you sure you want to delete this material request?")) {
+    // Triggers the floating red popup banner instead of the browser alert
+    requestDelete("Are you sure you want to delete this material request?", () => {
+        
+        // 1. Fetch the latest material request data from storage
+        let matReqDb = JSON.parse(localStorage.getItem('mat_req_records')) || [];
+        
+        // 2. Remove the specific request using the index
         matReqDb.splice(index, 1);
+        
+        // 3. Sync the updated array back to localStorage
         localStorage.setItem('mat_req_records', JSON.stringify(matReqDb));
-        window.renderMatReqTable();
-        window.initMatReq(); // Recalculates next ID
-    }
+        
+        // 4. Refresh the table UI
+        if (typeof window.renderMatReqTable === 'function') {
+            window.renderMatReqTable();
+        }
+        
+        // 5. Recalculate next ID to keep the sequence accurate
+        if (typeof window.initMatReq === 'function') {
+            window.initMatReq();
+        }
+    });
 };
 // --- 1. State Management ---
 window.editSuppIndex = -1;
@@ -5297,16 +5538,23 @@ window.renderSupplierTable = function() {
     `).join('');
 };
 window.deleteSupplier = function(index) {
-    if (confirm("Are you sure you want to delete this supplier?")) {
-        // 1. Remove from the local array
+    // Triggers the floating red popup banner instead of window.confirm
+    requestDelete("Are you sure you want to delete this supplier?", () => {
+        
+        // 1. Fetch the latest data from storage
+        let supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
+        
+        // 2. Remove the supplier from the local array
         supplierDb.splice(index, 1);
         
-        // 2. Sync with localStorage
+        // 3. Sync the updated records with localStorage
         localStorage.setItem('supplier_records', JSON.stringify(supplierDb));
         
-        // 3. Re-run initialization to refresh the table and ID sequence
-        window.initSupplier();
-    }
+        // 4. Re-run initialization to refresh the table and ID sequence
+        if (typeof window.initSupplier === 'function') {
+            window.initSupplier();
+        }
+    });
 };
 
 window.itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
@@ -5417,11 +5665,23 @@ window.editItem = function(index) {
     document.getElementById('itm-cost').value = item.cost;
 };
 window.deleteItem = function(index) {
-    if (confirm("Delete this item?")) {
-        window.itemsDb.splice(index, 1);
-        localStorage.setItem('items_records', JSON.stringify(window.itemsDb));
-        window.renderItemsTable();
-    }
+    // Triggers the floating red popup banner instead of window.confirm
+    requestDelete("Are you sure you want to delete this item?", () => {
+        
+        // 1. Fetch latest data from storage to ensure accuracy
+        let itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
+        
+        // 2. Remove the specific item using the index
+        itemsDb.splice(index, 1);
+        
+        // 3. Sync the updated array back to localStorage
+        localStorage.setItem('items_records', JSON.stringify(itemsDb));
+        
+        // 4. Refresh the items table UI immediately
+        if (typeof window.renderItemsTable === 'function') {
+            window.renderItemsTable();
+        }
+    });
 };
 window.warehouseDb = JSON.parse(localStorage.getItem('warehouse_records')) || [];
 window.editWhIndex = -1;
@@ -5526,11 +5786,23 @@ window.editWarehouse = function(index) {
 };
 
 window.deleteWarehouse = function(index) {
-    if (confirm("Delete this warehouse?")) {
-        window.warehouseDb.splice(index, 1);
-        localStorage.setItem('warehouse_records', JSON.stringify(window.warehouseDb));
-        window.renderWhTable();
-    }
+    // Triggers the floating red popup banner instead of window.confirm
+    requestDelete("Are you sure you want to delete this warehouse?", () => {
+        
+        // 1. Fetch latest data from storage to stay synced
+        let warehouseDb = JSON.parse(localStorage.getItem('warehouse_records')) || [];
+        
+        // 2. Remove the specific warehouse using the index
+        warehouseDb.splice(index, 1);
+        
+        // 3. Sync the updated array back to localStorage
+        localStorage.setItem('warehouse_records', JSON.stringify(warehouseDb));
+        
+        // 4. Refresh the warehouse table UI
+        if (typeof window.renderWhTable === 'function') {
+            window.renderWhTable();
+        }
+    });
 };
 window.stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
 
@@ -5742,13 +6014,24 @@ window.editReceipt = function(index) {
     document.getElementById('pr-date').value = pr.date;
     document.getElementById('pr-warehouse-dropdown').value = pr.warehouse;
 };
-
 window.deleteReceipt = function(index) {
-    if (confirm("Are you sure you want to delete this receipt?")) {
-        window.prDb.splice(index, 1);
-        localStorage.setItem('pr_records', JSON.stringify(window.prDb));
-        window.renderPrTable();
-    }
+    // Triggers the floating red popup banner instead of window.confirm
+    requestDelete("Are you sure you want to delete this receipt?", () => {
+        
+        // 1. Fetch latest data from storage to ensure we are synced
+        let prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
+        
+        // 2. Remove the specific receipt using the index
+        prDb.splice(index, 1);
+        
+        // 3. Sync the updated array back to localStorage
+        localStorage.setItem('pr_records', JSON.stringify(prDb));
+        
+        // 4. Refresh the Purchase Receipt table UI immediately
+        if (typeof window.renderPrTable === 'function') {
+            window.renderPrTable();
+        }
+    });
 };
 window.dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
 window.editDnIndex = -1;
@@ -5874,11 +6157,23 @@ window.editDeliveryNote = function(index) {
 };
 
 window.deleteDeliveryNote = function(index) {
-    if (confirm("Delete this delivery note?")) {
-        window.dnDb.splice(index, 1);
-        localStorage.setItem('dn_records', JSON.stringify(window.dnDb));
-        window.renderDnTable();
-    }
+    // Triggers the floating red popup banner instead of window.confirm
+    requestDelete("Are you sure you want to delete this delivery note?", () => {
+        
+        // 1. Fetch latest data from storage
+        let dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
+        
+        // 2. Remove the specific note using the index
+        dnDb.splice(index, 1);
+        
+        // 3. Sync the updated array back to localStorage
+        localStorage.setItem('dn_records', JSON.stringify(dnDb));
+        
+        // 4. Refresh the Delivery Note table UI
+        if (typeof window.renderDnTable === 'function') {
+            window.renderDnTable();
+        }
+    });
 };
 
 // --- Global storage for the selected product's CRM data ---
@@ -5964,45 +6259,23 @@ window.saveSellingItem = function() {
     document.getElementById('selling-prod-form').style.display = 'none';
     window.renderSellingProductTable();
 };
-let indexToDelete = -1;
 
 window.deleteSellingItem = function(index) {
-    // 1. Store the index of the item we want to delete
-    indexToDelete = index;
-    
-    // 2. Show the confirmation banner
-    const banner = document.getElementById('delete-confirm-banner');
-    if (banner) {
-        banner.style.display = 'flex';
+    // We pass the index directly into the callback scope
+    requestDelete("Are you sure you want to delete this item?", () => {
         
-        // Setup the "Confirm" button to trigger the actual removal
-        document.getElementById('confirm-delete-btn').onclick = function() {
-            executeFinalDelete();
-        };
-    }
+        // This code executes only when the Global Banner's 'Delete' is clicked
+        let sellingDb = JSON.parse(localStorage.getItem('selling_items')) || [];
+        
+        // Remove the specific item
+        sellingDb.splice(index, 1);
+        
+        // Save and refresh
+        localStorage.setItem('selling_items', JSON.stringify(sellingDb));
+        window.renderSellingProductTable(); 
+    });
 };
 
-window.executeFinalDelete = function() {
-    if (indexToDelete === -1) return;
-
-    let sellingDb = JSON.parse(localStorage.getItem('selling_items')) || [];
-    
-    // Remove the item from local storage
-    sellingDb.splice(indexToDelete, 1);
-    localStorage.setItem('selling_items', JSON.stringify(sellingDb));
-    
-    // Refresh table and hide banner
-    window.renderSellingProductTable();
-    hideDeleteBanner();
-    
-    // Optional: Reset the index
-    indexToDelete = -1;
-};
-
-window.hideDeleteBanner = function() {
-    const banner = document.getElementById('delete-confirm-banner');
-    if (banner) banner.style.display = 'none';
-};
 window.handleProductSelection = function() {
     const select = document.getElementById('selling-prod-select');
     const selectedOption = select.options[select.selectedIndex];
@@ -6046,6 +6319,47 @@ window.renderSellingProductTable = function() {
             </td>
         </tr>
     `).join('');
+};
+window.requestDelete = function(message, callback) {
+    const banner = document.getElementById('global-delete-banner');
+    const messageSpan = document.getElementById('delete-message');
+    const confirmBtn = document.getElementById('global-confirm-delete-btn');
+
+    if (banner && messageSpan && confirmBtn) {
+        // 1. Set the custom warning message
+        messageSpan.textContent = message;
+        
+        // 2. Show the floating red banner
+        banner.style.display = 'flex'; 
+        
+        // 3. Clear any existing logic and assign the new deletion task
+        confirmBtn.onclick = function() {
+            // Execute the deletion logic (splice, localStorage, render)
+            if (typeof callback === 'function') {
+                callback(); 
+            }
+            
+            // 4. Close the banner automatically after confirmation
+            closeGlobalDeleteBanner();
+        };
+    }
+};
+
+window.closeGlobalDeleteBanner = function() {
+    const banner = document.getElementById('global-delete-banner');
+    if (banner) {
+        // Hide the banner and reset the display state
+        banner.style.display = 'none';
+    }
+};
+
+window.deleteSellingItem = function(index) {
+    requestDelete("Are you sure you want to delete this item?", () => {
+        let db = JSON.parse(localStorage.getItem('selling_items')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('selling_items', JSON.stringify(db));
+        window.renderSellingProductTable();
+    });
 };
 // Helper to force standardized dash format
 const toDashFormat = (prefix, id) => {
