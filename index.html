@@ -159,6 +159,7 @@
         .btn-group { margin-top: 30px; display: flex; gap: 15px; }
         .text-btn { background: none; border: none; color: var(--sidebar-active); font-weight: 600; cursor: pointer; padding: 0; font-size: 0.9rem; }
         /* Apply the animation to both Product and Bundle form containers */
+
 #opp-form-container,
 #product-form-container, 
 #bundle-form-container,
@@ -166,7 +167,8 @@
 #crm-form-container,
 #sup-form-container,
 #mat-req-form-container,
-#item-form-container { /* Added Material Request container for consistent animation */
+#item-form-container,
+#maint-form-container { /* Added Material Request container for consistent animation */
     animation: slideDown 0.3s ease-out;
 }
 
@@ -1610,82 +1612,91 @@ const buyingDashboardHTML = `
         <h1>Sales Orders</h1>
         <p>Manage and track customer purchase commitments.</p>
     </div>
+
+    <div id="so-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
+        <h3 id="so-form-title">New Sales Order</h3>
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="input-box">
+                <label>Sales Order ID</label>
+                <input type="text" id="so-id" readonly style="background: #f1f5f9; cursor: not-allowed;">
+            </div>
+            <div class="input-box">
+                <label>Customer ID</label>
+                <select id="so-cust-id">
+                    <option value="" disabled selected>Select Customer</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label>Select Product</label>
+                <select id="so-product-id" onchange="syncProductData()">
+                    <option value="" disabled selected>Select Item from Inventory</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label>Unit Price (₱)</label>
+                <input type="number" id="so-price" readonly style="background: #f1f5f9;">
+            </div>
+            <div class="input-box">
+                <label>Quantity</label>
+                <input type="number" id="so-qty" value="1" min="1" oninput="calculateSOTotal()">
+            </div>
+            <div class="input-box">
+                <label>Assigned User ID</label>
+                <select id="so-su-id">
+                    <option value="" disabled selected>Select Sales Rep</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label>Shipping Address</label>
+                <select id="so-address">
+                    <option value="" disabled selected>Select Address</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label>Order Date</label>
+                <input type="date" id="so-date">
+            </div>
+            <div class="input-box">
+                <label>Total Amount (₱)</label>
+                <input type="text" id="so-total-display" readonly style="background: #f1f5f9; font-weight: bold;">
+            </div>
+        </div>
+        
+        <div class="btn-group" style="margin-top: 15px; display: flex; gap: 10px;">
+            <button class="login-btn" onclick="saveSalesOrder()" style="width: auto; padding: 10px 24px;">Save Order</button>
+            <button class="login-btn" onclick="toggleSOForm(false)" style="width: auto; padding: 10px 24px; background: #64748b;">Cancel</button>
+        </div>
+    </div>
+
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div class="search-container">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search Sales Orders...">
+                <input type="text" placeholder="Search Sales Orders..." id="so-search">
             </div>
-            <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
-                <i class="fas fa-plus"></i> New Sales Order
-            </button>
+            <div id="add-so-btn-container">
+                <button class="text-btn" onclick="toggleSOForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
+                    <i class="fas fa-plus"></i> New Sales Order
+                </button>
+            </div>
         </div>
         <table>
-            <thead>
-                <tr>
-                    <th>SALES ORDER ID</th>
-                    <th>QUOTATION ID</th>
-                    <th>CUSTOMER ID</th>
-                    <th>ASSIGNED USER ID</th>
-                    <th>ORDER DATE</th>
-                    <th>REQUIRED DATE</th>
-                    <th>SHIPPING ADDRESS</th>
-                    <th>PAYMENT TERMS ID</th>
-                    <th>SUBTOTAL</th>
-                    <th>DISCOUNT</th>
-                    <th>TAX</th>
-                    <th>TOTAL</th>
-                    <th>STATUS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>SO0001</strong></td>
-                    <td>QUO0001</td>
-                    <td>CUST001</td>
-                    <td>SU002</td>
-                    <td>2025-01-10</td>
-                    <td>2025-01-29</td>
-                    <td>City</td>
-                    <td>TERM001</td>
-                    <td>311.00</td>
-                    <td>0.00</td>
-                    <td>37.32</td>
-                    <td><strong>348.32</strong></td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Confirmed</span></td>
-                </tr>
-                <tr>
-                    <td><strong>SO0002</strong></td>
-                    <td>QUO0002</td>
-                    <td>CUST002</td>
-                    <td>SU003</td>
-                    <td>2025-01-08</td>
-                    <td>2025-01-28</td>
-                    <td>City</td>
-                    <td>TERM002</td>
-                    <td>204.00</td>
-                    <td>10.20</td>
-                    <td>23.26</td>
-                    <td><strong>217.06</strong></td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Confirmed</span></td>
-                </tr>
-                <tr>
-                    <td><strong>SO0003</strong></td>
-                    <td>QUO0003</td>
-                    <td>CUST003</td>
-                    <td>SU004</td>
-                    <td>2025-01-05</td>
-                    <td>2025-01-12</td>
-                    <td>City</td>
-                    <td>TERM003</td>
-                    <td>1,107.00</td>
-                    <td>55.35</td>
-                    <td>126.20</td>
-                    <td><strong>1,177.85</strong></td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Confirmed</span></td>
-                </tr>
-            </tbody>
-        </table>
+    <thead>
+        <tr>
+            <th>SALES ORDER ID</th>
+            <th>CUSTOMER ID</th>
+            <th>PRODUCT NAME/ID</th> 
+            <th>QUANTITY</th>
+            <th>ASSIGNED USER ID</th>
+            <th>ORDER DATE</th>
+            <th>SHIPPING ADDRESS</th>
+            <th>TOTAL</th>
+            <th>STATUS</th>
+            <th>ACTIONS</th>
+        </tr>
+    </thead>
+    <tbody id="so-table-body"></tbody>
+</table>
     </div>
 </div>
 <div id="invoices-view" style="display:none;">
@@ -1693,13 +1704,83 @@ const buyingDashboardHTML = `
         <h1>Invoices & Official Receipts</h1>
         <p>Review billing history and verified payment entries.</p>
     </div>
+
+    <div id="invoice-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
+        <h3 id="invoice-form-title">New Payment Entry</h3>
+        
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="input-box">
+                <label>Link Sales Order</label>
+                <select id="pay-so-link" onchange="window.handleOrderSelection()">
+                    <option value="" disabled selected>Select Pending Order</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <label>Amount Due (₱)</label>
+                <input type="text" id="pay-amount-due" readonly style="background: #f1f5f9; font-weight: bold;">
+            </div>
+
+            <div class="input-box">
+                <label>Payment Entry ID</label>
+                <input type="text" id="inv-pay-id" readonly style="background: #f1f5f9;">
+            </div>
+            
+            <div class="input-box">
+                <label>Sales Invoice ID</label>
+                <input type="text" id="pay-inv-id" readonly style="background: #f1f5f9;">
+            </div>
+
+            <div class="input-box">
+                <label>Customer</label>
+                <select id="pay-cust-id">
+                    <option value="" disabled selected>Select Customer</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <label>Payment Date</label>
+                <input type="date" id="pay-date">
+            </div>
+
+            <div class="input-box">
+                <label>Payment Method</label>
+                <select id="pay-method">
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="E-Wallet">E-Wallet</option>
+                    <option value="Cash">Cash</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <label>Amount Paid (₱)</label>
+                <input type="number" id="pay-amount" step="0.01">
+            </div>
+
+            <div class="input-box">
+                <label>Reference No.</label>
+                <input type="text" id="pay-ref" readonly style="background: #f1f5f9; color: #475569;">
+            </div>
+        </div>
+
+        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="login-btn" onclick="saveInvoice()" style="width: auto; padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                Save Payment
+            </button>
+            <button class="login-btn" onclick="toggleInvoiceForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                Cancel
+            </button>
+        </div>
+    </div>
+
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div class="search-container">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Invoice or Payment ID...">
+                <input type="text" placeholder="Search by Invoice or Payment ID..." id="pay-search" oninput="renderInvoiceTable()">
             </div>
-            <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
+            <button class="text-btn" onclick="toggleInvoiceForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
                 <i class="fas fa-file-invoice-dollar"></i> Create Invoice
             </button>
         </div>
@@ -1717,41 +1798,7 @@ const buyingDashboardHTML = `
                     <th>ACTIONS</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong>PAY0001</strong></td>
-                    <td>INV0001</td>
-                    <td>CUST001</td>
-                    <td>2025-01-25</td>
-                    <td>Bank Transfer</td>
-                    <td>348.32</td>
-                    <td>REF300845</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Paid</span></td>
-                    <td><button class="text-btn"><i class="fas fa-print"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>PAY0002</strong></td>
-                    <td>INV0002</td>
-                    <td>CUST002</td>
-                    <td>2025-01-16</td>
-                    <td>Credit Card</td>
-                    <td>217.06</td>
-                    <td>REF859782</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Paid</span></td>
-                    <td><button class="text-btn"><i class="fas fa-print"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>PAY0003</strong></td>
-                    <td>INV0003</td>
-                    <td>CUST003</td>
-                    <td>2025-01-15</td>
-                    <td>E-Wallet</td>
-                    <td>1,177.85</td>
-                    <td>REF725780</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Paid</span></td>
-                    <td><button class="text-btn"><i class="fas fa-print"></i></button></td>
-                </tr>
-            </tbody>
+            <tbody id="invoice-table-body"></tbody>
         </table>
     </div>
 </div>
@@ -1760,17 +1807,54 @@ const buyingDashboardHTML = `
         <h1>Payment Terms Configuration</h1>
         <p>Define credit terms, due dates, and early payment discounts.</p>
     </div>
+
+    <div id="payment-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
+        <h3 id="payment-form-title">Add New Term</h3>
+        
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="input-box">
+                <label>Payment Term ID</label>
+                <input type="text" id="pay-id" readonly style="background: #f1f5f9;">
+            </div>
+
+            <div class="input-box">
+                <label>Term Name</label>
+                <input type="text" id="pay-name" placeholder="e.g. NET 30">
+            </div>
+
+            <div class="input-box">
+                <label>Days Due</label>
+                <input type="number" id="pay-days" placeholder="0">
+            </div>
+
+            <div class="input-box">
+                <label>Discount (%)</label>
+                <input type="text" id="pay-discount" placeholder="0.0%">
+            </div>
+        </div>
+
+        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="login-btn" onclick="window.savePaymentTerm()" style="width: auto; padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                Save Term
+            </button>
+            <button class="login-btn" onclick="window.togglePaymentForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                Cancel
+            </button>
+        </div>
+    </div>
+
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div class="search-container">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search terms...">
+                <input type="text" placeholder="Search terms..." id="pay-search" oninput="window.renderPaymentsTable()">
             </div>
-            <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
+            <button class="text-btn" onclick="window.togglePaymentForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
                 <i class="fas fa-plus"></i> Add New Term
             </button>
         </div>
-        <table>
+        
+        <table id="payments-table">
             <thead>
                 <tr>
                     <th>PAYMENT TERMS ID</th>
@@ -1782,31 +1866,7 @@ const buyingDashboardHTML = `
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>TERM001</strong></td>
-                    <td>NET 2 DAYS</td>
-                    <td>2</td>
-                    <td>0.5%</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Active</span></td>
-                    <td><button class="text-btn"><i class="fas fa-edit"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>TERM002</strong></td>
-                    <td>NET 4 DAYS</td>
-                    <td>4</td>
-                    <td>1.0%</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Active</span></td>
-                    <td><button class="text-btn"><i class="fas fa-edit"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>TERM003</strong></td>
-                    <td>NET 6 DAYS</td>
-                    <td>6</td>
-                    <td>1.5%</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Active</span></td>
-                    <td><button class="text-btn"><i class="fas fa-edit"></i></button></td>
-                </tr>
-            </tbody>
+                </tbody>
         </table>
     </div>
 </div>
@@ -1815,61 +1875,83 @@ const buyingDashboardHTML = `
         <h1>Deliveries & Logistics</h1>
         <p>Track outgoing shipments and delivery fulfillment status.</p>
     </div>
+
+    <div id="delivery-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
+        <h3 id="delivery-form-title">Create Delivery Note</h3>
+        
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+            <div class="input-box">
+                <label>Delivery Note ID</label>
+                <input type="text" id="dl-id" readonly style="background: #f1f5f9;">
+            </div>
+
+            <div class="input-box">
+                <label>Select Sales Order</label>
+                <select id="dl-so-id" onchange="window.syncDeliveryData()" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                    </select>
+            </div>
+
+            <div class="input-box">
+                <label>Customer ID</label>
+                <input type="text" id="dl-cust-id" readonly style="background: #f1f5f9;">
+            </div>
+
+            <div class="input-box">
+                <label>Delivery Date</label>
+                <input type="date" id="dl-date">
+            </div>
+
+            <div class="input-box">
+                <label>Shipping Address</label>
+                <input type="text" id="dl-address" placeholder="Enter address">
+            </div>
+
+            <div class="input-box">
+                <label>Delivered By</label>
+                <select id="dl-courier" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                    <option>Logistics Team A</option>
+                    <option>Logistics Team B</option>
+                    <option>Third Party Courier</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="login-btn" onclick="window.saveDeliveryNote()" style="width: auto; padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                Generate Note
+            </button>
+            <button class="login-btn" onclick="window.toggleDeliveryForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                Cancel
+            </button>
+        </div>
+    </div>
+
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div class="search-container">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Delivery ID or SO...">
+                <input type="text" placeholder="Search by Delivery ID or SO..." id="dl-search" oninput="window.renderDeliveriesTable()">
             </div>
-            <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
+            <button class="text-btn" onclick="window.toggleDeliveryForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-shipping-fast"></i> Create Delivery Note
             </button>
         </div>
-        <table>
+        
+        <table id="deliveries-table">
             <thead>
                 <tr>
                     <th>DELIVERY NOTE ID</th>
                     <th>SALES ORDER ID</th>
                     <th>CUSTOMER ID</th>
                     <th>DELIVERY DATE</th>
-                    <th>DELIVERY ADDRESS</th>
+                    <th>ADDRESS</th>
                     <th>DELIVERED BY</th>
                     <th>STATUS</th>
                     <th>ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>DN-2025-001</strong></td>
-                    <td>SO0001</td>
-                    <td>CUST001</td>
-                    <td>2025-01-29</td>
-                    <td>City</td>
-                    <td>Logistics Team A</td>
-                    <td><span class="status-pill" style="background: #fef9c3; color: #854d0e;">Pending</span></td>
-                    <td><button class="text-btn"><i class="fas fa-truck-loading"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>DN-2025-002</strong></td>
-                    <td>SO0002</td>
-                    <td>CUST002</td>
-                    <td>2025-01-28</td>
-                    <td>City</td>
-                    <td>Logistics Team B</td>
-                    <td><span class="status-pill" style="background: #fef9c3; color: #854d0e;">Pending</span></td>
-                    <td><button class="text-btn"><i class="fas fa-truck-loading"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>DN-2025-003</strong></td>
-                    <td>SO0003</td>
-                    <td>CUST003</td>
-                    <td>2025-01-12</td>
-                    <td>City</td>
-                    <td>Third Party Courier</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Delivered</span></td>
-                    <td><button class="text-btn"><i class="fas fa-check-circle"></i></button></td>
-                </tr>
-            </tbody>
+                </tbody>
         </table>
     </div>
 </div>
@@ -1878,51 +1960,83 @@ const buyingDashboardHTML = `
         <h1>Sales Returns</h1>
         <p>Manage product returns, credit notes, and restock authorizations.</p>
     </div>
+
+    <div id="return-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
+        <h3 id="return-form-title">Process New Return</h3>
+        
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+            <div class="input-box">
+                <label>Return ID</label>
+                <input type="text" id="ret-id" readonly style="background: #f1f5f9;">
+            </div>
+
+            <div class="input-box">
+                <label>Sales Order ID</label>
+                <input type="text" id="ret-so-id" placeholder="SO-XXX">
+            </div>
+
+            <div class="input-box">
+                <label>Customer</label>
+                <select id="ret-cust-id" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                    </select>
+            </div>
+
+            <div class="input-box">
+                <label>Return Date</label>
+                <input type="date" id="ret-date">
+            </div>
+
+            <div class="input-box">
+                <label>Refund Amount (₱)</label>
+                <input type="text" id="ret-amount" placeholder="0.00">
+            </div>
+
+            <div class="input-box">
+                <label>Condition</label>
+                <select id="ret-condition" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                    <option>Like New</option>
+                    <option>Damaged</option>
+                    <option>Defective</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="login-btn" onclick="window.saveReturnRecord()" style="width: auto; padding: 10px 24px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                Authorize Return
+            </button>
+            <button class="login-btn" onclick="window.toggleReturnForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                Cancel
+            </button>
+        </div>
+    </div>
+
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div class="search-container">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Return ID or Customer...">
+                <input type="text" placeholder="Search by Return ID or Customer..." id="ret-search" oninput="window.renderReturnsTable()">
             </div>
-            <button class="text-btn" style="background: #ef4444; color: white; padding: 10px 20px; border-radius: 8px;">
+            <button class="text-btn" onclick="window.toggleReturnForm(true)" style="background: #ef4444; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600;">
                 <i class="fas fa-undo"></i> Process New Return
             </button>
         </div>
-        <table>
+        
+        <table id="returns-table">
             <thead>
                 <tr>
                     <th>RETURN ID</th>
                     <th>SALES ORDER ID</th>
                     <th>CUSTOMER ID</th>
                     <th>RETURN DATE</th>
-                    <th>REASON</th>
                     <th>REFUND AMOUNT</th>
                     <th>CONDITION</th>
                     <th>STATUS</th>
+                    <th>ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>RET-2025-001</strong></td>
-                    <td>SO0001</td>
-                    <td>CUST001</td>
-                    <td>2025-02-05</td>
-                    <td>Defective Item</td>
-                    <td>348.32</td>
-                    <td>Damaged</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Inspected</span></td>
-                </tr>
-                <tr>
-                    <td><strong>RET-2025-002</strong></td>
-                    <td>SO0002</td>
-                    <td>CUST002</td>
-                    <td>2025-02-10</td>
-                    <td>Wrong Specification</td>
-                    <td>217.06</td>
-                    <td>Like New</td>
-                    <td><span class="status-pill" style="background: #fef9c3; color: #854d0e;">Pending</span></td>
-                </tr>
-            </tbody>
+                </tbody>
         </table>
     </div>
 </div>
@@ -1962,31 +2076,47 @@ const buyingDashboardHTML = `
 
     <div id="item-form-container" class="content-card" style="display: none; margin-bottom: 20px; border-left: 4px solid #2563eb;">
         <h3 id="item-form-title" style="margin-bottom: 15px;">Add New Item</h3>
+        
+        <div class="input-box" style="margin-bottom: 15px;">
+            <label style="display:block; margin-bottom:5px; font-weight:600;">Link to CRM Product (Optional)</label>
+            <select id="itm-product-source" onchange="fillItemFormFromCRM()" 
+                    style="border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px; background: #fff;">
+                <option value="" disabled selected>-- Select from CRM Products --</option>
+            </select>
+            <small style="color: #64748b;">Selecting a product will auto-fill the fields below.</small>
+        </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
             <div class="input-box">
                 <label style="display:block; margin-bottom:5px; font-weight:600;">Item ID</label>
-                <input type="text" id="itm-id" readonly style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
+                <input type="text" id="itm-id" readonly 
+                       style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
             </div>
             <div class="input-box">
                 <label style="display:block; margin-bottom:5px; font-weight:600;">Item Name</label>
-                <input type="text" id="itm-name" placeholder="Enter name" style="border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
+                <input type="text" id="itm-name" placeholder="Enter name" 
+                       style="border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
             </div>
             <div class="input-box">
-    <label style="display:block; margin-bottom:5px; font-weight:600;">Unit Quantity</label>
-    <div style="position: relative; display: flex; align-items: center;">
-        <input type="number" id="itm-unit" placeholder="0" 
-               style="border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px; padding-right: 40px;">
-        <span style="position: absolute; right: 10px; color: #64748b; font-size: 0.9em;">pcs</span>
-    </div>
-</div>
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Unit Quantity</label>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="number" id="itm-unit" placeholder="0" 
+                           style="border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px; padding-right: 40px;">
+                    <span style="position: absolute; right: 10px; color: #64748b; font-size: 0.9em;">pcs</span>
+                </div>
+            </div>
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Cost</label>
-                <input type="number" id="itm-cost" placeholder="0.00" style="border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Cost (₱)</label>
+                <input type="number" id="itm-cost" placeholder="0.00" 
+                       style="border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
             </div>
         </div>
+
         <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="text-btn" onclick="saveItem()" style="background: #2563eb; color: white; padding: 8px 16px; border-radius:6px;">Save Item</button>
-            <button class="text-btn" onclick="toggleItemForm()" style="background: #64748b; color: white; padding: 8px 16px; border-radius:6px;">Cancel</button>
+            <button class="text-btn" onclick="saveItem()" 
+                    style="background: #2563eb; color: white; padding: 8px 16px; border-radius:6px;">Save Item</button>
+            <button class="text-btn" onclick="toggleItemForm()" 
+                    style="background: #64748b; color: white; padding: 8px 16px; border-radius:6px;">Cancel</button>
         </div>
     </div>
 
@@ -1994,21 +2124,23 @@ const buyingDashboardHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div class="search-container">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Item ID or Name...">
+                <input type="text" id="itm-search" placeholder="Search by Item ID or Name..." onkeyup="searchItems()">
             </div>
-            <button class="text-btn" onclick="toggleItemForm()" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
+            <button class="text-btn" onclick="toggleItemForm()" 
+                    style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
                 <i class="fas fa-plus"></i> Add New Item
             </button>
         </div>
         <table>
             <thead>
-    <tr>
-        <th>ITEM ID</th>
-        <th>ITEM NAME</th>
-        <th>UNIT QTY</th> <th>COST</th>
-        <th>ACTIONS</th>
-    </tr>
-</thead>
+                <tr>
+                    <th>ITEM ID</th>
+                    <th>ITEM NAME</th>
+                    <th>UNIT QTY</th>
+                    <th>COST</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
             <tbody id="item-table-body"></tbody>
         </table>
     </div>
@@ -2699,9 +2831,11 @@ const buyingDashboardHTML = `
     </main>`;
     const serviceDashboardHTML = `
     <nav class="sidebar">
-        <div class="logo-area"><i class="fas fa-tools"></i> Service</div>
+        <div class="logo-area" onclick="showView('service-hub-view')" style="cursor:pointer;">
+            <i class="fas fa-tools"></i> Service
+        </div>
         <div class="nav-group">
-            <div class="nav-item active" id="nav-maint-service" onclick="showView('maint-service-view')">
+            <div class="nav-item" id="nav-maint-service" onclick="showView('maint-service-view')">
                 <i class="fas fa-screwdriver-wrench"></i> Maintenance Service
             </div>
             <div class="nav-item" id="nav-maint-visit" onclick="showView('maint-visit-view')">
@@ -2720,79 +2854,179 @@ const buyingDashboardHTML = `
             </button>
         </div>
     </nav>
+
     <main class="main-container">
-<div id="maint-service-view">
-    <div class="header">
-        <h1>Maintenance Service</h1>
-        <p>Manage and track corrective and preventive service requests for deployed assets.</p>
-    </div>
-    <div class="content-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Service ID or Order...">
+        <div id="service-hub-view" style="display:block;">
+            <div class="header">
+                <h1>Service</h1>
+                <p>Select a category below to manage requests and track service activities.</p>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="text-btn" style="border: 1px solid #cbd5e1;"><i class="fas fa-filter"></i> Filter</button>
-                <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
-                    <i class="fas fa-plus"></i> New Service Request
-                </button>
+            
+            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div class="content-card" onclick="showView('maint-service-view')" style="cursor: pointer; border-left: 4px solid #2563eb; transition: transform 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: #eff6ff; padding: 15px; border-radius: 8px; color: #2563eb;">
+                            <i class="fas fa-screwdriver-wrench fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; color: #1e293b;">Maintenance Service</h3>
+                            <p style="margin: 5px 0 0; font-size: 13px; color: #64748b;">Corrective & preventive requests.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card" onclick="showView('maint-visit-view')" style="cursor: pointer; border-left: 4px solid #10b981;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; color: #10b981;">
+                            <i class="fas fa-house-chimney-user fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; color: #1e293b;">Field Visits</h3>
+                            <p style="margin: 5px 0 0; font-size: 13px; color: #64748b;">Technician logs and site checks.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card" onclick="showView('warranty-claim-view')" style="cursor: pointer; border-left: 4px solid #f59e0b;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: #fffbeb; padding: 15px; border-radius: 8px; color: #f59e0b;">
+                            <i class="fas fa-shield-halved fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; color: #1e293b;">Warranty Claims</h3>
+                            <p style="margin: 5px 0 0; font-size: 13px; color: #64748b;">Customer claims and resolutions.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card" onclick="showView('issue-view')" style="cursor: pointer; border-left: 4px solid #6366f1;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: #eef2ff; padding: 15px; border-radius: 8px; color: #6366f1;">
+                            <i class="fas fa-ticket-alt fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; color: #1e293b;">Support Issues</h3>
+                            <p style="margin: 5px 0 0; font-size: 13px; color: #64748b;">Technical support ticket tracking.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>SERVICE ID</th>
-                    <th>SALES ORDER ID</th>
-                    <th>SERVICE TYPE</th>
-                    <th>REQUEST DATE</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>MS001</strong></td>
-                    <td>SO001</td>
-                    <td>Corrective</td>
-                    <td>2025-01-03</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Completed</span></td>
-                    <td><button class="text-btn"><i class="fas fa-tools"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>MS002</strong></td>
-                    <td>SO002</td>
-                    <td>Preventive</td>
-                    <td>2025-01-04</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Completed</span></td>
-                    <td><button class="text-btn"><i class="fas fa-tools"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>MS003</strong></td>
-                    <td>SO003</td>
-                    <td>Corrective</td>
-                    <td>2025-01-05</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Completed</span></td>
-                    <td><button class="text-btn"><i class="fas fa-tools"></i></button></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-<div id="maint-visit-view" style="display:none;">
+
+        <div id="maint-service-view" style="display:none;">
+            <div class="header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <button onclick="showView('service-hub-view')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-weight:600; padding:0; margin-bottom:10px; display:flex; align-items:center; gap:5px;">
+                        <i class="fas fa-arrow-left"></i> Back to Hub
+                    </button>
+                    <h1>Maintenance Service</h1>
+                    <p>Manage and track corrective and preventive service requests for deployed assets.</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div id="maint-form-container" style="display:none; margin-bottom: 20px; padding: 20px; border-left: 4px solid #2563eb; background: #f8fafc; border-radius: 4px;">
+                    <h3 id="maint-form-title" style="margin-bottom: 15px; color: #1e293b; font-weight: 600;">New Service Request</h3>
+                    <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="input-box">
+                            <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Service ID</label>
+                            <input type="text" id="maint-id" readonly style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:#f1f5f9; color:#475569; font-weight:600;">
+                        </div>
+                        <div class="input-box">
+                            <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Sales Order ID</label>
+                            <select id="maint-so-id" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
+                                <option value="">Select Sales Order</option>
+                            </select>
+                        </div>
+                        <div class="input-box">
+                            <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Service Type</label>
+                            <select id="maint-type" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
+                                <option>Corrective</option>
+                                <option>Preventive</option>
+                            </select>
+                        </div>
+                        <div class="input-box">
+                            <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Request Date</label>
+                            <input type="date" id="maint-date" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
+                        </div>
+                    </div>
+                    <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button onclick="window.saveMaintRequest()" class="text-btn" style="background: #2563eb; color: white; padding: 10px 24px; border-radius: 6px; border:none; cursor:pointer; font-weight:600;">Save Request</button>
+                        <button onclick="window.toggleMaintForm(false)" class="text-btn" style="background: #64748b; color: white; padding: 10px 24px; border-radius: 6px; border:none; cursor:pointer; font-weight:600;">Cancel</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div class="search-container" style="position:relative; width: 300px;">
+                        <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+                        <input type="text" id="maint-search" placeholder="Search by Service ID or Order..." style="width:100%; padding:10px 10px 10px 35px; border:1px solid #e2e8f0; border-radius:8px;">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="text-btn" style="border: 1px solid #cbd5e1; background: white; padding: 10px 15px; border-radius: 8px; color: #64748b;"><i class="fas fa-filter"></i> Filter</button>
+                        <button class="text-btn" onclick="window.toggleMaintForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; display:flex; align-items:center; gap:8px; font-weight:600;"><i class="fas fa-plus"></i> New Service Request</button>
+                    </div>
+                </div>
+                
+                <table id="maint-table" style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f8fafc; text-align:left; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:12px; font-size:12px; color:#64748b; text-transform:uppercase; font-weight:700;">Service ID</th>
+                            <th style="padding:12px; font-size:12px; color:#64748b; text-transform:uppercase; font-weight:700;">Sales Order ID</th>
+                            <th style="padding:12px; font-size:12px; color:#64748b; text-transform:uppercase; font-weight:700;">Service Type</th>
+                            <th style="padding:12px; font-size:12px; color:#64748b; text-transform:uppercase; font-weight:700;">Request Date</th>
+                            <th style="padding:12px; font-size:12px; color:#64748b; text-transform:uppercase; font-weight:700;">Status</th>
+                            <th style="padding:12px; font-size:12px; color:#64748b; text-transform:uppercase; font-weight:700; text-align:center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maint-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="maint-visit-view" style="display:none;">
     <div class="header">
+        <button onclick="showView('service-hub-view')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-weight:600; padding:0; margin-bottom:10px; display:flex; align-items:center; gap:5px;">
+            <i class="fas fa-arrow-left"></i> Back to Hub
+        </button>
         <h1>Maintenance Visits</h1>
         <p>Log and track on-site technician activities and routine equipment checks.</p>
     </div>
+    
     <div class="content-card">
+        <div id="visit-form-container" style="display:none; margin-bottom: 20px; padding: 20px; border-left: 4px solid #2563eb; background: #f8fafc; border-radius: 4px;">
+            <h3 style="margin-bottom: 15px; color: #1e293b; font-weight: 600;">Schedule New Visit</h3>
+            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div class="input-box">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Service ID</label>
+                    <input type="text" id="visit-service-id" placeholder="MS-XXXX" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
+                </div>
+                <div class="input-box">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Technician</label>
+                    <select id="visit-tech-id" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
+                        <option>TECH01</option>
+                        <option>TECH02</option>
+                    </select>
+                </div>
+                <div class="input-box">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Visit Date</label>
+                    <input type="date" id="visit-date" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
+                </div>
+            </div>
+            <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+                <button onclick="saveVisit()" class="text-btn" style="background: #2563eb; color: white; padding: 10px 24px; border-radius: 6px; border:none; cursor:pointer;">Schedule</button>
+                <button onclick="document.getElementById('visit-form-container').style.display='none'" class="text-btn" style="background: #64748b; color: white; padding: 10px 24px; border-radius: 6px; border:none; cursor:pointer;">Cancel</button>
+            </div>
+        </div>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Visit ID or Technician...">
+            <div class="search-container" style="position:relative; width: 300px;">
+                <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+                <input type="text" id="visit-search" placeholder="Search visits..." style="width:100%; padding:10px 10px 10px 35px; border:1px solid #e2e8f0; border-radius:8px;">
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="text-btn" style="border: 1px solid #cbd5e1;"><i class="fas fa-calendar-alt"></i> Schedule Visit</button>
-            </div>
+            <button class="text-btn" onclick="document.getElementById('visit-form-container').style.display='block'" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
+                <i class="fas fa-calendar-alt"></i> Schedule Visit
+            </button>
         </div>
         <table>
             <thead>
@@ -2802,53 +3036,33 @@ const buyingDashboardHTML = `
                     <th>TECHNICIAN ID</th>
                     <th>VISIT DATE</th>
                     <th>REMARKS</th>
-                    <th>ACTIONS</th>
+                    <th style="text-align:center;">ACTIONS</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong>MV001</strong></td>
-                    <td>MS001</td>
-                    <td>TECH02</td>
-                    <td>2025-01-04</td>
-                    <td>Routine check</td>
-                    <td><button class="text-btn"><i class="fas fa-clipboard-check"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>MV002</strong></td>
-                    <td>MS002</td>
-                    <td>TECH03</td>
-                    <td>2025-01-05</td>
-                    <td>Routine check</td>
-                    <td><button class="text-btn"><i class="fas fa-clipboard-check"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>MV003</strong></td>
-                    <td>MS003</td>
-                    <td>TECH04</td>
-                    <td>2025-01-06</td>
-                    <td>Routine check</td>
-                    <td><button class="text-btn"><i class="fas fa-clipboard-check"></i></button></td>
-                </tr>
-            </tbody>
+            <tbody id="visit-table-body">
+                </tbody>
         </table>
     </div>
 </div>
+
 <div id="warranty-claim-view" style="display:none;">
     <div class="header">
+        <button onclick="showView('service-hub-view')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-weight:600; padding:0; margin-bottom:10px; display:flex; align-items:center; gap:5px;">
+            <i class="fas fa-arrow-left"></i> Back to Hub
+        </button>
         <h1>Warranty Claims</h1>
-        <p>Monitor customer warranty requests and track resolution status against sales orders.</p>
+        <p>Monitor customer warranty requests and track resolution status.</p>
     </div>
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Claim ID or Sales Order...">
+            <div class="search-container" style="position:relative; width: 300px;">
+                <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+                <input type="text" placeholder="Search claims..." style="width:100%; padding:10px 10px 10px 35px; border:1px solid #e2e8f0; border-radius:8px;">
             </div>
             <div style="display: flex; gap: 10px;">
-                <button class="text-btn" style="border: 1px solid #cbd5e1;"><i class="fas fa-filter"></i> Filter</button>
-                <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
-                    <i class="fas fa-shield-alt"></i> New Warranty Claim
+                <button class="text-btn" style="border: 1px solid #cbd5e1; background:white; padding: 10px 15px; border-radius:8px; color:#64748b;"><i class="fas fa-filter"></i> Filter</button>
+                <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
+                    <i class="fas fa-shield-alt"></i> New Claim
                 </button>
             </div>
         </div>
@@ -2858,95 +3072,48 @@ const buyingDashboardHTML = `
                     <th>CLAIM ID</th>
                     <th>SALES ORDER ID</th>
                     <th>CLAIM DATE</th>
-                    <th>ISSUE DESCRIPTION</th>
-                    <th>CLAIM STATUS</th>
-                    <th>ACTIONS</th>
+                    <th>ISSUE</th>
+                    <th>STATUS</th>
+                    <th style="text-align:center;">ACTIONS</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong>WC001</strong></td>
-                    <td>SO001</td>
-                    <td>2025-01-05</td>
-                    <td>Reported issue</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Approved</span></td>
-                    <td><button class="text-btn"><i class="fas fa-file-contract"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>WC002</strong></td>
-                    <td>SO002</td>
-                    <td>2025-01-06</td>
-                    <td>Reported issue</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Approved</span></td>
-                    <td><button class="text-btn"><i class="fas fa-file-contract"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>WC003</strong></td>
-                    <td>SO003</td>
-                    <td>2025-01-07</td>
-                    <td>Reported issue</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Approved</span></td>
-                    <td><button class="text-btn"><i class="fas fa-file-contract"></i></button></td>
-                </tr>
-            </tbody>
+            <tbody id="claim-table-body">
+                </tbody>
         </table>
     </div>
 </div>
-    <div id="issue-view" style="display:none;">
+
+<div id="issue-view" style="display:none;">
     <div class="header">
+        <button onclick="showView('service-hub-view')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-weight:600; padding:0; margin-bottom:10px; display:flex; align-items:center; gap:5px;">
+            <i class="fas fa-arrow-left"></i> Back to Hub
+        </button>
         <h1>Support Issues</h1>
-        <p>Track technical resolutions linked to sales orders and customer reports.</p>
+        <p>Track technical resolutions linked to sales orders.</p>
     </div>
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Issue ID or Sales Order...">
+            <div class="search-container" style="position:relative; width: 300px;">
+                <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+                <input type="text" placeholder="Search issues..." style="width:100%; padding:10px 10px 10px 35px; border:1px solid #e2e8f0; border-radius:8px;">
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="text-btn" style="border: 1px solid #cbd5e1;"><i class="fas fa-filter"></i> Filter</button>
-                <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
-                    <i class="fas fa-plus"></i> Log New Issue
-                </button>
-            </div>
+            <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
+                <i class="fas fa-plus"></i> Log New Issue
+            </button>
         </div>
         <table>
             <thead>
                 <tr>
                     <th>ISSUE ID</th>
                     <th>SALES ORDER ID</th>
-                    <th>REPORTED DATE</th>
-                    <th>ISSUE TYPE</th>
+                    <th>DATE</th>
+                    <th>TYPE</th>
                     <th>STATUS</th>
-                    <th>ACTIONS</th>
+                    <th style="text-align:center;">ACTIONS</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong>IS001</strong></td>
-                    <td>SO001</td>
-                    <td>2025-01-06</td>
-                    <td>Technical</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Resolved</span></td>
-                    <td><button class="text-btn"><i class="fas fa-eye"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>IS002</strong></td>
-                    <td>SO002</td>
-                    <td>2025-01-07</td>
-                    <td>Technical</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Resolved</span></td>
-                    <td><button class="text-btn"><i class="fas fa-eye"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>IS003</strong></td>
-                    <td>SO003</td>
-                    <td>2025-01-08</td>
-                    <td>Technical</td>
-                    <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Resolved</span></td>
-                    <td><button class="text-btn"><i class="fas fa-eye"></i></button></td>
-                </tr>
-            </tbody>
+            <tbody id="issue-table-body">
+                </tbody>
         </table>
     </div>
 </div>
@@ -3935,7 +4102,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     }
-}; 
+};*/ 
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -4498,20 +4665,7 @@ window.deleteExpense = function(index) {
     });
 };
 
-// 1. INITIALIZE CRM ID (Triggered when entering the CRM view)
-window.initCrm = function() {
-    const idField = document.getElementById('cust-id');
-    
-    if (idField && editCrmIndex === -1) {
-        // Generates CUST-001, CUST-002, etc.
-        idField.value = generateNextId(crmDb, "CUST");
-        
-        // Lock the field to prevent manual edits
-        idField.readOnly = true;
-        idField.style.background = "#f8fafc"; 
-        idField.style.color = "#64748b"; // Subtle grey for read-only look
-    }
-};
+
 window.renderCrmTable = function() {
     const tbody = document.getElementById('crm-table-body');
     const crmDb = JSON.parse(localStorage.getItem('crm_records')) || [];
@@ -4544,45 +4698,7 @@ window.toggleCrmForm = function() {
         document.getElementById('cust-name').focus();
     }
 };
-window.renderCustomerTable = function() {
-    const tbody = document.getElementById('customer-table-body');
-    if (!tbody) return;
 
-    // Source data exclusively from CRM records
-    const crmData = JSON.parse(localStorage.getItem('crm_records')) || [];
-
-    if (crmData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No customers found in CRM database.</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = crmData.map((cust, index) => {
-        // Prevent 'undefined' by using fallbacks
-        const displayId = cust.id || `CUST-${String(index + 1).padStart(3, '0')}`;
-        const displayName = cust.name || "-";
-        const displayIndustry = cust.industry || "-";
-        const displayPhone = cust.phone || "-";
-        const displayEmail = cust.email || "-";
-        const displayAddress = cust.address || "-";
-        const displayStatus = cust.status || "Active";
-
-        return `
-            <tr>
-                <td><strong>${displayId}</strong></td>
-                <td>${displayName}</td>
-                <td>${displayIndustry}</td>
-                <td>${displayPhone}</td>
-                <td>${displayEmail}</td>
-                <td>${displayAddress}</td>
-                <td>
-                    <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.8em;">
-                        ${displayStatus}
-                    </span>
-                </td>
-            </tr>
-        `;
-    }).join('');
-};
 window.saveCustomer = function() {
     const nameValue = document.getElementById('cust-name').value;
     if (!nameValue) return alert("Please enter a Customer Name.");
@@ -5557,42 +5673,7 @@ window.deleteSupplier = function(index) {
     });
 };
 
-window.itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
-window.editItemIndex = -1;
 
-// --- 1. Smart ID Generator ---
-window.getNextItemId = function() {
-    if (window.itemsDb.length === 0) return "ITM-001";
-    
-    // Extract numbers from IDs like "ITM-007" and find the max
-    const ids = window.itemsDb.map(item => {
-        const match = item.id.match(/\d+/);
-        return match ? parseInt(match[0]) : 0;
-    });
-    
-    const maxId = Math.max(...ids);
-    return "ITM-" + String(maxId + 1).padStart(3, '0');
-};
-
-// --- 2. Initialize View ---
-window.initItems = function() {
-    window.renderItemsTable();
-};
-
-// --- 3. Toggle Form ---
-window.toggleItemForm = function() {
-    const container = document.getElementById('item-form-container');
-    const isHidden = container.style.display === 'none';
-    
-    container.style.display = isHidden ? 'block' : 'none';
-    
-    if (isHidden && window.editItemIndex === -1) {
-        document.getElementById('itm-id').value = window.getNextItemId();
-        document.getElementById('itm-name').value = '';
-        document.getElementById('itm-cost').value = '';
-        document.getElementById('item-form-title').innerText = "Add New Item";
-    }
-};
 
 window.renderWhTable = function() {
     const tbody = document.getElementById('wh-table-body');
@@ -5627,62 +5708,7 @@ window.renderWhTable = function() {
     }).join('');
 };
 // --- 5. Save Item ---
-window.saveItem = function() {
-    const itemData = {
-        id: document.getElementById('itm-id').value,
-        name: document.getElementById('itm-name').value,
-        qty: parseFloat(document.getElementById('itm-qty').value) || 0, // Numeric quantity
-        unitType: document.getElementById('itm-unit-type').value, // Selected unit (kg, pcs, etc.)
-        cost: parseFloat(document.getElementById('itm-cost').value) || 0
-    };
 
-    if (!itemData.name) return alert("Please enter an Item Name.");
-
-    if (window.editItemIndex === -1) {
-        window.itemsDb.push(itemData);
-    } else {
-        window.itemsDb[window.editItemIndex] = itemData;
-        window.editItemIndex = -1;
-    }
-
-    localStorage.setItem('items_records', JSON.stringify(window.itemsDb));
-    window.renderItemsTable();
-    window.toggleItemForm();
-};
-
-// --- 6. Edit Action ---
-window.editItem = function(index) {
-    window.editItemIndex = index;
-    const item = window.itemsDb[index];
-    
-    document.getElementById('item-form-container').style.display = 'block';
-    document.getElementById('item-form-title').innerText = "Edit Item Details";
-    
-    document.getElementById('itm-id').value = item.id;
-    document.getElementById('itm-name').value = item.name;
-    document.getElementById('itm-qty').value = item.qty; // Populate quantity
-    document.getElementById('itm-unit-type').value = item.unitType; // Populate dropdown
-    document.getElementById('itm-cost').value = item.cost;
-};
-window.deleteItem = function(index) {
-    // Triggers the floating red popup banner instead of window.confirm
-    requestDelete("Are you sure you want to delete this item?", () => {
-        
-        // 1. Fetch latest data from storage to ensure accuracy
-        let itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
-        
-        // 2. Remove the specific item using the index
-        itemsDb.splice(index, 1);
-        
-        // 3. Sync the updated array back to localStorage
-        localStorage.setItem('items_records', JSON.stringify(itemsDb));
-        
-        // 4. Refresh the items table UI immediately
-        if (typeof window.renderItemsTable === 'function') {
-            window.renderItemsTable();
-        }
-    });
-};
 window.warehouseDb = JSON.parse(localStorage.getItem('warehouse_records')) || [];
 window.editWhIndex = -1;
 
@@ -6075,16 +6101,26 @@ window.renderDnTable = function() {
     const tbody = document.getElementById('dn-table-body');
     if (!tbody) return;
 
-    if (window.dnDb.length === 0) {
+    // 1. ALWAYS fetch the freshest data from localStorage to ensure immediate sync
+    const currentDnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
+    
+    // Sync the global variable if you use it elsewhere
+    window.dnDb = currentDnDb;
+
+    // 2. Handle Empty State
+    if (currentDnDb.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">No delivery notes recorded.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = window.dnDb.map((dn, index) => `
+    // 3. Map the data from localStorage to the table rows
+    tbody.innerHTML = currentDnDb.map((dn, index) => `
         <tr>
             <td><strong>${dn.id}</strong></td>
             <td>${dn.customer}</td>
-            <td>${dn.item}</td> <td>${dn.warehouse}</td> <td>${dn.date}</td>
+            <td>${dn.item}</td> 
+            <td>${dn.warehouse}</td> 
+            <td>${dn.date}</td>
             <td>
                 <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
                     Delivered
@@ -6157,22 +6193,27 @@ window.editDeliveryNote = function(index) {
 };
 
 window.deleteDeliveryNote = function(index) {
-    // Triggers the floating red popup banner instead of window.confirm
+    // 1. Trigger custom deletion confirmation modal
     requestDelete("Are you sure you want to delete this delivery note?", () => {
         
-        // 1. Fetch latest data from storage
+        // 2. Load latest data
         let dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
         
-        // 2. Remove the specific note using the index
+        // 3. Remove entry
         dnDb.splice(index, 1);
         
-        // 3. Sync the updated array back to localStorage
+        // 4. Save back to localStorage
         localStorage.setItem('dn_records', JSON.stringify(dnDb));
         
-        // 4. Refresh the Delivery Note table UI
+        // 5. CRITICAL: Force the table to redraw immediately
         if (typeof window.renderDnTable === 'function') {
             window.renderDnTable();
+        } else if (typeof window.initDnView === 'function') {
+            window.initDnView();
         }
+
+        // Optional: Show a small toast notification that it's gone
+        console.log("Record removed from dn_records.");
     });
 };
 
@@ -6361,6 +6402,1449 @@ window.deleteSellingItem = function(index) {
         window.renderSellingProductTable();
     });
 };
+// --- Global State ---
+window.editSOIndex = -1;
+window.initSalesOrder = function() {
+    // Select all necessary form fields
+    const idField = document.getElementById('so-id');
+    const custSelect = document.getElementById('so-cust-id');
+    const suSelect = document.getElementById('so-su-id');
+    const addrSelect = document.getElementById('so-address');
+    const prodSelect = document.getElementById('so-product-id');
+
+    const ordersDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+
+    // 1. Set Sequential SO_XXX ID for new orders
+    if (idField && window.editSOIndex === -1) {
+        const nextNum = (ordersDb.length + 1).toString().padStart(3, '0');
+        idField.value = `SO_${nextNum}`; 
+    }
+
+    // 2. Populate Product Dropdown from Item Management
+    if (prodSelect) {
+        const items = JSON.parse(localStorage.getItem('items_records')) || [];
+        prodSelect.innerHTML = '<option value="" disabled selected>Select Item from Inventory</option>';
+        items.forEach(item => {
+            // Check itemName or name to fix "undefined" labels
+            const displayName = item.itemName || item.name || "Unknown Item";
+            prodSelect.innerHTML += `<option value="${item.id}">${item.id} - ${displayName}</option>`;
+        });
+
+        // CRITICAL: Ensure price pulls immediately when selection changes
+        prodSelect.onchange = window.syncProductData;
+    }
+
+    // 3. Populate Customer IDs
+    if (custSelect) {
+        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
+        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
+        customers.forEach(c => {
+            custSelect.innerHTML += `<option value="${c.id}">${c.id} - ${c.name}</option>`;
+        });
+    }
+
+    // 4. Populate Sales Reps (Assigned User IDs)
+    if (suSelect) {
+        const leads = JSON.parse(localStorage.getItem('leads_records')) || [];
+        suSelect.innerHTML = '<option value="" disabled selected>Select Sales Rep</option>';
+        const uniqueSUs = [...new Set(leads.map(l => l.assignee))].filter(Boolean);
+        uniqueSUs.forEach(su => {
+            suSelect.innerHTML += `<option value="${su}">${su}</option>`;
+        });
+    }
+
+    // 5. Populate Shipping Addresses
+    if (addrSelect) {
+        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
+        addrSelect.innerHTML = '<option value="" disabled selected>Select Address</option>';
+        customers.forEach(c => {
+            if (c.address) {
+                addrSelect.innerHTML += `<option value="${c.address}">${c.address}</option>`;
+            }
+        });
+    }
+};
+window.syncProductData = function() {
+    const selectedId = document.getElementById('so-product-id').value;
+    const priceField = document.getElementById('so-unit-price'); 
+    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
+
+    // Find the master record to get the official price
+    const product = productDb.find(p => p.id === selectedId);
+    
+    if (product && priceField) {
+        // Strip ₱ and commas for numerical calculation
+        const cleanPrice = product.price ? product.price.toString().replace(/[₱,]/g, '') : "0.00";
+        priceField.value = cleanPrice;
+        
+        // Default quantity to 1 if it's currently empty or zero
+        const qtyField = document.getElementById('so-quantity');
+        if (qtyField && (!qtyField.value || qtyField.value == 0)) {
+            qtyField.value = 1;
+        }
+
+        // Trigger the total amount update
+        window.calculateOrderTotal();
+    }
+};
+
+window.calculateSOTotal = function() {
+    const price = parseFloat(document.getElementById('so-price').value) || 0;
+    const qty = parseInt(document.getElementById('so-qty').value) || 0;
+    const totalDisplay = document.getElementById('so-total-display');
+    
+    const total = price * qty;
+    if (totalDisplay) totalDisplay.value = total.toFixed(2);
+};
+
+// --- 2. Toggle and Reset Logic ---
+window.toggleSOForm = function(show) {
+    const form = document.getElementById('so-form-container');
+    const btnContainer = document.getElementById('add-so-btn-container');
+
+    if (show) {
+        form.style.display = 'block';
+        if (btnContainer) btnContainer.style.display = 'none'; 
+        window.initSalesOrder();
+    } else {
+        form.style.display = 'none';
+        if (btnContainer) btnContainer.style.display = 'block';
+        window.resetSOForm();
+    }
+};
+
+window.resetSOForm = function() {
+    window.editSOIndex = -1;
+    document.getElementById('so-form-title').innerText = "New Sales Order";
+    
+    const fields = ['so-cust-id', 'so-su-id', 'so-address', 'so-date', 'so-req-date', 'so-product-id', 'so-price', 'so-qty', 'so-total-display'];
+    fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (el) el.value = f === 'so-qty' ? "1" : "";
+    });
+};
+
+
+window.editSalesOrder = function(index) {
+    const db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    const order = db[index];
+    if (!order) return;
+
+    window.editSOIndex = index;
+    window.toggleSOForm(true);
+    document.getElementById('so-form-title').innerText = "Edit Sales Order";
+
+    document.getElementById('so-id').value = order.id;
+    document.getElementById('so-cust-id').value = order.customerId;
+    document.getElementById('so-product-id').value = order.productId;
+    document.getElementById('so-price').value = order.price;
+    document.getElementById('so-qty').value = order.qty;
+    document.getElementById('so-su-id').value = order.assignedUserId;
+    document.getElementById('so-address').value = order.address;
+    document.getElementById('so-date').value = order.orderDate;
+    document.getElementById('so-req-date').value = order.requiredDate;
+    document.getElementById('so-total-display').value = order.total;
+};
+window.saveSalesOrder = function() {
+    const selectedId = document.getElementById('so-product-id').value;
+    const qtyValue = document.getElementById('so-quantity').value; // Corrected ID
+    
+    const itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
+    const item = itemsDb.find(i => i.id === selectedId);
+
+    const data = {
+        id: document.getElementById('so-id').value,
+        customerId: document.getElementById('so-cust-id').value,
+        productId: selectedId,
+        productName: item ? (item.itemName || item.name) : "Unknown Item",
+        productUnit: item ? (item.unitQty ? "pcs" : "pcs") : "pcs", 
+        price: document.getElementById('so-unit-price').value, // Corrected ID
+        qty: qtyValue,
+        assignedUserId: document.getElementById('so-su-id').value,
+        address: document.getElementById('so-address').value,
+        orderDate: document.getElementById('so-date').value, // Corrected ID
+        total: document.getElementById('so-total-amount').value, // Corrected ID
+        status: "Confirmed"
+    };
+
+    // Validation: Ensure required fields are present
+    if (!data.customerId || !data.productId || !data.qty || !data.orderDate) {
+        alert("Please fill in all required fields: Customer, Product, Quantity, and Date.");
+        return;
+    }
+
+    let db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    if (window.editSOIndex === -1) { 
+        db.push(data); 
+    } else { 
+        db[window.editSOIndex] = data; 
+        window.editSOIndex = -1; // Reset edit mode
+    }
+
+    localStorage.setItem('sales_orders_records', JSON.stringify(db));
+    window.renderSOTable(); 
+    window.toggleSOForm(false);
+};
+window.renderSOTable = function() {
+    const tbody = document.getElementById('so-table-body');
+    if (!tbody) return;
+
+    const db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    tbody.innerHTML = '';
+
+    db.forEach((order, index) => {
+        // Fallback to prevent "undefined" or double "pcs pcs" in unit display
+        const displayUnit = (order.productUnit || "pcs").replace("pcs pcs", "pcs"); 
+
+        // Ensure the total amount is properly formatted with ₱ and decimals
+        let displayTotal = order.total || "0.00";
+        if (!displayTotal.toString().includes('₱')) {
+            displayTotal = `₱${parseFloat(displayTotal).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        }
+
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${order.id}</strong></td>
+                <td>${order.customerId}</td>
+                <td>
+                    ${order.productName || "Unknown Item"}<br>
+                    <small style="color: #64748b;">(${order.productId})</small>
+                </td>
+                <td><strong>${order.qty || 0}</strong> ${displayUnit}</td>
+                <td>${order.assignedUserId || "Unassigned"}</td>
+                <td>${order.orderDate || "N/A"}</td>
+                <td>${order.address || "No Address"}</td>
+                <td><strong>${displayTotal}</strong></td>
+                <td><span class="status-pill" style="background: #dcfce7; color: #166534;">${order.status || 'Active'}</span></td>
+                <td>
+                    <button onclick="editSalesOrder(${index})" style="color: #2563eb; border:none; background:none; cursor:pointer; margin-right: 10px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteSalesOrder(${index})" style="color: #ef4444; border:none; background:none; cursor:pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+};// --- 5. Missing Delete Function ---
+window.deleteSalesOrder = function(index) {
+    // requestDelete triggers the UI confirmation dialog
+    requestDelete("Are you sure you want to delete this sales order?", () => {
+        let db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+        
+        // Remove record and update storage
+        db.splice(index, 1);
+        localStorage.setItem('sales_orders_records', JSON.stringify(db));
+        
+        // Refresh UI and recalculate the SO_XXX sequence
+        window.renderSOTable(); 
+        window.initSalesOrder(); 
+    });
+};
+// --- Global State ---
+window.editItemIndex = -1;
+
+window.initItem = function() {
+    const idField = document.getElementById('itm-id');
+    const prodSelect = document.getElementById('itm-product-source');
+    const itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
+    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
+
+    // Populate the dropdown with CRM Products
+    if (prodSelect) {
+        prodSelect.innerHTML = '<option value="" disabled selected>Select from CRM Products</option>';
+        productDb.forEach(prod => {
+            prodSelect.innerHTML += `<option value="${prod.id}">${prod.id} - ${prod.name}</option>`;
+        });
+    }
+
+    // Set Sequential ITM-XXX ID
+    if (idField && window.editItemIndex === -1) {
+        const nextNum = (itemsDb.length + 1).toString().padStart(3, '0');
+        idField.value = `ITM-${nextNum}`; 
+    }
+};
+window.fillItemFormFromCRM = function() {
+    const selectedId = document.getElementById('itm-product-source').value;
+    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
+    
+    // Find the specific product selected from the CRM records
+    const product = productDb.find(p => p.id === selectedId);
+    
+    if (product) {
+        // Auto-fill Item Name
+        document.getElementById('itm-name').value = product.name;
+        
+        // GET COST FROM UNIT PRICE: Pull from product.price
+        // We ensure it's a clean number for the input field
+        const cleanPrice = product.price ? product.price.toString().replace(/[₱,]/g, '') : "0";
+        document.getElementById('itm-cost').value = cleanPrice;
+        
+        // Default Unit Quantity to 0 for a new inventory record
+        document.getElementById('itm-unit').value = 0; 
+    }
+};
+// --- 2. Toggle Form Logic ---
+window.toggleItemForm = function() {
+    const form = document.getElementById('item-form-container');
+    const isVisible = form.style.display === 'block';
+
+    if (!isVisible) {
+        form.style.display = 'block';
+        // Force immediate ID visibility
+        if (window.editItemIndex === -1) window.initItem();
+    } else {
+        form.style.display = 'none';
+        window.resetItemForm();
+    }
+};
+
+window.resetItemForm = function() {
+    window.editItemIndex = -1;
+    document.getElementById('item-form-title').innerText = "Add New Item";
+    document.getElementById('itm-name').value = "";
+    document.getElementById('itm-unit').value = "";
+    document.getElementById('itm-cost').value = "";
+};
+
+window.saveItem = function() {
+    const data = {
+        id: document.getElementById('itm-id').value,
+        itemName: document.getElementById('itm-name').value, // Used in table
+        unitQty: document.getElementById('itm-unit').value || 0,
+        cost: `₱${document.getElementById('itm-cost').value || 0}`
+    };
+
+    if (!data.itemName) {
+        alert("Please enter or select an Item Name.");
+        return;
+    }
+
+    let db = JSON.parse(localStorage.getItem('items_records')) || [];
+    
+    if (window.editItemIndex === -1) {
+        db.push(data);
+    } else {
+        db[window.editItemIndex] = data;
+        window.editItemIndex = -1;
+    }
+
+    localStorage.setItem('items_records', JSON.stringify(db));
+    
+    // Reset form and dropdown
+    document.getElementById('itm-product-source').value = "";
+    window.renderItemTable();
+    window.toggleItemForm();
+};
+
+window.editItem = function(index) {
+    const db = JSON.parse(localStorage.getItem('items_records')) || [];
+    const item = db[index];
+    if (!item) return;
+
+    window.editItemIndex = index;
+    document.getElementById('item-form-container').style.display = 'block';
+    document.getElementById('item-form-title').innerText = "Edit Item";
+
+    // Populate using the correct keys
+    document.getElementById('itm-id').value = item.id;
+    document.getElementById('itm-name').value = item.itemName || item.name || "";
+    
+    // Use unitQty to fix the 'undefined' error
+    document.getElementById('itm-unit').value = item.unitQty || 0;
+    
+    // Strip the ₱ symbol so the number input can read it
+    const cleanCost = item.cost ? item.cost.toString().replace(/[₱,]/g, '') : "0";
+    document.getElementById('itm-cost').value = cleanCost;
+    
+    // Reset the CRM dropdown when editing an existing item
+    const prodSelect = document.getElementById('itm-product-source');
+    if (prodSelect) prodSelect.value = "";
+};
+window.renderItemTable = function() {
+    const tbody = document.getElementById('item-table-body');
+    if (!tbody) return;
+
+    // Always fetch freshest data from storage to avoid sync issues
+    const db = JSON.parse(localStorage.getItem('items_records')) || [];
+    tbody.innerHTML = '';
+
+    db.forEach((item, index) => {
+        // Fix for "undefined pcs" - Ensure we use unitQty
+        const displayQty = (item.unitQty === undefined || item.unitQty === null) ? 0 : item.unitQty;
+        
+        // Ensure cost is formatted with ₱ for the table view
+        let displayCost = item.cost || "0";
+        if (!displayCost.toString().includes('₱')) {
+            displayCost = `₱${parseFloat(displayCost).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        }
+
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${item.id}</strong></td>
+                <td>${item.itemName || item.name || 'Unnamed Item'}</td>
+                <td>${displayQty} pcs</td>
+                <td>${displayCost}</td>
+                <td>
+                    <button onclick="editItem(${index})" style="color: #2563eb; border:none; background:none; cursor:pointer; margin-right:10px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteItem(${index})" style="color: #ef4444; border:none; background:none; cursor:pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+};
+window.deleteItem = function(index) {
+    requestDelete("Are you sure you want to delete this item?", () => {
+        let db = JSON.parse(localStorage.getItem('items_records')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('items_records', JSON.stringify(db));
+        
+        window.renderItemTable(); 
+        window.initItem(); // Recalculate IDs instantly
+    });
+};
+// --- Global Tracking Variable ---
+window.editInvoiceIndex = -1; 
+// --- 1. Initialization: IDs, CRM Data, and Sales Order Link ---
+window.initInvoiceView = function() {
+    const invDb = JSON.parse(localStorage.getItem('invoice_records')) || [];
+    const crmDb = JSON.parse(localStorage.getItem('crm_records')) || [];
+    const soDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    
+    if (window.editInvoiceIndex === -1) {
+        const nextNum = invDb.length + 1;
+        const paddedNum = String(nextNum).padStart(3, '0');
+
+        // Auto-Incrementing IDs and Reference
+        document.getElementById('inv-pay-id').value = `PAY_${paddedNum}`;
+        document.getElementById('pay-inv-id').value = `INV_${paddedNum}`;
+        document.getElementById('pay-ref').value = "REF-" + Math.floor(100000 + Math.random() * 900000);
+
+        document.getElementById('invoice-form-title').innerText = "New Payment Entry";
+        document.getElementById('pay-amount-due').value = '';
+    }
+
+    // Populate Sales Order Link Dropdown
+    const soSelect = document.getElementById('pay-so-link');
+    if (soSelect) {
+        soSelect.innerHTML = '<option value="" disabled selected>Select Pending Order</option>';
+        soDb.forEach(order => {
+            if (order.status !== "Paid") {
+                soSelect.innerHTML += `<option value="${order.id}">${order.id} - ${order.customerName || order.customerId}</option>`;
+            }
+        });
+    }
+
+    // Refresh Customer Dropdown from CRM Records
+    const custSelect = document.getElementById('pay-cust-id');
+    if (custSelect) {
+        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
+        crmDb.forEach(c => {
+            custSelect.innerHTML += `<option value="${c.id}">${c.name} (${c.id})</option>`;
+        });
+    }
+
+    window.renderInvoiceTable();
+};
+
+// --- 2. Handle Sales Order Selection: Auto-fill Amount Due ---
+window.handleOrderSelection = function() {
+    const soId = document.getElementById('pay-so-link').value;
+    const soDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    const order = soDb.find(o => o.id === soId);
+
+    if (order) {
+        // Auto-fill Amount Due and Customer info
+        document.getElementById('pay-amount-due').value = order.total;
+        document.getElementById('pay-amount').value = order.total;
+        document.getElementById('pay-cust-id').value = order.customerId;
+    }
+};
+window.saveInvoice = function() {
+    let invDb = JSON.parse(localStorage.getItem('invoice_records')) || [];
+    let itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
+    let soDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+
+    const soId = document.getElementById('pay-so-link').value;
+    const order = soDb.find(o => o.id === soId);
+
+    if (!order) {
+        alert("Please link a Sales Order to identify the product and quantity.");
+        return;
+    }
+
+    // Capture Invoice Data from the form
+    const data = {
+        id: document.getElementById('inv-pay-id').value,
+        invoiceId: document.getElementById('pay-inv-id').value,
+        customerId: document.getElementById('pay-cust-id').value,
+        date: document.getElementById('pay-date').value,
+        method: document.getElementById('pay-method').value,
+        amount: parseFloat(document.getElementById('pay-amount').value || 0).toFixed(2),
+        reference: document.getElementById('pay-ref').value,
+        status: "Paid"
+    };
+
+    // --- CRITICAL: INVENTORY UPDATE LOGIC ---
+    // Match the product from the Sales Order to Item Management
+    const itemIndex = itemDb.findIndex(i => i.itemName === order.productName || i.id === order.productId);
+    
+    if (itemIndex !== -1) {
+        // Use parseInt and || 0 to prevent "undefined" or NaN errors
+        let currentQty = parseInt(itemDb[itemIndex].unitQty) || 0; 
+        let soldQty = parseInt(order.quantity) || 0;
+
+        if (currentQty >= soldQty) {
+            // Subtract and update the master list
+            itemDb[itemIndex].unitQty = currentQty - soldQty;
+        } else {
+            alert(`Stock error: Only ${currentQty} units left for ${order.productName}.`);
+            return; 
+        }
+    } else {
+        alert("Product not found in Item Management. Inventory could not be updated.");
+        return;
+    }
+
+    // 1. Save updated inventory back to local storage
+    localStorage.setItem('items_records', JSON.stringify(itemDb));
+    
+    // 2. Mark the specific Sales Order as Paid so it is removed from pending
+    const soIndex = soDb.findIndex(o => o.id === soId);
+    if (soIndex !== -1) {
+        soDb[soIndex].status = "Paid";
+        localStorage.setItem('sales_orders_records', JSON.stringify(soDb));
+    }
+
+    // 3. Finalize and save the new Invoice/Payment record
+    invDb.push(data);
+    localStorage.setItem('invoice_records', JSON.stringify(invDb));
+    
+    // 4. Success Feedback & UI Reset
+    alert(`Payment saved! Inventory for ${order.productName} decreased.`);
+    window.toggleInvoiceForm(false);
+    window.initInvoiceView(); 
+};
+
+// --- 4. Render Table ---
+window.renderInvoiceTable = function() {
+    const tbody = document.getElementById('invoice-table-body');
+    if (!tbody) return;
+
+    const db = JSON.parse(localStorage.getItem('invoice_records')) || [];
+    tbody.innerHTML = '';
+
+    db.forEach((pay, index) => {
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${pay.id}</strong></td>
+                <td>${pay.invoiceId}</td>
+                <td>${pay.customerId}</td>
+                <td>${pay.date}</td>
+                <td>${pay.method}</td>
+                <td>₱${pay.amount}</td>
+                <td>${pay.reference}</td>
+                <td><span class="status-pill" style="background: #dcfce7; color: #166534;">${pay.status}</span></td>
+                <td>
+                    <button onclick="editInvoice(${index})" style="color: #2563eb; border:none; background:none; cursor:pointer; margin-right: 10px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteInvoice(${index})" style="color: #ef4444; border:none; background:none; cursor:pointer; margin-right: 10px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button onclick="window.print()" style="border:none; background:none; cursor:pointer;">
+                        <i class="fas fa-print"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+};
+
+// --- 5. Delete Logic with Sequential Reset ---
+window.deleteInvoice = function(index) {
+    if(confirm("Are you sure you want to delete this payment record?")) {
+        let db = JSON.parse(localStorage.getItem('invoice_records')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('invoice_records', JSON.stringify(db));
+        
+        // Re-run init to recalculate the next PAY ID sequence
+        window.initInvoiceView(); 
+    }
+};
+
+// --- 6. Form Visibility Toggle ---
+window.toggleInvoiceForm = function(show) {
+    const form = document.getElementById('invoice-form-container');
+    if (form) form.style.display = show ? 'block' : 'none';
+    if (!show) {
+        window.editInvoiceIndex = -1; // Reset if cancelled
+        document.getElementById('invoice-form-title').innerText = "New Payment Entry";
+    }
+};
+// 1. INITIALIZE CRM ID (Triggered when entering the CRM view)
+window.initCrm = function() {
+    const idField = document.getElementById('cust-id');
+    const crmDb = JSON.parse(localStorage.getItem('crm_records')) || [];
+    
+    if (idField && editCrmIndex === -1) {
+        // Generates CUST_001, CUST_002, etc. with underscore
+        const nextNum = crmDb.length + 1;
+        const nextId = "CUST_" + String(nextNum).padStart(3, '0');
+        
+        idField.value = nextId;
+        
+        // Lock the field to prevent manual edits
+        idField.readOnly = true;
+        idField.style.background = "#f8fafc"; 
+        idField.style.color = "#64748b"; // Subtle grey for read-only look
+    }
+
+    // Ensure the table is also refreshed
+    window.renderCustomerTable();
+};
+window.renderCustomerTable = function() {
+    const tbody = document.getElementById('customer-table-body');
+    if (!tbody) return;
+
+    const crmData = JSON.parse(localStorage.getItem('crm_records')) || [];
+
+    if (crmData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No customers found in CRM database.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = crmData.map((cust, index) => {
+        // Updated fallback to use CUST_001 format
+        const displayId = cust.id || `CUST_${String(index + 1).padStart(3, '0')}`;
+        
+        return `
+            <tr>
+                <td><strong>${displayId}</strong></td>
+                <td>${cust.name || "-"}</td>
+                <td>${cust.industry || "-"}</td>
+                <td>${cust.phone || "-"}</td>
+                <td>${cust.email || "-"}</td>
+                <td>${cust.address || "-"}</td>
+                <td>
+                    <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.8em;">
+                        ${cust.status || "Active"}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+// --- 3. Search Filter Logic ---
+window.filterCustomerTable = function() {
+    const query = document.getElementById('customer-search').value.toLowerCase();
+    const rows = document.querySelectorAll('#customer-table-body tr');
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+};
+window.syncProductData = function() {
+    const selectedId = document.getElementById('so-product-id').value;
+    const priceField = document.getElementById('so-unit-price'); 
+    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
+
+    const product = productDb.find(p => p.id === selectedId);
+    
+    if (product && priceField) {
+        // Pull Master Price (e.g., ₱800,000.00) and clean it for math
+        const cleanPrice = product.price ? product.price.toString().replace(/[₱,]/g, '') : "0";
+        priceField.value = cleanPrice;
+        
+        // Auto-set quantity to 1 if empty
+        const qtyField = document.getElementById('so-quantity');
+        if (qtyField && (!qtyField.value || qtyField.value == 0)) qtyField.value = 1;
+
+        window.calculateOrderTotal();
+    }
+};
+
+window.calculateOrderTotal = function() {
+    // 1. Get input elements
+    const priceField = document.getElementById('so-unit-price');
+    const qtyField = document.getElementById('so-quantity');
+    const totalField = document.getElementById('so-total-amount');
+
+    if (!priceField || !qtyField || !totalField) return;
+
+    // 2. Extract and clean values
+    // Removes '₱' and commas for math operations
+    const price = parseFloat(priceField.value.replace(/[₱,]/g, '') || 0);
+    const qty = parseInt(qtyField.value || 0);
+    
+    // 3. Calculate raw total
+    const rawTotal = price * qty;
+    
+    // 4. Format the total as currency (e.g., ₱1,600,000.00)
+    if (!isNaN(rawTotal)) {
+        const formattedTotal = rawTotal.toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        
+        // Update the display field with the currency symbol
+        totalField.value = `₱${formattedTotal}`;
+    } else {
+        totalField.value = "₱0.00";
+    }
+
+    // Optional: Log for debugging high-value items like Toyota Raize
+    console.log(`Calculation: ${price} x ${qty} = ${totalField.value}`);
+};
+// --- Global Tracking Variables ---
+window.editInvoiceIndex = -1;
+window.editPaymentIndex = -1; // Standardized index for Payment Terms
+
+// --- Local Storage Databases ---
+let paymentDb = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
+
+// ==========================================
+// 1. UI & FORM CONTROLS
+// ==========================================
+
+window.togglePaymentForm = function(show) {
+    const container = document.getElementById('payment-form-container');
+    const title = document.getElementById('payment-form-title');
+    if (!container) return;
+
+    // Show container first so DOM is ready for ID injection
+    container.style.display = show ? 'block' : 'none';
+
+    if (show) {
+        // Reset tracking index for a fresh entry
+        window.editPaymentIndex = -1;
+        if (title) title.innerText = "Add New Term";
+
+        // Clear existing values
+        const fields = ['pay-name', 'pay-days', 'pay-discount'];
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
+        // Force generate and show the next TERM_XXX ID
+        window.initPaymentTerms();
+        
+        // Auto-focus the first field for better UX
+        setTimeout(() => {
+            const nameField = document.getElementById('pay-name');
+            if (nameField) nameField.focus();
+        }, 10);
+    }
+};
+
+window.initPaymentTerms = function() {
+    const termsDb = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
+    const idField = document.getElementById('pay-id');
+    
+    if (idField) {
+        // Calculate the next ID based on current records
+        const nextNum = (termsDb.length + 1).toString().padStart(3, '0');
+        const nextId = `TERM${nextNum}`;
+        
+        idField.value = nextId; // Now visible immediately
+        
+        // Match the "System-Locked" readonly style
+        idField.style.backgroundColor = "#f1f5f9";
+        idField.style.color = "#475569";
+        idField.style.fontWeight = "600";
+    }
+};
+
+// ==========================================
+// 2. DATA PERSISTENCE (SAVE/DELETE)
+// ==========================================
+
+window.savePaymentTerm = function() {
+    const idValue = document.getElementById('pay-id').value;
+    const nameValue = document.getElementById('pay-name').value;
+    const daysValue = document.getElementById('pay-days').value;
+    const discountValue = document.getElementById('pay-discount').value;
+
+    if (!nameValue || !daysValue) {
+        alert("Please fill in the Term Name and Days Due.");
+        return;
+    }
+
+    const newTerm = {
+        id: idValue,
+        name: nameValue.toUpperCase(),
+        days: daysValue,
+        discount: discountValue.includes('%') ? discountValue : `${discountValue}%`,
+        status: "Active"
+    };
+
+    let db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
+    
+    // Check if we are updating or adding new based on the global index
+    if (window.editPaymentIndex > -1) {
+        db[window.editPaymentIndex] = newTerm;
+    } else {
+        db.push(newTerm);
+    }
+
+    localStorage.setItem('payment_terms_records', JSON.stringify(db));
+    
+    window.renderPaymentsTable();
+    window.togglePaymentForm(false);
+};
+window.editPaymentTerm = function(index) {
+    const db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
+    const term = db[index];
+    
+    if (term) {
+        // Set the global tracking index
+        window.editPaymentIndex = index;
+        
+        // Update Form Title
+        const title = document.getElementById('payment-form-title');
+        if (title) title.innerText = "Edit Payment Term";
+        
+        // Show the form container
+        document.getElementById('payment-form-container').style.display = 'block';
+        
+        // Populate inputs with existing data
+        document.getElementById('pay-id').value = term.id;
+        document.getElementById('pay-name').value = term.name;
+        document.getElementById('pay-days').value = term.days;
+        document.getElementById('pay-discount').value = term.discount.replace('%', ''); // Remove % for editing
+        
+        // Scroll to the form for better visibility
+        document.getElementById('payment-form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+window.deletePaymentTerm = function(index) {
+    // Applying the requestDelete logic from your standard items/CRM pattern
+    requestDelete("Are you sure you want to delete this payment term?", () => {
+        let db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('payment_terms_records', JSON.stringify(db));
+        
+        window.renderPaymentsTable(); 
+        window.initPaymentTerms(); // Recalculate IDs instantly so TERM_XXX is always ready
+    });
+};
+
+// ==========================================
+// 3. TABLE RENDERING LOGIC
+// ==========================================
+window.renderPaymentsTable = function() {
+    const tbody = document.querySelector('#payments-table tbody');
+    if (!tbody) return;
+
+    const db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
+    tbody.innerHTML = ''; 
+
+    if (db.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">No payment terms configured.</td></tr>';
+        return;
+    }
+
+    db.forEach((term, index) => {
+        const row = `
+            <tr>
+                <td><strong>${term.id}</strong></td>
+                <td>${term.name}</td>
+                <td>${term.days}</td>
+                <td>${term.discount}</td>
+                <td>
+                    <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">
+                        ${term.status}
+                    </span>
+                </td>
+                <td>
+                    <button class="text-btn" onclick="window.editPaymentTerm(${index})" style="background:none; border:none; cursor:pointer; margin-right: 10px;">
+                        <i class="fas fa-edit" style="color:#2563eb;"></i>
+                    </button>
+                    <button class="text-btn" onclick="window.deletePaymentTerm(${index})" style="background:none; border:none; cursor:pointer;">
+                        <i class="fas fa-trash" style="color:#ef4444;"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+};
+// ==========================================
+// 1. INITIALIZATION & DATA SYNC
+// ==========================================
+
+window.initDeliveries = function() {
+    const deliveryDb = JSON.parse(localStorage.getItem('delivery_records')) || [];
+    const salesOrders = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    const idField = document.getElementById('dl-id');
+    const soSelect = document.getElementById('dl-so-id');
+
+    // 1. Generate Sequential ID: DN-2026-001
+    if (idField) {
+        const nextNum = (deliveryDb.length + 1).toString().padStart(3, '0');
+        idField.value = `DN-2026-${nextNum}`;
+    }
+
+    // 2. Populate Sales Order Dropdown (Only Confirmed Orders)
+    if (soSelect) {
+        soSelect.innerHTML = '<option value="" disabled selected>Select Confirmed SO</option>';
+        const confirmedOrders = salesOrders.filter(so => so.status === "Confirmed");
+        
+        if (confirmedOrders.length === 0) {
+            soSelect.innerHTML += '<option disabled>No Confirmed Orders Available</option>';
+        } else {
+            confirmedOrders.forEach(so => {
+                soSelect.innerHTML += `<option value="${so.id}">${so.id} - ${so.customerId}</option>`;
+            });
+        }
+    }
+};
+
+// Auto-fill Customer and Address from Sales Order
+window.syncDeliveryData = function() {
+    const selectedSoId = document.getElementById('dl-so-id').value;
+    const salesOrders = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    const order = salesOrders.find(o => o.id === selectedSoId);
+
+    if (order) {
+        if (document.getElementById('dl-cust-id')) 
+            document.getElementById('dl-cust-id').value = order.customerId;
+        if (document.getElementById('dl-address')) 
+            document.getElementById('dl-address').value = order.address || "No Address Provided";
+        
+        // Optional: Set default delivery date to today
+        const dateField = document.getElementById('dl-date');
+        if (dateField && !dateField.value) {
+            dateField.value = new Date().toISOString().split('T')[0];
+        }
+    }
+};
+
+// ==========================================
+// 2. UI CONTROLS
+// ==========================================
+
+window.toggleDeliveryForm = function(show) {
+    const container = document.getElementById('delivery-form-container');
+    if (!container) return;
+
+    container.style.display = show ? 'block' : 'none';
+
+    if (show) {
+        window.initDeliveries(); // Refresh IDs and Dropdowns
+    }
+};
+
+// ==========================================
+// 3. CORE CRUD (SAVE/DELETE)
+// ==========================================
+
+window.saveDeliveryNote = function() {
+    const id = document.getElementById('dl-id').value;
+    const soId = document.getElementById('dl-so-id').value;
+    const custId = document.getElementById('dl-cust-id').value;
+    const date = document.getElementById('dl-date').value;
+    const address = document.getElementById('dl-address').value;
+    const courier = document.getElementById('dl-courier').value;
+
+    if (!soId || !date || !address) {
+        alert("Please ensure Sales Order, Date, and Address are filled.");
+        return;
+    }
+
+    const newDelivery = {
+        id: id,
+        soId: soId,
+        customerId: custId,
+        date: date,
+        address: address,
+        courier: courier,
+        status: "Pending"
+    };
+
+    let db = JSON.parse(localStorage.getItem('delivery_records')) || [];
+    db.push(newDelivery);
+    localStorage.setItem('delivery_records', JSON.stringify(db));
+
+    alert(`Delivery Note ${id} generated successfully!`);
+    window.renderDeliveriesTable();
+    window.toggleDeliveryForm(false);
+};
+
+window.deleteDelivery = function(index) {
+    if (confirm("Remove this delivery record?")) {
+        let db = JSON.parse(localStorage.getItem('delivery_records')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('delivery_records', JSON.stringify(db));
+        window.renderDeliveriesTable();
+    }
+};
+
+// ==========================================
+// 4. RENDERING LOGIC
+// ==========================================
+
+window.renderDeliveriesTable = function() {
+    const tbody = document.querySelector('#deliveries-table tbody');
+    if (!tbody) return;
+
+    const db = JSON.parse(localStorage.getItem('delivery_records')) || [];
+    tbody.innerHTML = '';
+
+    if (db.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">No delivery records found.</td></tr>';
+        return;
+    }
+
+    db.forEach((dl, index) => {
+        const statusColor = dl.status === "Delivered" ? "#166534" : "#854d0e";
+        const statusBg = dl.status === "Delivered" ? "#dcfce7" : "#fef9c3";
+
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${dl.id}</strong></td>
+                <td>${dl.soId}</td>
+                <td>${dl.customerId}</td>
+                <td>${dl.date}</td>
+                <td>${dl.address}</td>
+                <td>${dl.courier}</td>
+                <td><span class="status-pill" style="background: ${statusBg}; color: ${statusColor};">${dl.status}</span></td>
+                <td>
+                    <button class="text-btn" onclick="window.deleteDelivery(${index})">
+                        <i class="fas fa-trash" style="color:#ef4444;"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+};
+// ==========================================
+// 1. INITIALIZATION & DATA SYNC
+// ==========================================
+
+window.initReturns = function() {
+    const returnsDb = JSON.parse(localStorage.getItem('returns_records')) || [];
+    const idField = document.getElementById('ret-id');
+    const custSelect = document.getElementById('ret-cust-id');
+
+    // 1. Generate Sequential ID: RET-2026-001
+    if (idField) {
+        const nextNum = (returnsDb.length + 1).toString().padStart(3, '0');
+        idField.value = `RET-2026-${nextNum}`;
+    }
+
+    // 2. Populate Customer Dropdown from CRM Records
+    if (custSelect) {
+        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
+        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
+        
+        if (customers.length === 0) {
+            custSelect.innerHTML += '<option disabled>No Customers Found in CRM</option>';
+        } else {
+            customers.forEach(c => {
+                custSelect.innerHTML += `<option value="${c.id}">${c.id} - ${c.name}</option>`;
+            });
+        }
+    }
+
+    // 3. Auto-set Return Date to Today
+    const dateField = document.getElementById('ret-date');
+    if (dateField && !dateField.value) {
+        dateField.value = new Date().toISOString().split('T')[0];
+    }
+};
+
+// ==========================================
+// 2. UI & FORM CONTROLS
+// ==========================================
+
+window.toggleReturnForm = function(show) {
+    const container = document.getElementById('return-form-container');
+    if (!container) return;
+
+    container.style.display = show ? 'block' : 'none';
+
+    if (show) {
+        window.initReturns(); // Refresh IDs and Dropdowns
+        // Reset specific manual fields
+        document.getElementById('ret-so-id').value = '';
+        document.getElementById('ret-amount').value = '';
+    }
+};
+
+// ==========================================
+// 3. CORE CRUD (SAVE/DELETE)
+// ==========================================
+
+window.saveReturnRecord = function() {
+    const id = document.getElementById('ret-id').value;
+    const soId = document.getElementById('ret-so-id').value;
+    const custId = document.getElementById('ret-cust-id').value;
+    const date = document.getElementById('ret-date').value;
+    const amount = document.getElementById('ret-amount').value;
+    const condition = document.getElementById('ret-condition').value;
+
+    // Validation
+    if (!soId || !custId || !amount) {
+        alert("Please provide the Sales Order ID, Customer, and Refund Amount.");
+        return;
+    }
+
+    const newReturn = {
+        id: id,
+        soId: soId,
+        customerId: custId,
+        date: date,
+        amount: amount.startsWith('₱') ? amount : `₱${parseFloat(amount).toLocaleString()}`,
+        condition: condition,
+        status: "Inspected"
+    };
+
+    let db = JSON.parse(localStorage.getItem('returns_records')) || [];
+    db.push(newReturn);
+    localStorage.setItem('returns_records', JSON.stringify(db));
+
+    alert(`Return Record ${id} has been authorized.`);
+    window.renderReturnsTable();
+    window.toggleReturnForm(false);
+};
+
+window.deleteReturn = function(index) {
+    if (confirm("Delete this return record?")) {
+        let db = JSON.parse(localStorage.getItem('returns_records')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('returns_records', JSON.stringify(db));
+        window.renderReturnsTable();
+    }
+};
+
+// ==========================================
+// 4. RENDERING LOGIC
+// ==========================================
+
+window.renderReturnsTable = function() {
+    const tbody = document.querySelector('#returns-table tbody');
+    if (!tbody) return;
+
+    const db = JSON.parse(localStorage.getItem('returns_records')) || [];
+    tbody.innerHTML = '';
+
+    if (db.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">No return records found.</td></tr>';
+        return;
+    }
+
+    db.forEach((ret, index) => {
+        const statusBg = ret.status === "Inspected" ? "#dcfce7" : "#fef9c3";
+        const statusColor = ret.status === "Inspected" ? "#166534" : "#854d0e";
+
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${ret.id}</strong></td>
+                <td>${ret.soId}</td>
+                <td>${ret.customerId}</td>
+                <td>${ret.date}</td>
+                <td>${ret.condition}</td>
+                <td>${ret.amount}</td>
+                <td>${ret.condition}</td>
+                <td><span class="status-pill" style="background: ${statusBg}; color: ${statusColor};">${ret.status}</span></td>
+                <td>
+                    <button class="text-btn" onclick="window.deleteReturn(${index})">
+                        <i class="fas fa-trash" style="color:#ef4444;"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+};
+// MAINTENANCE SERVICE MODULE LOGIC (Updated to pull Sales Orders)
+window.initMaintView = function() {
+    window.editMaintIndex = -1;
+    window.renderMaintTable();
+    window.populateMaintSO();
+};
+
+// Pulls Sales Order IDs into the form dropdown
+window.populateMaintSO = function() {
+    const soSelect = document.getElementById('maint-so-id');
+    if (!soSelect) return;
+    
+    // Fetch from sales_orders_records specifically
+    const soRecords = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    
+    soSelect.innerHTML = '<option value="">Select Sales Order</option>';
+    soRecords.forEach(so => {
+        // Use so.id or whatever key matches your Sales Order record structure
+        const option = document.createElement('option');
+        option.value = so.id;
+        option.textContent = so.id;
+        soSelect.appendChild(option);
+    });
+};
+
+// Form Visibility & ID Logic
+window.toggleMaintForm = function(show) {
+    const container = document.getElementById('maint-form-container');
+    const title = document.getElementById('maint-form-title');
+    
+    if (show) {
+        container.style.display = 'block';
+        if (window.editMaintIndex === -1) {
+            title.innerText = "New Service Request";
+            window.generateMaintId();
+        }
+    } else {
+        container.style.display = 'none';
+        window.clearMaintForm();
+    }
+};
+
+window.generateMaintId = function() {
+    const db = JSON.parse(localStorage.getItem('maint_records')) || [];
+    const nextNum = db.length + 1;
+    const paddedNum = String(nextNum).padStart(3, '0');
+    const year = new Date().getFullYear();
+    document.getElementById('maint-id').value = `MS-${year}-${paddedNum}`;
+};
+
+// Data Persistence
+window.saveMaintRequest = function() {
+    const db = JSON.parse(localStorage.getItem('maint_records')) || [];
+    const record = {
+        id: document.getElementById('maint-id').value,
+        soId: document.getElementById('maint-so-id').value,
+        type: document.getElementById('maint-type').value,
+        date: document.getElementById('maint-date').value,
+        status: (window.editMaintIndex === -1) ? "Pending" : db[window.editMaintIndex].status
+    };
+
+    if (!record.soId || !record.date) {
+        alert("Please select a Sales Order and Request Date.");
+        return;
+    }
+
+    if (window.editMaintIndex === -1) {
+        db.push(record);
+    } else {
+        db[window.editMaintIndex] = record;
+    }
+
+    localStorage.setItem('maint_records', JSON.stringify(db));
+    window.toggleMaintForm(false);
+    window.renderMaintTable();
+};
+
+// Table Rendering with Actions
+window.renderMaintTable = function() {
+    const tbody = document.querySelector('#maint-table tbody');
+    if (!tbody) return;
+
+    const db = JSON.parse(localStorage.getItem('maint_records')) || [];
+    const searchInput = document.getElementById('maint-search');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    
+    tbody.innerHTML = '';
+    const filtered = db.filter(item => 
+        item.id.toLowerCase().includes(searchTerm) || 
+        item.soId.toLowerCase().includes(searchTerm)
+    );
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No maintenance records found.</td></tr>';
+        return;
+    }
+
+    filtered.forEach((item, index) => {
+        const row = `
+            <tr>
+                <td style="padding:12px;"><strong>${item.id}</strong></td>
+                <td style="padding:12px;">${item.soId}</td>
+                <td style="padding:12px;">${item.type}</td>
+                <td style="padding:12px;">${item.date}</td>
+                <td style="padding:12px;">
+                    <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">
+                        ${item.status}
+                    </span>
+                </td>
+                <td style="padding:12px; text-align:center;">
+                    <button class="text-btn" onclick="window.editMaintRequest(${index})" style="background:none; border:none; cursor:pointer; color:#2563eb; margin-right:8px;">
+                        <i class="fas fa-tools"></i>
+                    </button>
+                    <button class="text-btn" onclick="window.deleteMaintRequest(${index})" style="background:none; border:none; cursor:pointer; color:#ef4444;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        tbody.innerHTML += row;
+    });
+};
+
+window.editMaintRequest = function(index) {
+    const db = JSON.parse(localStorage.getItem('maint_records')) || [];
+    const item = db[index];
+    if (item) {
+        window.editMaintIndex = index;
+        window.toggleMaintForm(true);
+        document.getElementById('maint-form-title').innerText = "Edit Service Request";
+        document.getElementById('maint-id').value = item.id;
+        document.getElementById('maint-so-id').value = item.soId;
+        document.getElementById('maint-type').value = item.type;
+        document.getElementById('maint-date').value = item.date;
+    }
+};
+
+window.deleteMaintRequest = function(index) {
+    // Uses your custom requestDelete utility for consistent UI
+    requestDelete("Are you sure you want to delete this maintenance record?", () => {
+        let db = JSON.parse(localStorage.getItem('maint_records')) || [];
+        
+        // Remove the specific record from the array
+        db.splice(index, 1);
+        
+        // Update LocalStorage
+        localStorage.setItem('maint_records', JSON.stringify(db));
+        
+        // Refresh the UI instantly
+        window.renderMaintTable(); 
+        
+        // Recalculate IDs for the next entry instantly
+        if (window.editMaintIndex === -1) {
+            window.generateMaintId(); 
+        }
+    });
+};
+
+window.clearMaintForm = function() {
+    window.editMaintIndex = -1;
+    const soSelect = document.getElementById('maint-so-id');
+    if (soSelect) soSelect.selectedIndex = 0;
+    document.getElementById('maint-date').value = '';
+};
+// --- DATABASE INITIALIZATION ---
+let maintenanceVisits = JSON.parse(localStorage.getItem('maint_visits')) || [];
+
+/**
+ * Initializes the Maintenance Visit view
+ * Generates the next sequential ID and refreshes the table
+ */
+window.initMaintenanceVisit = function() {
+    const nextIdNum = maintenanceVisits.length > 0 
+        ? Math.max(...maintenanceVisits.map(v => parseInt(v.id.replace('MV', '')))) + 1 
+        : 1;
+    
+    const nextId = 'MV' + String(nextIdNum).padStart(3, '0');
+    
+    // Update ID field if it exists in your form
+    const idField = document.getElementById('visit-id-display');
+    if (idField) idField.value = nextId;
+
+    window.renderMaintenanceVisits();
+};
+
+/**
+ * Saves current state to LocalStorage
+ */
+window.syncMaintStorage = function() {
+    localStorage.setItem('maint_visits', JSON.stringify(maintenanceVisits));
+};
+
+/**
+ * Deletes a record by index using the requestDelete confirmation pattern
+ * Recalculates IDs/State instantly after deletion
+ */
+window.deleteVisit = function(index) {
+    requestDelete("Are you sure you want to delete this maintenance record?", () => {
+        // Remove from local array
+        maintenanceVisits.splice(index, 1);
+        
+        // Sync to storage
+        window.syncMaintStorage();
+        
+        // Refresh UI and Recalculate IDs
+        window.renderMaintenanceVisits();
+        window.initMaintenanceVisit(); 
+        
+        console.log(`Record at index ${index} deleted and storage synced.`);
+    });
+};
+
+/**
+ * Saves a new visit and triggers re-init
+ */
+window.saveVisit = function() {
+    const serviceId = document.getElementById('visit-service-id').value;
+    const techId = document.getElementById('visit-tech-id').value;
+    const visitDate = document.getElementById('visit-date').value;
+
+    if (!serviceId || !visitDate) {
+        alert("Please fill in required fields.");
+        return;
+    }
+
+    // Generate ID based on current max to ensure no duplicates
+    const nextIdNum = maintenanceVisits.length > 0 
+        ? Math.max(...maintenanceVisits.map(v => parseInt(v.id.replace('MV', '')))) + 1 
+        : 1;
+
+    const newVisit = {
+        id: 'MV' + String(nextIdNum).padStart(3, '0'),
+        serviceId: serviceId,
+        techId: techId,
+        date: visitDate,
+        remarks: 'Scheduled'
+    };
+
+    maintenanceVisits.push(newVisit);
+    window.syncMaintStorage();
+    
+    // Reset View
+    window.renderMaintenanceVisits();
+    window.initMaintenanceVisit();
+    window.toggleVisitForm(false);
+};
+
+/**
+ * Renders the table using index-based deletion
+ */
+window.renderMaintenanceVisits = function() {
+    const tbody = document.getElementById('visit-table-body');
+    if (!tbody) return;
+
+    if (maintenanceVisits.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">No records found.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = maintenanceVisits.map((visit, index) => `
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td><strong>${visit.id}</strong></td>
+            <td>${visit.serviceId}</td>
+            <td><span class="status-pill" style="background:#f1f5f9; color:#475569;">${visit.techId}</span></td>
+            <td>${visit.date}</td>
+            <td>${visit.remarks}</td>
+            <td style="text-align:center;">
+                <button class="text-btn" onclick="deleteVisit(${index})" title="Delete">
+                    <i class="fas fa-trash-alt" style="color:#ef4444;"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+};
+
+// Auto-run on load if necessary
+document.addEventListener('DOMContentLoaded', () => {
+    if(document.getElementById('maint-visit-view')) {
+        window.initMaintenanceVisit();
+    }
+});
 // Helper to force standardized dash format
 const toDashFormat = (prefix, id) => {
     if (!id) return "";
@@ -6418,9 +7902,16 @@ function showView(viewId) {
         window.renderMatReqTable();
         window.initMatReq();
     } else if (viewId === 'items-view') {
-        window.renderItemsTable();
-        window.initItems();
-    } else if (viewId === 'warehouses-view') {
+    // 1. Render the item list table
+    if (typeof window.renderItemTable === 'function') {
+        window.renderItemTable();
+    }
+    
+    // 2. Prepare the form (Initial Sequential ID)
+    if (typeof window.initItem === 'function') {
+        window.initItem();
+    }
+}else if (viewId === 'warehouses-view') {
         // Initialize Warehouse module
         if (typeof window.initWarehouses === 'function') {
             window.initWarehouses();
@@ -6447,8 +7938,59 @@ function showView(viewId) {
     if (typeof window.prepareSellingItem === 'function') {
         window.prepareSellingItem(); 
     }
-}
+} else if (viewId === 'sales-orders-view') {
+    // 1. Refresh the table (with the new Product column)
+    if (typeof window.renderSOTable === 'function') {
+        window.renderSOTable();
+    }
+    
+    // 2. Refresh sequential IDs and Product dropdown
+    if (typeof window.initSalesOrder === 'function') {
+        window.initSalesOrder();
+    }
+} // --- NEW: Invoices & Official Receipts Integration ---
+else if (viewId === 'invoices-view') {
+    // 1. Render the billing table
+    if (typeof window.renderInvoiceTable === 'function') {
+        window.renderInvoiceTable();
+    }
+    
+    // 2. Refresh sequential PAY_XXXX IDs and Customer dropdowns
+    if (typeof window.initInvoiceView === 'function') {
+        window.initInvoiceView();
+    }
+} else if (viewId === 'customers-view') {
+    if (typeof window.initCrm === 'function') {
+        window.initCrm(); // Triggers the CUST_001 auto-increment
+    }
+} // ACCOUNTS RECEIVABLE & CONFIGURATION TRIGGERS
+else if (viewId === 'payments-view') {
+    window.renderPaymentsTable();
+    window.initPaymentTerms();
+    window.togglePaymentForm(false);
+} 
 
+// LOGISTICS & DISTRIBUTION TRIGGERS
+else if (viewId === 'deliveries-view') {
+    window.renderDeliveriesTable();
+    window.initDeliveries();
+    window.toggleDeliveryForm(false);
+} 
+
+// SALES RETURNS & AFTERSALES TRIGGERS
+else if (viewId === 'returns-view') {
+    window.renderReturnsTable();
+    window.initReturns();
+    window.toggleReturnForm(false);
+} else if (viewId === 'maint-service-view') {
+    window.renderMaintTable();
+    window.initMaintView();
+    window.toggleMaintForm(false);
+} else if (viewId === 'maint-visit-view') {
+    window.renderMaintenanceVisits();
+    window.initMaintenanceVisit();
+    window.toggleVisitForm(false);
+}
     // --- Sidebar Active State Management ---
     const navMap = {
         'dashboard-main': 'nav-dash', 
