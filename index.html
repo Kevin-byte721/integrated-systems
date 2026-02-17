@@ -1670,9 +1670,6 @@ const buyingDashboardHTML = `
             <div class="nav-item" id="nav-invoices" onclick="showView('invoices-view')">
                 <i class="fas fa-file-alt"></i> Invoices
             </div>
-            <div class="nav-item" id="nav-payments" onclick="showView('payments-view')">
-                <i class="fas fa-money-bill-wave"></i> Payments
-            </div>
             <div class="nav-item" id="nav-deliveries" onclick="showView('deliveries-view')">
                 <i class="fas fa-truck"></i> Deliveries
             </div>
@@ -1788,152 +1785,133 @@ const buyingDashboardHTML = `
 </div>
 <div id="sales-orders-view" style="display:none;">
     <div class="header">
-        <h1>Sales Orders</h1>
-        <p>Manage and track customer purchase commitments.</p>
+        <h1 style="color: #1e293b; font-weight: 800;">Sales Orders</h1>
+        <p style="color: #64748b;">Manage and track customer purchase commitments.</p>
     </div>
 
-    <div id="so-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
-    <h3 id="so-form-title">New Sales Order</h3>
-    <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+    <div id="so-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #2563eb; position: relative; z-index: 100;">
+        <h3 id="so-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">New Sales Order</h3>
         
-        <div class="input-box">
-            <label>Sales Order ID</label>
-            <input type="text" id="so-id" readonly style="background: #f1f5f9; cursor: not-allowed;">
-        </div>
-        
-        <div class="input-box">
-            <label>Customer ID</label>
-            <select id="so-cust-id">
-                <option value="" disabled selected>Select Customer</option>
-            </select>
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Sales Order ID</label>
+                <input type="text" id="so-id" readonly style="background:#f8fafc; width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-weight: bold;">
+            </div>
+            
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Customer</label>
+                <select id="so-dropdown" onchange="window.syncCustomerAddress()" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                    <option value="" disabled selected>-- Select Customer --</option>
+                </select>
+            </div>
+
+            <div class="input-box" style="grid-column: span 2;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Select Product</label>
+                <select id="so-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                    <option value="" disabled selected>-- Select Item --</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Shipping Address</label>
+                <input type="text" id="so-address" readonly style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; color:#64748b;">
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Quantity</label>
+                <input type="number" id="so-quantity" value="1" min="1" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Order Date</label>
+                <input type="date" id="so-date" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
         </div>
 
-        <div class="input-box">
-            <label>Select Product</label>
-            <select id="so-product-id" onchange="window.syncProductData()">
-                <option value="" disabled selected>Select Product</option>
-            </select>
-        </div>
-
-        <div class="input-box">
-            <label>Unit Price (₱)</label>
-            <input type="number" id="so-unit-price" readonly style="background: #f1f5f9;">
-        </div>
-
-        <div class="input-box">
-            <label>Quantity</label>
-            <input type="number" id="so-quantity" value="1" min="1" oninput="window.calculateSOTotal()">
-        </div>
-
-        <div class="input-box">
-            <label>Assigned User ID</label>
-            <select id="so-su-id">
-                <option value="" disabled selected>Select Sales Rep</option>
-            </select>
-        </div>
-
-        <div class="input-box">
-            <label>Shipping Address</label>
-            <select id="so-address">
-                <option value="" disabled selected>Select Address</option>
-            </select>
-        </div>
-
-        <div class="input-box">
-            <label>Order Date</label>
-            <input type="date" id="so-date">
-        </div>
-
-        <div class="input-box">
-            <label>Total Amount (₱)</label>
-            <input type="text" id="so-total-amount" readonly style="background: #f1f5f9; font-weight: bold;">
+        <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+            <button onclick="window.toggleSOForm(false)" style="padding: 10px 24px; background: #f1f5f9; color: #64748b; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+            <button onclick="window.saveSalesOrder()" style="padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Order</button>
         </div>
     </div>
-    
-    <div class="btn-group" style="margin-top: 15px; display: flex; gap: 10px;">
-        <button class="login-btn" onclick="window.saveSalesOrder()" style="width: auto; padding: 10px 24px;">Save Order</button>
-        <button class="login-btn" onclick="window.toggleSOForm(false)" style="width: auto; padding: 10px 24px; background: #64748b;">Cancel</button>
-    </div>
-</div>
 
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search Sales Orders..." id="so-search">
+            <div class="search-container" style="position: relative; width: 300px;">
+                <i class="fas fa-search" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                <input type="text" placeholder="Search Sales Orders..." id="so-search" oninput="window.filterSoTable()" style="width: 100%; padding: 10px 10px 10px 35px; border: 1px solid #cbd5e1; border-radius: 8px;">
             </div>
-            <div id="add-so-btn-container">
-                <button class="text-btn" onclick="toggleSOForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
-                    <i class="fas fa-plus"></i> New Sales Order
-                </button>
-            </div>
+            <button onclick="window.toggleSOForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-plus"></i> New Sales Order
+            </button>
         </div>
-        <table>
-    <thead>
-        <tr>
-            <th>SALES ORDER ID</th>
-            <th>CUSTOMER ID</th>
-            <th>PRODUCT NAME/ID</th> 
-            <th>QUANTITY</th>
-            <th>ASSIGNED USER ID</th>
-            <th>ORDER DATE</th>
-            <th>SHIPPING ADDRESS</th>
-            <th>TOTAL</th>
-            <th>STATUS</th>
-            <th>ACTIONS</th>
-        </tr>
-    </thead>
-    <tbody id="so-table-body"></tbody>
-</table>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 12px;">ORDER ID</th>
+                        <th style="padding: 12px;">CUSTOMER</th>
+                        <th style="padding: 12px;">PRODUCT</th> 
+                        <th style="padding: 12px; text-align:center;">QTY</th>
+                        <th style="padding: 12px;">DATE</th>
+                        <th style="padding: 12px;">ADDRESS</th>
+                        <th style="padding: 12px;">UNIT PRICE</th>
+                        <th style="padding: 12px;">TOTAL</th>
+                        <th style="padding: 12px;">STATUS</th>
+                        <th style="padding: 12px; text-align: center;">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="so-table-body"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 <div id="invoices-view" style="display:none;">
     <div class="header">
-        <h1>Invoices & Official Receipts</h1>
-        <p>Review billing history and verified payment entries.</p>
+        <h1 style="color: #1e293b; font-weight: 800;">Invoices & Official Receipts</h1>
+        <p style="color: #64748b;">Review billing history and verified payment entries.</p>
     </div>
 
-    <div id="invoice-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
-        <h3 id="invoice-form-title">New Payment Entry</h3>
+    <div id="invoice-form-container" class="content-card" style="display:none; margin-bottom: 25px; border-left: 4px solid #10b981;">
+        <h3 id="invoice-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">New Payment Entry</h3>
         
-        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
             <div class="input-box">
-                <label>Link Sales Order</label>
-                <select id="pay-so-link" onchange="window.handleOrderSelection()">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Link Sales Order</label>
+                <select id="pay-so-link" onchange="window.handleOrderSelection()" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
                     <option value="" disabled selected>Select Pending Order</option>
                 </select>
             </div>
 
             <div class="input-box">
-                <label>Amount Due (₱)</label>
-                <input type="text" id="pay-amount-due" readonly style="background: #f1f5f9; font-weight: bold;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Amount Due (₱)</label>
+                <input type="text" id="pay-amount-due" readonly style="background: #f8fafc; width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-weight: bold; color: #ef4444;">
             </div>
 
             <div class="input-box">
-                <label>Payment Entry ID</label>
-                <input type="text" id="inv-pay-id" readonly style="background: #f1f5f9;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Payment Entry ID</label>
+                <input type="text" id="inv-pay-id" readonly style="background: #f8fafc; width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
             </div>
             
             <div class="input-box">
-                <label>Sales Invoice ID</label>
-                <input type="text" id="pay-inv-id" readonly style="background: #f1f5f9;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Sales Invoice ID</label>
+                <input type="text" id="pay-inv-id" readonly style="background: #f8fafc; width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
             </div>
 
             <div class="input-box">
-                <label>Customer</label>
-                <select id="pay-cust-id">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Customer</label>
+                <select id="pay-cust-id" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc;">
                     <option value="" disabled selected>Select Customer</option>
                 </select>
             </div>
 
             <div class="input-box">
-                <label>Payment Date</label>
-                <input type="date" id="pay-date">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Payment Date</label>
+                <input type="date" id="pay-date" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
             </div>
 
             <div class="input-box">
-                <label>Payment Method</label>
-                <select id="pay-method">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Payment Method</label>
+                <select id="pay-method" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
                     <option value="Bank Transfer">Bank Transfer</option>
                     <option value="Credit Card">Credit Card</option>
                     <option value="E-Wallet">E-Wallet</option>
@@ -1942,120 +1920,54 @@ const buyingDashboardHTML = `
             </div>
 
             <div class="input-box">
-                <label>Amount Paid (₱)</label>
-                <input type="number" id="pay-amount" step="0.01">
-            </div>
+    <label style="display:block; margin-bottom:5px; font-weight:600;">Amount Paid (₱)</label>
+    <input type="number" 
+           id="pay-amount" 
+           placeholder="0.00" 
+           step="0.01" 
+           style="width:100%; padding:10px; border:2px solid #2563eb; border-radius:6px; font-weight:700; color:#1e293b; outline: none;">
+</div>
 
             <div class="input-box">
-                <label>Reference No.</label>
-                <input type="text" id="pay-ref" readonly style="background: #f1f5f9; color: #475569;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Reference No.</label>
+                <input type="text" id="pay-ref" readonly style="background: #f8fafc; width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; color: #64748b; font-size: 12px;">
             </div>
         </div>
 
-        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="login-btn" onclick="saveInvoice()" style="width: auto; padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                Save Payment
-            </button>
-            <button class="login-btn" onclick="toggleInvoiceForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                Cancel
-            </button>
+        <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+            <button onclick="toggleInvoiceForm(false)" style="padding: 10px 24px; background: #f1f5f9; color: #64748b; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+            <button onclick="saveInvoice()" style="padding: 10px 24px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Payment</button>
         </div>
     </div>
 
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Invoice or Payment ID..." id="pay-search" oninput="renderInvoiceTable()">
+            <div class="search-container" style="position: relative; width: 320px;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
+                <input type="text" placeholder="Search invoices or payments..." id="pay-search" oninput="renderInvoiceTable()" style="width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #cbd5e1; border-radius: 8px;">
             </div>
-            <button class="text-btn" onclick="toggleInvoiceForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
+            <button onclick="toggleInvoiceForm(true)" style="background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                 <i class="fas fa-file-invoice-dollar"></i> Create Invoice
             </button>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>PAYMENT ENTRY ID</th>
-                    <th>SALES INVOICE ID</th>
-                    <th>CUSTOMER ID</th>
-                    <th>PAYMENT DATE</th>
-                    <th>PAYMENT METHOD</th>
-                    <th>AMOUNT PAID</th>
-                    <th>REFERENCE NO</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody id="invoice-table-body"></tbody>
-        </table>
-    </div>
-</div>
-<div id="payments-view" style="display:none;">
-    <div class="header">
-        <h1>Payment Terms Configuration</h1>
-        <p>Define credit terms, due dates, and early payment discounts.</p>
-    </div>
-
-    <div id="payment-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
-        <h3 id="payment-form-title">Add New Term</h3>
-        
-        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div class="input-box">
-                <label>Payment Term ID</label>
-                <input type="text" id="pay-id" readonly style="background: #f1f5f9;">
-            </div>
-
-            <div class="input-box">
-                <label>Term Name</label>
-                <input type="text" id="pay-name" placeholder="e.g. NET 30">
-            </div>
-
-            <div class="input-box">
-                <label>Days Due</label>
-                <input type="number" id="pay-days" placeholder="0">
-            </div>
-
-            <div class="input-box">
-                <label>Discount (%)</label>
-                <input type="text" id="pay-discount" placeholder="0.0%">
-            </div>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 12px;">PAYMENT ID</th>
+                        <th style="padding: 12px;">INVOICE ID</th>
+                        <th style="padding: 12px;">CUSTOMER</th>
+                        <th style="padding: 12px;">DATE</th>
+                        <th style="padding: 12px;">METHOD</th>
+                        <th style="padding: 12px;">AMOUNT PAID</th>
+                        <th style="padding: 12px;">REFERENCE</th>
+                        <th style="padding: 12px;">STATUS</th>
+                        <th style="padding: 12px; text-align: center;">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="invoice-table-body"></tbody>
+            </table>
         </div>
-
-        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="login-btn" onclick="window.savePaymentTerm()" style="width: auto; padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                Save Term
-            </button>
-            <button class="login-btn" onclick="window.togglePaymentForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                Cancel
-            </button>
-        </div>
-    </div>
-
-    <div class="content-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search terms..." id="pay-search" oninput="window.renderPaymentsTable()">
-            </div>
-            <button class="text-btn" onclick="window.togglePaymentForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px;">
-                <i class="fas fa-plus"></i> Add New Term
-            </button>
-        </div>
-        
-        <table id="payments-table">
-            <thead>
-                <tr>
-                    <th>PAYMENT TERMS ID</th>
-                    <th>TERM NAME</th>
-                    <th>DAYS DUE</th>
-                    <th>DISCOUNT (%)</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
     </div>
 </div>
 <div id="deliveries-view" style="display:none;">
@@ -2127,17 +2039,15 @@ const buyingDashboardHTML = `
         
         <table id="deliveries-table">
             <thead>
-                <tr>
-                    <th>DELIVERY NOTE ID</th>
-                    <th>SALES ORDER ID</th>
-                    <th>CUSTOMER ID</th>
-                    <th>DELIVERY DATE</th>
-                    <th>ADDRESS</th>
-                    <th>DELIVERED BY</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
+    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
+        <th style="padding: 12px;">DELIVERY ID</th>
+        <th style="padding: 12px;">CUSTOMER</th>
+        <th style="padding: 12px;">WAREHOUSE</th> 
+        <th style="padding: 12px;">DELIVERY DATE</th>
+        <th style="padding: 12px;">STATUS</th>
+        <th style="padding: 12px; text-align: center;">ACTIONS</th>
+    </tr>
+</thead>
             <tbody>
                 </tbody>
         </table>
@@ -2266,21 +2176,15 @@ const buyingDashboardHTML = `
     <h3 id="item-form-title" style="margin-bottom: 15px; color: #1e293b; font-weight: 700;">Add New Item</h3>
     
     <div class="input-box" style="margin-bottom: 20px;">
-    <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Link to Selling Items (Optional)</label>
-    
-    <div style="position: relative;">
-        <select id="itm-product-source" onchange="window.fillItemFormFromSelling()" 
-                style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer; font-size: 0.95rem;">
-            <option value="" disabled selected>-- Select from Selling Items --</option>
-        </select>
-        
-        <i class="fas fa-chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Link to Product Management (Optional)</label>
+        <div style="position: relative;">
+            <select id="itm-product-source" onchange="window.fillItemFormFromSelling()" 
+                    style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer; font-size: 0.95rem;">
+                <option value="" disabled selected>-- Select from Product Inventory --</option>
+            </select>
+            <i class="fas fa-chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+        </div>
     </div>
-    
-    <small style="color: #64748b; display: block; margin-top: 5px;">
-        Choosing a selling item will auto-fill the <b>Name</b>, <b>Quantity</b>, and <b>Cost</b> fields.
-    </small>
-</div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
         <div class="input-box">
@@ -2293,6 +2197,16 @@ const buyingDashboardHTML = `
             <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Item Name</label>
             <input type="text" id="itm-name" placeholder="Enter name" 
                    style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; outline: none;">
+        </div>
+
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Supplier</label>
+            <div style="position: relative;">
+                <select id="itm-supplier" style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer;">
+                    <option value="" disabled selected>-- Select Supplier --</option>
+                </select>
+                <i class="fas fa-truck" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+            </div>
         </div>
 
         <div class="input-box">
@@ -2312,10 +2226,8 @@ const buyingDashboardHTML = `
     </div>
 
     <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-        <button class="text-btn" onclick="window.toggleItemForm(false)" 
-                style="background: #f1f5f9; color: #475569; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer;">Cancel</button>
-        <button class="text-btn" onclick="window.saveItem()" 
-                style="background: #2563eb; color: white; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">Save Item</button>
+        <button class="text-btn" onclick="window.toggleItemForm(false)" style="background: #f1f5f9; color: #475569; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer;">Cancel</button>
+        <button class="text-btn" onclick="window.saveItem()" style="background: #2563eb; color: white; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">Save Item</button>
     </div>
 </div>
 
@@ -2485,14 +2397,11 @@ const buyingDashboardHTML = `
                 <input type="text" id="pr-id-input" readonly style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
             </div>
             <div class="input-box">
-    <label style="display:block; margin-bottom:5px; font-weight:600;">Supplier</label>
-    <select id="pr-supplier-dropdown" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; background: white;">
-        <option value="">-- Select Supplier --</option>
-        <option value="Global Industrial Parts Co">Global Industrial Parts Co</option>
-        <option value="MetalWorks Incorporated">MetalWorks Incorporated</option>
-        <option value="ElectroSupply Philippines">ElectroSupply Philippines</option>
-        <option value="Asia Electrical Trading">Asia Electrical Trading</option>
-    </select>
+    <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Supplier</label>
+    <select id="pr-supplier-dropdown" 
+            style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; background: white; outline: none; color: #1e293b;">
+        <option value="" disabled selected>-- Select Supplier --</option>
+        </select>
 </div>
             <div class="input-box">
                 <label style="display:block; margin-bottom:5px; font-weight:600;">Receipt Date</label>
@@ -2540,59 +2449,80 @@ const buyingDashboardHTML = `
         <p>Track outbound shipments and confirmed customer deliveries.</p>
     </div>
 
-    <div id="dn-form-container" class="content-card" style="display: none; margin-bottom: 20px; border-left: 4px solid #8b5cf6;">
-        <h3 id="dn-form-title" style="margin-bottom: 15px;">Create Delivery Note</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Delivery ID</label>
-                <input type="text" id="dn-id-input" readonly style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px;">
-            </div>
-            <div class="input-box">
-    <label style="display:block; margin-bottom:5px; font-weight:600;">Customer Name</label>
-    <select id="dn-customer-dropdown" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; background: white;"></select>
-</div>
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Item (Select)</label>
-                <select id="dn-item-dropdown" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px;"></select>
-            </div>
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Warehouse (Source)</label>
-                <select id="dn-warehouse-dropdown" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px;"></select>
-            </div>
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Delivery Date</label>
-                <input type="date" id="dn-date" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px;">
-            </div>
+    <div id="dn-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #8b5cf6;">
+    <h3 id="dn-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">Create Delivery Note</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Delivery ID</label>
+            <input type="text" id="dl-id" readonly 
+                   style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; font-family: monospace; font-weight: bold; color: #1e293b;">
         </div>
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="text-btn" onclick="saveDeliveryNote()" style="background: #8b5cf6; color: white; padding: 8px 16px; border-radius:6px;">Save Delivery Note</button>
-            <button class="text-btn" onclick="toggleDnForm()" style="background: #64748b; color: white; padding: 8px 16px; border-radius:6px;">Cancel</button>
+
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Customer Name</label>
+            <select id="dn-customer-dropdown" 
+                    style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff; cursor: pointer; color: #1e293b; outline: none;">
+                <option value="" disabled selected>-- Select Customer --</option>
+            </select>
+        </div>
+
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Source Warehouse</label>
+            <select id="dn-warehouse-dropdown" 
+                    style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff; cursor: pointer; color: #1e293b; outline: none;">
+                <option value="" disabled selected>-- Select Warehouse --</option>
+            </select>
+        </div>
+        <div class="input-box">
+    <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Item</label>
+    <select id="dn-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff; cursor: pointer; color: #1e293b;">
+        <option value="" disabled selected>-- Select Item --</option>
+    </select>
+</div>
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Delivery Date</label>
+            <input type="date" id="dn-date" 
+                   style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; color: #1e293b; outline: none;">
         </div>
     </div>
 
+    <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+        <button onclick="window.toggleDnForm(false)" 
+                style="background: #f1f5f9; color: #64748b; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+            Cancel
+        </button>
+        <button onclick="window.saveDeliveryNote()" 
+                style="background: #8b5cf6; color: white; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+            Save Delivery Note
+        </button>
+    </div>
+</div>
+
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Delivery ID or Customer...">
+            <div class="search-container" style="position: relative;">
+                <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+                <input type="text" placeholder="Search deliveries..." style="padding:10px 10px 10px 35px; border:1px solid #cbd5e1; border-radius:8px; width:300px;">
             </div>
-            <button class="text-btn" onclick="toggleDnForm()" style="background: #8b5cf6; color: white; padding: 10px 20px; border-radius: 8px;">
+            <button class="text-btn" onclick="window.toggleDnForm(true)" style="background:#8b5cf6; color:white; padding:10px 20px; border-radius:8px; border:none; cursor:pointer;">
                 <i class="fas fa-shipping-fast"></i> Create Delivery Note
             </button>
         </div>
-        <table>
-    <thead>
-        <tr>
-            <th>DELIVERY ID</th>
-            <th>CUSTOMER</th>
-            <th>ITEM</th> <th>WAREHOUSE</th> <th>DELIVERY DATE</th>
-            <th>STATUS</th>
-            <th>ACTIONS</th>
-        </tr>
-    </thead>
-    <tbody id="dn-table-body">
-        </tbody>
-</table>
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
+        <th style="padding: 12px;">DELIVERY ID</th>
+        <th style="padding: 12px;">CUSTOMER</th>
+        <th style="padding: 12px;">ITEM</th> <th style="padding: 12px;">WAREHOUSE</th> 
+        <th style="padding: 12px;">DATE</th>
+        <th style="padding: 12px;">STATUS</th>
+        <th style="padding: 12px; text-align: center;">ACTIONS</th>
+    </tr>
+</thead>
+            <tbody id="dn-table-body"></tbody>
+        </table>
     </div>
 </div>
     </main>`;
@@ -2734,34 +2664,39 @@ const buyingDashboardHTML = `
 </div>
 
 <div id="acc-payments-view" style="display:none;">
-    <div class="header">
-        <h1>Payment Entries</h1>
-        <p>Record and manage financial transactions.</p>
+    <div class="header" style="margin-bottom: 25px;">
+        <h1 style="font-weight: 800; color: #1e293b;">Payment Entries</h1>
+        <p style="color: #64748b;">Financial ledger history and transaction records.</p>
     </div>
+
     <div class="content-card">
-        <div id="pay-form-container" style="display:none; margin-bottom: 20px; padding: 20px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
-            <h3 style="border:none;">Record Payment</h3>
-            <div class="form-grid">
-                <div class="input-box"><label>ID</label><input type="text" id="pay-id-display" readonly></div>
-                <div class="input-box"><label>Type</label><select id="pay-type-input"><option>Receive</option><option>Pay</option></select></div>
-                <div class="input-box"><label>Party</label><input type="text" id="pay-party-input"></div>
-                <div class="input-box"><label>Amount</label><input type="number" id="pay-amount-input"></div>
-                <div class="input-box"><label>Reference</label><input type="text" id="pay-ref-input"></div>
-                <div class="input-box"><label>Date</label><input type="date" id="pay-date-input"></div>
-            </div>
-            <div class="btn-group">
-                <button class="text-btn" style="background:#10b981; color:white; padding:10px 20px; border-radius:6px;">Save Entry</button>
-                <button onclick="this.parentElement.parentElement.style.display='none'" class="text-btn" style="background:#64748b; color:white; padding:10px 20px; border-radius:6px;">Cancel</button>
+        
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="search-container" style="position: relative; width: 300px;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
+                <input type="text" id="pay-ledger-search" placeholder="Search entries..." oninput="window.renderPaymentTable()" style="width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #cbd5e1; border-radius: 8px;">
             </div>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <div class="search-container"><i class="fas fa-search"></i><input type="text" placeholder="Search payments..."></div>
-            <button class="text-btn" onclick="document.getElementById('pay-form-container').style.display='block'; window.initPaymentEntry();" style="background:#2563eb; color:white; padding:10px 20px; border-radius:8px;"><i class="fas fa-hand-holding-usd"></i> Receive Payment</button>
+
+        <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569;">
+                        <th style="padding: 15px;">PAYMENT ID</th>
+                        <th style="padding: 15px;">INV ID</th>
+                        <th style="padding: 15px;">CUSTOMER</th>
+                        <th style="padding: 15px;">DATE</th>
+                        <th style="padding: 15px;">METHOD</th>
+                        <th style="padding: 15px;">AMOUNT</th>
+                        <th style="padding: 15px;">REFERENCE</th>
+                        <th style="padding: 15px;">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="payments-table-body">
+                    </tbody>
+            </table>
         </div>
-        <table>
-            <thead><tr><th>PAYMENT ID</th><th>TYPE</th><th>PARTY</th><th>AMOUNT</th><th>REFERENCE</th><th>DATE</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
-            <tbody id="payments-table-body"></tbody>
-        </table>
     </div>
 </div>
 <div id="journal-entries-view" style="display:none;">
@@ -2855,7 +2790,7 @@ const buyingDashboardHTML = `
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="border:none; margin:0; color: #1e293b; font-size: 1.1rem; font-weight:600;">Payment Terms</h3>
-            <button class="text-btn" onclick="document.getElementById('term-form-container').style.display='block'; window.initPaymentTerm();" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
+          <button class="text-btn" onclick="document.getElementById('term-form-container').style.display='block'; window.initPaymentTerm();" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
                 <i class="fas fa-plus"></i> New Term
             </button>
         </div>
@@ -4405,7 +4340,7 @@ document.getElementById('lead-save-btn').innerText = "Save Lead";
     document.querySelectorAll('#lead-form-container input:not([readonly]), #lead-form-container select').forEach(i => i.value = "");
 };
 // --- 1. Consolidated Auto-Login and View Fix ---
-/*
+
 window.onload = function() {
     const deptSelect = document.getElementById('dept-select');
     const passwordInput = document.getElementById('password-input');
@@ -4418,7 +4353,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     }
-}; */
+}; 
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -6052,27 +5987,33 @@ window.getNextPrId = function() {
     return "PR-" + String(maxId + 1).padStart(3, '0');
 };
 
-// --- 2. Populate Dropdowns (Supplier List & Warehouse Data) ---
-window.populatePrDropdowns = function() {
-    const supplierList = [
-        "Global Industrial Parts Co",
-        "MetalWorks Incorporated",
-        "ElectroSupply Philippines",
-        "Asia Electrical Trading"
-    ];
+window.initPr = function() {
+    // Sync the main database
+    window.prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
+    
+    // Refresh Table
+    window.renderPrTable();
 
+    // Populate Dropdowns from other modules
     const supplierDropdown = document.getElementById('pr-supplier-dropdown');
+    const whDropdown = document.getElementById('pr-warehouse-dropdown');
+    
+    // Pull Suppliers from supplier_records (matches your saveSupplier logic)
+    const suppliers = JSON.parse(localStorage.getItem('supplier_records')) || [];
     if (supplierDropdown) {
         supplierDropdown.innerHTML = '<option value="">-- Select Supplier --</option>' + 
-            supplierList.map(name => `<option value="${name}">${name}</option>`).join('');
+            suppliers.map(s => `<option value="${s.name}">${s.id} - ${s.name}</option>`).join('');
     }
 
+    // Pull Warehouses from warehouse_records
     const warehouses = JSON.parse(localStorage.getItem('warehouse_records')) || [];
-    const whDropdown = document.getElementById('pr-warehouse-dropdown');
     if (whDropdown) {
         whDropdown.innerHTML = '<option value="">-- Select Warehouse --</option>' + 
-            warehouses.map(w => `<option value="${w.id}">${w.id} - ${w.name}</option>`).join('');
+            warehouses.map(w => `<option value="${w.name}">${w.id} - ${w.name}</option>`).join('');
     }
+
+    // Reset Form State
+    window.editPrIndex = -1;
 };
 
 // --- 3. Render Table with Action Buttons ---
@@ -6080,35 +6021,38 @@ window.renderPrTable = function() {
     const tbody = document.getElementById('pr-table-body');
     if (!tbody) return;
 
+    // Always re-sync from localStorage to ensure we have the latest data
+    window.prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
+
     if (window.prDb.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">No receipts found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No receipts found.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = window.prDb.map((pr, index) => `
-        <tr>
-            <td><strong>${pr.id}</strong></td>
-            <td>${pr.supplier}</td>
-            <td>${pr.date}</td>
-            <td>${pr.warehouse}</td>
-            <td><span class="status-pill" style="background: #dcfce7; color: #166534;">Received</span></td>
-            <td>
-                <i class="fas fa-edit" onclick="editReceipt(${index})" style="color: #2563eb; cursor: pointer; margin-right: 12px;"></i>
-                <i class="fas fa-trash" onclick="deleteReceipt(${index})" style="color: #ef4444; cursor: pointer;"></i>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding:12px;"><strong>${pr.id}</strong></td>
+            <td style="padding:12px;">${pr.supplier}</td>
+            <td style="padding:12px;">${pr.date}</td>
+            <td style="padding:12px;">${pr.warehouse}</td>
+            <td style="padding:12px;"><span class="status-pill" style="background: #dcfce7; color: #166534; padding:4px 8px; border-radius:4px; font-size:0.75rem;">Received</span></td>
+            <td style="padding:12px; text-align:center;">
+                <div style="display:flex; gap:15px; justify-content:center;">
+                    <i class="fas fa-edit" onclick="window.editReceipt(${index})" style="color: #2563eb; cursor: pointer;" title="Edit"></i>
+                    <i class="fas fa-trash" onclick="window.deleteReceipt(${index})" style="color: #ef4444; cursor: pointer;" title="Delete"></i>
+                </div>
             </td>
         </tr>
     `).join('');
 };
-
-// --- 4. Controls (Save, Edit, Delete, Toggle) ---
 window.togglePrForm = function() {
     const container = document.getElementById('pr-form-container');
     const title = document.querySelector('#pr-form-container h3');
     
     if (container.style.display === 'none') {
-        window.populatePrDropdowns();
+        // Ensure data is fresh
+        window.initPr();
         
-        // Only generate new ID and Date if not in Edit mode
         if (window.editPrIndex === -1) {
             document.getElementById('pr-id-input').value = window.getNextPrId();
             document.getElementById('pr-date').valueAsDate = new Date();
@@ -6117,11 +6061,13 @@ window.togglePrForm = function() {
         container.style.display = 'block';
     } else {
         container.style.display = 'none';
-        window.editPrIndex = -1; // Reset mode on close
+        window.editPrIndex = -1;
     }
 };
 
+// --- Updated Save Receipt ---
 window.saveReceipt = function() {
+    // Capture data from the form
     const prData = {
         id: document.getElementById('pr-id-input').value,
         supplier: document.getElementById('pr-supplier-dropdown').value,
@@ -6129,30 +6075,47 @@ window.saveReceipt = function() {
         warehouse: document.getElementById('pr-warehouse-dropdown').value
     };
 
+    // Validation
     if (!prData.supplier || !prData.warehouse || !prData.date) {
         return alert("Please fill in all fields.");
     }
 
+    // Re-sync prDb from localStorage before saving to avoid overwriting other changes
+    window.prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
+
     if (window.editPrIndex === -1) {
+        // Create new record
         window.prDb.push(prData);
     } else {
+        // Update existing record
         window.prDb[window.editPrIndex] = prData;
+        window.editPrIndex = -1; // Reset edit index immediately after update
     }
 
+    // Save back to localStorage and refresh UI
     localStorage.setItem('pr_records', JSON.stringify(window.prDb));
     window.renderPrTable();
-    window.togglePrForm();
+    window.togglePrForm(); // This will close the form
 };
 
+// --- Updated Edit Receipt ---
 window.editReceipt = function(index) {
-    window.editPrIndex = index;
+    // Ensure we have the latest data before editing
+    window.prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
     const pr = window.prDb[index];
     
-    window.togglePrForm(); // Opens and populates dropdowns
+    if (!pr) return; // Safety check
+
+    window.editPrIndex = index;
     
+    // Opens the form and populates dropdowns (via initPr or populatePrDropdowns)
+    window.togglePrForm(); 
+    
+    // Update the UI Title
     const title = document.querySelector('#pr-form-container h3');
     if (title) title.innerText = "Edit Purchase Receipt";
     
+    // Fill form fields with existing record data
     document.getElementById('pr-id-input').value = pr.id;
     document.getElementById('pr-supplier-dropdown').value = pr.supplier;
     document.getElementById('pr-date').value = pr.date;
@@ -6177,164 +6140,229 @@ window.deleteReceipt = function(index) {
         }
     });
 };
-window.dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
-window.editDnIndex = -1;
+// --- Data State ---
+let dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
+let editDnIndex = -1;
 
-// --- 1. Auto-Increment ID ---
-window.getNextDnId = function() {
-    if (window.dnDb.length === 0) return "DN-001";
-    const ids = window.dnDb.map(dn => parseInt(dn.id.split('-')[1]));
-    const maxId = Math.max(...ids);
-    return "DN-" + String(maxId + 1).padStart(3, '0');
+/**
+ * 1. Initialize DN Module
+ * Resets state, generates ID, and refreshes the view.
+ */
+/**
+ * Initialize Delivery Notes
+ * Sets up the ID, Date, and refreshes dropdown data from localStorage
+ */
+// --- Initialize Form ---
+window.initDeliveryNotes = function() {
+    // 1. Sync records from storage
+    dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
+    
+    // 2. Refresh Table
+    if (typeof window.renderDnTable === 'function') {
+        window.renderDnTable();
+    }
+    
+    // 3. Populate Dropdowns (CRM and Warehouses only)
+    window.populateDnDropdowns();
+    
+    // 4. Handle Auto-Increment ID
+    const idField = document.getElementById('dl-id');
+    if (idField && editDnIndex === -1) {
+        let nextId = "DN-001";
+        if (dnDb.length > 0) {
+            const ids = dnDb.map(dn => {
+                const parts = dn.id.split('-');
+                return parts.length > 1 ? parseInt(parts[1]) : 0;
+            });
+            nextId = "DN-" + String(Math.max(...ids) + 1).padStart(3, '0');
+        }
+        idField.value = nextId;
+    }
+
+    // 5. Default Date
+    const dateField = document.getElementById('dn-date');
+    if (dateField && !dateField.value) {
+        dateField.value = new Date().toISOString().split('T')[0];
+    }
+
+    editDnIndex = -1;
 };
-
+window.toggleDnForm = function(show) {
+    const container = document.getElementById('dn-form-container');
+    const formTitle = document.getElementById('dn-form-title');
+    
+    // If show is not provided, toggle the current display state
+    const isShowing = show !== undefined ? show : container.style.display === 'none';
+    
+    if (isShowing) {
+        // Open the form
+        container.style.display = 'block';
+        
+        if (window.editDnIndex === -1) {
+            // It's a "Create New" action: Initialize ID and defaults
+            if (formTitle) formTitle.innerText = "Create Delivery Note";
+            window.initDeliveryNotes(); 
+        } else {
+            // It's an "Edit" action: Just refresh dropdown options (ID/Date are handled by edit function)
+            if (formTitle) formTitle.innerText = "Edit Delivery Note";
+            window.populateDnDropdowns();
+        }
+    } else {
+        // Close the form
+        container.style.display = 'none';
+        window.editDnIndex = -1; // Reset index to ensure next open defaults to "Create New"
+    }
+};
 window.populateDnDropdowns = function() {
-    // 1. Fetch data from respective localStorage keys
+    const custSelect = document.getElementById('dn-customer-dropdown');
+    const whSelect = document.getElementById('dn-warehouse-dropdown');
+    const itemSelect = document.getElementById('dn-item-select'); // New target
+    
     const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
-    const items = JSON.parse(localStorage.getItem('items_records')) || [];
     const warehouses = JSON.parse(localStorage.getItem('warehouse_records')) || [];
+    const items = JSON.parse(localStorage.getItem('items_records')) || [];
 
-    // Populate Customer Dropdown from CRM
-    const custDropdown = document.getElementById('dn-customer-dropdown');
-    if (custDropdown) {
-        custDropdown.innerHTML = '<option value="">-- Select Customer --</option>' + 
+    // 1. Populate Customers
+    if (custSelect) {
+        custSelect.innerHTML = '<option value="" disabled selected>-- Select Customer --</option>' + 
             customers.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
     }
 
-    // Populate Item Dropdown from Item Management
-    const itemDropdown = document.getElementById('dn-item-dropdown');
-    if (itemDropdown) {
-        itemDropdown.innerHTML = '<option value="">-- Select Item --</option>' + 
-            items.map(i => `<option value="${i.id}">${i.id} - ${i.name}</option>`).join('');
+    // 2. Populate Warehouses
+    if (whSelect) {
+        whSelect.innerHTML = '<option value="" disabled selected>-- Select Warehouse --</option>' + 
+            warehouses.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
     }
-    
-    // Populate Warehouse Dropdown from Warehouse Management
-    const whDropdown = document.getElementById('dn-warehouse-dropdown');
-    if (whDropdown) {
-        whDropdown.innerHTML = '<option value="">-- Select Source Warehouse --</option>' + 
-            warehouses.map(w => `<option value="${w.id}">${w.id} - ${w.name}</option>`).join('');
+
+    // 3. Populate Items (Synchronized with items_records)
+    if (itemSelect) {
+        itemSelect.innerHTML = '<option value="" disabled selected>-- Select Item --</option>' + 
+            items.map(i => `<option value="${i.id}">${i.id} - ${i.itemName}</option>`).join('');
     }
 };
+
 window.renderDnTable = function() {
     const tbody = document.getElementById('dn-table-body');
     if (!tbody) return;
-
-    // 1. ALWAYS fetch the freshest data from localStorage to ensure immediate sync
-    const currentDnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
     
-    // Sync the global variable if you use it elsewhere
-    window.dnDb = currentDnDb;
+    // 1. Fetch all required data
+    const dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
+    const itemsMaster = JSON.parse(localStorage.getItem('items_records')) || [];
 
-    // 2. Handle Empty State
-    if (currentDnDb.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">No delivery notes recorded.</td></tr>`;
+    if (dnDb.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">No delivery records.</td></tr>`;
         return;
     }
 
-    // 3. Map the data from localStorage to the table rows
-    tbody.innerHTML = currentDnDb.map((dn, index) => `
-        <tr>
-            <td><strong>${dn.id}</strong></td>
-            <td>${dn.customer}</td>
-            <td>${dn.item}</td> 
-            <td>${dn.warehouse}</td> 
-            <td>${dn.date}</td>
-            <td>
-                <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-                    Delivered
-                </span>
-            </td>
-            <td>
-                <i class="fas fa-edit" onclick="editDeliveryNote(${index})" 
-                   style="color: #2563eb; cursor: pointer; margin-right: 15px;"></i>
-                <i class="fas fa-trash" onclick="deleteDeliveryNote(${index})" 
-                   style="color: #ef4444; cursor: pointer;"></i>
-            </td>
-        </tr>
-    `).join('');
-};
+    tbody.innerHTML = dnDb.map((dn, index) => {
+        // 2. Lookup the item name using the ID stored in the delivery note
+        const itemData = itemsMaster.find(i => i.id === dn.item);
+        const itemDisplay = itemData ? `${itemData.id} - ${itemData.itemName}` : (dn.item || '---');
 
-// --- 4. Form Actions ---
-window.toggleDnForm = function() {
-    const container = document.getElementById('dn-form-container');
-    if (container.style.display === 'none') {
-        window.populateDnDropdowns();
-        if (window.editDnIndex === -1) {
-            document.getElementById('dn-id-input').value = window.getNextDnId();
-            document.getElementById('dn-date').valueAsDate = new Date();
-        }
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-        window.editDnIndex = -1;
-    }
-};
+        return `
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                <td style="padding:12px;"><strong>${dn.id}</strong></td>
+                <td style="padding:12px;">${dn.customer}</td>
+                
+                <td style="padding:12px; font-size: 0.95em; color: #334155;">
+                    ${itemDisplay}
+                </td>
 
+                <td style="padding:12px;">${dn.warehouse}</td>
+                <td style="padding:12px;">${dn.date}</td>
+                <td style="padding:12px;">
+                    <span class="status-pill" style="background:#dcfce7; color:#166534; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:600;">
+                        ${dn.status || 'Delivered'}
+                    </span>
+                </td>
+                <td style="padding:12px; text-align:center;">
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <i class="fas fa-edit" onclick="window.editDeliveryNote(${index})" 
+                           style="color:#2563eb; cursor:pointer;" title="Edit"></i>
+                        <i class="fas fa-trash-alt" onclick="window.deleteDeliveryNote(${index})" 
+                           style="color:#ef4444; cursor:pointer;" title="Delete"></i>
+                    </div>
+                </td>
+            </tr>`;
+    }).join('');
+};
 window.saveDeliveryNote = function() {
-    // 1. Capture data from the correct dropdown IDs
     const dnData = {
-        id: document.getElementById('dn-id-input').value,
+        id: document.getElementById('dl-id').value,
         customer: document.getElementById('dn-customer-dropdown').value,
-        item: document.getElementById('dn-item-dropdown').value,
+        item: document.getElementById('dn-item-select').value, // Captured from new dropdown
         warehouse: document.getElementById('dn-warehouse-dropdown').value,
-        date: document.getElementById('dn-date').value
+        date: document.getElementById('dn-date').value,
+        status: "Delivered" 
     };
 
-    // 2. Simple validation to ensure data is selected
-    if (!dnData.customer || !dnData.item || !dnData.warehouse) {
-        return alert("Please select a customer, item, and warehouse before saving.");
+    // Updated validation to include the Item field
+    if (!dnData.customer || !dnData.item || !dnData.warehouse || !dnData.date) {
+        return alert("Please fill in all required fields (Customer, Item, Warehouse, and Date).");
     }
 
-    // 3. Update existing or push new record
-    if (window.editDnIndex === -1) {
-        window.dnDb.push(dnData);
+    dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
+    
+    if (editDnIndex === -1) {
+        dnDb.push(dnData);
     } else {
-        window.dnDb[window.editDnIndex] = dnData;
-        window.editDnIndex = -1; // Reset edit mode
+        dnDb[editDnIndex] = dnData;
     }
 
-    // 4. Persistence and UI Refresh
-    localStorage.setItem('dn_records', JSON.stringify(window.dnDb));
+    localStorage.setItem('dn_records', JSON.stringify(dnDb));
     window.renderDnTable();
-    window.toggleDnForm(); // Close the form after success
+    window.toggleDnForm(false);
 };
-
+/**
+ * Edit an existing Delivery Note
+ * Populates the form with existing data and opens it.
+ */
 window.editDeliveryNote = function(index) {
+    // 1. Set the global edit index
     window.editDnIndex = index;
-    const dn = window.dnDb[index];
-    window.toggleDnForm();
-    document.getElementById('dn-id-input').value = dn.id;
-    document.getElementById('dn-customer').value = dn.customer;
-    document.getElementById('dn-item-dropdown').value = dn.item;
-    document.getElementById('dn-warehouse-dropdown').value = dn.warehouse;
-    document.getElementById('dn-date').value = dn.date;
-};
+    
+    // 2. Fetch the specific record from your synced database
+    const dn = dnDb[index];
+    if (!dn) return;
 
-window.deleteDeliveryNote = function(index) {
-    // 1. Trigger custom deletion confirmation modal
-    requestDelete("Are you sure you want to delete this delivery note?", () => {
+    // 3. Show the form (this triggers populateDnDropdowns to refresh options)
+    window.toggleDnForm(true);
+
+    // 4. Populate the fields with existing values
+    // Using a timeout ensures the DOM elements exist and dropdowns are populated before setting values
+    setTimeout(() => {
+        // ID and Customer Name
+        document.getElementById('dl-id').value = dn.id;
+        document.getElementById('dn-customer-dropdown').value = dn.customer;
         
-        // 2. Load latest data
-        let dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
-        
-        // 3. Remove entry
-        dnDb.splice(index, 1);
-        
-        // 4. Save back to localStorage
-        localStorage.setItem('dn_records', JSON.stringify(dnDb));
-        
-        // 5. CRITICAL: Force the table to redraw immediately
-        if (typeof window.renderDnTable === 'function') {
-            window.renderDnTable();
-        } else if (typeof window.initDnView === 'function') {
-            window.initDnView();
+        // Item Selection (Restored field)
+        const itemSelect = document.getElementById('dn-item-select');
+        if (itemSelect) {
+            itemSelect.value = dn.item || "";
         }
 
-        // Optional: Show a small toast notification that it's gone
-        console.log("Record removed from dn_records.");
-    });
+        // Warehouse and Date
+        document.getElementById('dn-warehouse-dropdown').value = dn.warehouse;
+        document.getElementById('dn-date').value = dn.date;
+        
+        // Update Title to reflect Edit Mode
+        const formTitle = document.getElementById('dn-form-title');
+        if (formTitle) formTitle.innerText = "Edit Delivery Note";
+    }, 50); // Increased timeout slightly to ensure dropdown population finishes
 };
 
+/**
+ * Delete a Delivery Note
+ * Removes from localStorage and refreshes table.
+ */
+window.deleteDeliveryNote = function(index) {
+    requestDelete("Remove this delivery record?", () => {
+        let db = JSON.parse(localStorage.getItem('dn_records')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('dn_records', JSON.stringify(db));
+        window.renderDnTable();
+    });
+};
 // --- 1. Database & State ---
 // Updated to use 'selling_items' as the key
 let sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
@@ -6372,7 +6400,7 @@ window.populateItemDropdowns = function() {
     // Populate the Source Dropdown
     const sourceDropdown = document.getElementById('itm-product-source');
     if (sourceDropdown) {
-        sourceDropdown.innerHTML = '<option value="" disabled selected>-- Select from Selling Items --</option>' + 
+        sourceDropdown.innerHTML = '<option value="" disabled selected>-- Select from Product Inventory --</option>' + 
             sellingItems.map(item => `
                 <option value="${item.prodId}" 
                         data-name="${item.prodName}" 
@@ -6408,6 +6436,7 @@ window.fillItemFormFromSelling = function() {
     });
 };
 // --- 3. Save/Update Logic ---
+// --- 3. Save/Update Logic (Updated to share data) ---
 window.saveSellingItem = function() {
     const prodId = document.getElementById('selling-prod-input').value;
     const prodName = document.getElementById('selling-name-input').value;
@@ -6437,6 +6466,13 @@ window.saveSellingItem = function() {
 
     // Persist to 'selling_items'
     localStorage.setItem('selling_items', JSON.stringify(sellingitemdb));
+
+    // --- CRITICAL DATA SHARE ---
+    // Trigger Sales Order initialization to refresh its internal product list
+    if (typeof window.initSalesOrders === 'function') {
+        window.initSalesOrders();
+    }
+
     document.getElementById('selling-prod-form').style.display = 'none';
     window.renderSellingProductTable();
 };
@@ -6523,444 +6559,332 @@ window.closeGlobalDeleteBanner = function() {
         banner.style.display = 'none';
     }
 };
+/* --- SALES ORDERS LOGIC --- */
+let soDb = JSON.parse(localStorage.getItem('so_records')) || [];
+let editSoIndex = -1;
 
-// --- Global State ---
-window.editSOIndex = -1;
+/* --- SALES ORDERS INITIALIZATION (SYNCED WITH SELLING ITEMS) --- */
+window.initSalesOrders = function() {
+    soDb = JSON.parse(localStorage.getItem('so_records')) || [];
+    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
+    const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
 
-window.initSalesOrder = function() {
-    const idField = document.getElementById('so-id');
-    const custSelect = document.getElementById('so-cust-id');
-    const suSelect = document.getElementById('so-su-id');
-    const addrSelect = document.getElementById('so-address');
-    const prodSelect = document.getElementById('so-product-id');
+    window.renderSoTable();
 
-    const ordersDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-
-    // 1. Set Sequential SO_XXX ID for new orders
-    if (idField && window.editSOIndex === -1) {
-        const nextNum = (ordersDb.length + 1).toString().padStart(3, '0');
-        idField.value = `SO_${nextNum}`; 
+    // Populate Product Dropdown with formatted text (Name + Price)
+    const itemSelect = document.getElementById('so-item-select');
+    if (itemSelect) {
+        itemSelect.innerHTML = '<option value="" disabled selected>-- Select Item --</option>' + 
+            sellingItems.map(item => {
+                const formattedPrice = Number(item.price).toLocaleString(undefined, {minimumFractionDigits: 2});
+                return `<option value="${item.prodId}" data-price="${item.price}">
+                    ${item.prodId} - ${item.prodName}  ₱ ${formattedPrice}
+                </option>`;
+            }).join('');
     }
+// Populate Customer Dropdown
+const custSelect = document.getElementById('so-dropdown');
+if (custSelect) {
+    const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
+    custSelect.innerHTML = '<option value="" disabled selected>-- Select Customer --</option>' + 
+        customers.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+}
 
-    // 2. Populate Product Dropdown from Product Master (product_records)
-    if (prodSelect) {
-        const products = JSON.parse(localStorage.getItem('product_records')) || [];
-        prodSelect.innerHTML = '<option value="" disabled selected>Select Product</option>';
-        products.forEach(p => {
-            // Using backticks for clean string construction
-            prodSelect.innerHTML += `<option value="${p.id}">${p.id} - ${p.name}</option>`;
-        });
-        // Instant trigger for price visibility
-        prodSelect.onchange = window.syncProductData;
-    }
-
-    // 3. Populate Customer IDs from CRM
-    if (custSelect) {
-        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
-        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
-        customers.forEach(c => {
-            custSelect.innerHTML += `<option value="${c.id}">${c.id} - ${c.name}</option>`;
-        });
-    }
-
-    // 4. Populate Sales Reps from Leads
-    if (suSelect) {
-        const leads = JSON.parse(localStorage.getItem('leads_records')) || [];
-        suSelect.innerHTML = '<option value="" disabled selected>Select Sales Rep</option>';
-        const uniqueSUs = [...new Set(leads.map(l => l.assignee))].filter(Boolean);
-        uniqueSUs.forEach(su => {
-            suSelect.innerHTML += `<option value="${su}">${su}</option>`;
-        });
-    }
-
-    // 5. Populate Shipping Addresses from CRM records
-    if (addrSelect) {
-        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
-        addrSelect.innerHTML = '<option value="" disabled selected>Select Address</option>';
-        customers.forEach(c => {
-            if (c.address) {
-                addrSelect.innerHTML += `<option value="${c.address}">${c.address}</option>`;
+    if (editSoIndex === -1) {
+        const idField = document.getElementById('so-id');
+        if (idField) {
+            let nextId = "SO-001";
+            if (soDb.length > 0) {
+                const ids = soDb.map(so => parseInt(String(so.id).split('-')[1]) || 0);
+                nextId = "SO-" + String(Math.max(...ids) + 1).padStart(3, '0');
             }
-        });
-    }
-};
-
-// CRITICAL: Pulls unit price from product_records immediately on selection
-window.syncProductData = function() {
-    const selectedId = document.getElementById('so-product-id').value;
-    const priceField = document.getElementById('so-unit-price'); 
-    const qtyField = document.getElementById('so-quantity');
-    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
-
-    // Find the master record to get the official 'prod-price'
-    const product = productDb.find(p => p.id === selectedId);
-    
-    if (product && priceField) {
-        // Strip ₱ and commas for numerical processing while ensuring it's visible
-        const cleanPrice = product.price ? product.price.toString().replace(/[₱,]/g, '') : "0.00";
-        priceField.value = cleanPrice;
-        
-        // Default quantity to 1 if it's currently empty
-        if (qtyField && (!qtyField.value || qtyField.value == 0)) {
-            qtyField.value = 1;
+            idField.value = nextId;
         }
-
-        // Auto-recalculate the final total
-        window.calculateSOTotal();
+        document.getElementById('so-quantity').value = "1";
     }
 };
-
-// MATH: Updates the Total Amount based on Price * Qty
-window.calculateSOTotal = function() {
-    const price = parseFloat(document.getElementById('so-unit-price').value) || 0;
-    const qty = parseInt(document.getElementById('so-quantity').value) || 0;
-    const totalDisplay = document.getElementById('so-total-amount');
-    
-    const total = price * qty;
-    if (totalDisplay) {
-        totalDisplay.value = total.toFixed(2);
-    }
-};
-
-// --- 2. Toggle and Reset Logic ---
+/* --- TOGGLE SALES ORDER FORM --- */
 window.toggleSOForm = function(show) {
-    const form = document.getElementById('so-form-container');
-    const btnContainer = document.getElementById('add-so-btn-container');
+    const container = document.getElementById('so-form-container');
+    if (!container) return;
 
-    if (show) {
-        form.style.display = 'block';
-        if (btnContainer) btnContainer.style.display = 'none'; 
-        window.initSalesOrder();
+    // If 'show' is not provided, toggle the current state
+    const isCurrentlyHidden = window.getComputedStyle(container).display === 'none';
+    const finalShow = (show !== undefined) ? show : isCurrentlyHidden;
+
+    if (finalShow) {
+        // Show the form
+        container.style.setProperty('display', 'block', 'important');
+        window.initSalesOrders(); 
     } else {
-        form.style.display = 'none';
-        if (btnContainer) btnContainer.style.display = 'block';
-        window.resetSOForm();
+        // Hide the form and reset state
+        container.style.display = 'none';
+        editSoIndex = -1;
+        
+        // Reset the form title and clear inputs
+        document.getElementById('so-form-title').innerText = "New Sales Order";
+        
+        // Reset select values to default
+        const selects = container.querySelectorAll('select');
+        selects.forEach(s => s.selectedIndex = 0);
+        
+        // Clear address field
+        const addr = document.getElementById('so-address');
+        if (addr) addr.value = "";
     }
 };
-
-window.resetSOForm = function() {
-    window.editSOIndex = -1;
-    document.getElementById('so-form-title').innerText = "New Sales Order";
+/* --- SYNC CUSTOMER ADDRESS --- */
+window.syncCustomerAddress = function() {
+    const customerName = document.getElementById('so-dropdown').value;
+    const addrField = document.getElementById('so-address'); 
     
-    const fields = ['so-cust-id', 'so-su-id', 'so-address', 'so-date', 'so-req-date', 'so-product-id', 'so-price', 'so-qty', 'so-total-display'];
-    fields.forEach(f => {
-        const el = document.getElementById(f);
-        if (el) el.value = f === 'so-qty' ? "1" : "";
-    });
-};
-
-
-window.editSalesOrder = function(index) {
-    const db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-    const order = db[index];
-    if (!order) return;
-
-    window.editSOIndex = index;
-    window.toggleSOForm(true); 
+    // 1. Fetch fresh CRM data to find the matching customer
+    const crmDb = JSON.parse(localStorage.getItem('crm_records')) || [];
     
-    // Update Title
-    const formTitle = document.getElementById('so-form-title');
-    if (formTitle) formTitle.innerText = "Edit Sales Order";
-
-    // Populate Fields based on screenshot requirements
-    document.getElementById('so-id').value = order.id;
-    document.getElementById('so-cust-id').value = order.customerId;
-    document.getElementById('so-product-id').value = order.productId;
-    document.getElementById('so-unit-price').value = order.price;
-    document.getElementById('so-quantity').value = order.qty;
-    document.getElementById('so-su-id').value = order.assignedUserId;
-    document.getElementById('so-address').value = order.address;
-    document.getElementById('so-date').value = order.orderDate;
-    document.getElementById('so-total-amount').value = order.total;
-
-    // --- NEW: Scroll to Top of Form ---
-    const formContainer = document.getElementById('so-form-container');
-    if (formContainer) {
-        formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // 2. Find the customer object by name
+    const customer = crmDb.find(c => c.name === customerName);
+    
+    // 3. Update the read-only address field or provide a fallback
+    if (customer && customer.address) {
+        addrField.value = customer.address;
+    } else {
+        addrField.value = "No Address Found";
     }
 };
-
+/* --- SAVE LOGIC --- */
 window.saveSalesOrder = function() {
-    const selectedId = document.getElementById('so-product-id').value;
-    const qtyValue = document.getElementById('so-quantity').value;
-    const priceValue = document.getElementById('so-unit-price').value;
-    const totalValue = document.getElementById('so-total-amount').value;
+    const itemSelect = document.getElementById('so-item-select');
+    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
     
-    // Cross-reference Product Master for naming consistency
-    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
-    const product = productDb.find(p => p.id === selectedId);
+    // Pull the price from the data-attribute of the selection
+    const unitPrice = selectedOption ? parseFloat(selectedOption.getAttribute('data-price')) : 0;
+    const qty = parseInt(document.getElementById('so-quantity').value) || 0;
 
-    const data = {
+    const soData = {
         id: document.getElementById('so-id').value,
-        customerId: document.getElementById('so-cust-id').value,
-        productId: selectedId,
-        productName: product ? product.name : "Unknown Product",
-        productUnit: "pcs", 
-        price: priceValue,
-        qty: qtyValue,
-        assignedUserId: document.getElementById('so-su-id').value,
+        customer: document.getElementById('so-dropdown').value,
+        productId: selectedOption ? selectedOption.text : "",
+        unitPrice: unitPrice, 
         address: document.getElementById('so-address').value,
-        orderDate: document.getElementById('so-date').value,
-        total: totalValue,
+        qty: qty,
+        date: document.getElementById('so-date').value,
+        total: unitPrice * qty, // Logic calculation remains for storage
         status: "Confirmed"
     };
 
-    // Validation
-    if (!data.customerId || !data.productId || !data.qty || !data.orderDate) {
-        alert("Please fill in all required fields: Customer, Product, Quantity, and Date.");
-        return;
-    }
+    if (!soData.customer || !itemSelect.value) return alert("Please fill in required fields.");
 
-    let db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-    
-    if (window.editSOIndex === -1) { 
-        db.push(data); 
-    } else { 
-        db[window.editSOIndex] = data; 
-        window.editSOIndex = -1; // Reset edit state
-    }
+    soDb = JSON.parse(localStorage.getItem('so_records')) || [];
+    if (editSoIndex === -1) soDb.push(soData);
+    else soDb[editSoIndex] = soData;
 
-    localStorage.setItem('sales_orders_records', JSON.stringify(db));
-    window.renderSOTable(); 
-    window.toggleSOForm(false); // Close form and reset
+    localStorage.setItem('so_records', JSON.stringify(soDb));
+    window.renderSoTable();
+    window.toggleSOForm(false);
 };
 
-window.renderSOTable = function() {
+/* --- UPDATED RENDER TABLE --- */
+window.renderSoTable = function() {
     const tbody = document.getElementById('so-table-body');
     if (!tbody) return;
 
-    const db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-    tbody.innerHTML = '';
+    soDb = JSON.parse(localStorage.getItem('so_records')) || [];
 
-    if (db.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:20px; color:#64748b;">No sales orders found.</td></tr>';
-        return;
-    }
+    tbody.innerHTML = soDb.map((so, index) => {
+        const displayPrice = Number(so.unitPrice || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        const displayTotal = Number(so.total || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
 
-    db.forEach((order, index) => {
-        // Formatting for display
-        const displayTotal = `₱${parseFloat(order.total || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        const displayUnit = order.productUnit || "pcs";
-
-        tbody.innerHTML += `
-            <tr>
-                <td><strong>${order.id}</strong></td>
-                <td>${order.customerId}</td>
-                <td>
-                    ${order.productName}<br>
-                    <small style="color: #64748b;">(${order.productId})</small>
-                </td>
-                <td><strong>${order.qty}</strong> ${displayUnit}</td>
-                <td>${order.assignedUserId || "Unassigned"}</td>
-                <td>${order.orderDate || "N/A"}</td>
-                <td><div style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${order.address || "No Address"}</div></td>
-                <td><strong>${displayTotal}</strong></td>
-                <td><span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">${order.status}</span></td>
-                <td>
-                    <button onclick="editSalesOrder(${index})" style="color: #2563eb; border:none; background:none; cursor:pointer; margin-right: 10px;">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button onclick="deleteSalesOrder(${index})" style="color: #ef4444; border:none; background:none; cursor:pointer;">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
+        return `
+        <tr>
+            <td style="padding:12px;"><strong>${so.id}</strong></td>
+            <td style="padding:12px;">${so.customer}</td>
+            <td style="padding:12px;">${so.productId}</td>
+            <td style="padding:12px; text-align:center;">${so.qty}</td>
+            <td style="padding:12px;">${so.date || '---'}</td>
+            <td style="padding:12px;">${so.address || '---'}</td>
+            <td style="padding:12px;">₱${displayPrice}</td>
+            <td style="padding:12px; font-weight:600;">₱${displayTotal}</td>
+            <td style="padding:12px;"><span class="status-pill" style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:12px; font-size:12px;">${so.status}</span></td>
+            <td style="padding:12px; text-align:center;">
+                <i class="fas fa-edit" onclick="window.editSalesOrder(${index})" style="color:#2563eb; cursor:pointer; margin-right:12px;"></i>
+                <i class="fas fa-trash-alt" onclick="window.deleteSalesOrder(${index})" style="color:#ef4444; cursor:pointer;"></i>
+            </td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="9" style="text-align:center; color:#94a3b8; padding:20px;">No orders found</td></tr>';
 };
-// --- 5. Missing Delete Function ---
+
 window.deleteSalesOrder = function(index) {
-    // requestDelete triggers the UI confirmation dialog
-    requestDelete("Are you sure you want to delete this sales order?", () => {
-        let db = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-        
-        // Remove record and update storage
-        db.splice(index, 1);
-        localStorage.setItem('sales_orders_records', JSON.stringify(db));
-        
-        // Refresh UI and recalculate the SO_XXX sequence
-        window.renderSOTable(); 
-        window.initSalesOrder(); 
+    requestDelete("Remove this sales order?", () => {
+        soDb = JSON.parse(localStorage.getItem('so_records')) || [];
+        soDb.splice(index, 1);
+        localStorage.setItem('so_records', JSON.stringify(soDb));
+        window.renderSoTable();
     });
 };
-// --- Global Tracking Variable ---
-window.editInvoiceIndex = -1; 
-// --- 1. Initialization: IDs, CRM Data, and Sales Order Link ---
-window.initInvoiceView = function() {
-    const invDb = JSON.parse(localStorage.getItem('invoice_records')) || [];
-    const crmDb = JSON.parse(localStorage.getItem('crm_records')) || [];
-    const soDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+/* --- INVOICE & PAYMENT LOGIC --- */
+let invDb = JSON.parse(localStorage.getItem('inv_records')) || [];
+let editInvIndex = -1;
+
+window.initInvoices = function() {
+    invDb = JSON.parse(localStorage.getItem('inv_records')) || [];
+    const soDb = JSON.parse(localStorage.getItem('so_records')) || [];
     
-    if (window.editInvoiceIndex === -1) {
-        const nextNum = invDb.length + 1;
-        const paddedNum = String(nextNum).padStart(3, '0');
-
-        // Auto-Incrementing IDs and Reference
-        document.getElementById('inv-pay-id').value = `PAY_${paddedNum}`;
-        document.getElementById('pay-inv-id').value = `INV_${paddedNum}`;
-        document.getElementById('pay-ref').value = "REF-" + Math.floor(100000 + Math.random() * 900000);
-
-        document.getElementById('invoice-form-title').innerText = "New Payment Entry";
-        document.getElementById('pay-amount-due').value = '';
-    }
-
-    // Populate Sales Order Link Dropdown
+    // Refresh Sales Order Link Dropdown
     const soSelect = document.getElementById('pay-so-link');
     if (soSelect) {
-        soSelect.innerHTML = '<option value="" disabled selected>Select Pending Order</option>';
-        soDb.forEach(order => {
-            if (order.status !== "Paid") {
-                soSelect.innerHTML += `<option value="${order.id}">${order.id} - ${order.customerName || order.customerId}</option>`;
-            }
-        });
+        soSelect.innerHTML = '<option value="" disabled selected>Select Pending Order</option>' + 
+            soDb.map(so => `<option value="${so.id}">${so.id} - ${so.customer}</option>`).join('');
     }
 
-    // Refresh Customer Dropdown from CRM Records
+    // Refresh Customer List
+    const custDb = JSON.parse(localStorage.getItem('crm_records')) || [];
     const custSelect = document.getElementById('pay-cust-id');
     if (custSelect) {
-        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
-        crmDb.forEach(c => {
-            custSelect.innerHTML += `<option value="${c.id}">${c.name} (${c.id})</option>`;
-        });
+        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>' + 
+            custDb.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
     }
 
+    // Reset fields for new entry
+    if (editInvIndex === -1) {
+        const nextId = (invDb.length + 1).toString().padStart(3, '0');
+        document.getElementById('inv-pay-id').value = "PAY-" + nextId;
+        document.getElementById('pay-inv-id').value = "INV-" + nextId;
+        document.getElementById('pay-amount-due').value = "0.00";
+        document.getElementById('pay-amount').value = ""; // Ensure empty
+        document.getElementById('pay-ref').value = "REF-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+    }
+    
     window.renderInvoiceTable();
 };
 
-// --- 2. Handle Sales Order Selection: Auto-fill Amount Due ---
 window.handleOrderSelection = function() {
     const soId = document.getElementById('pay-so-link').value;
-    const soDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-    const order = soDb.find(o => o.id === soId);
+    
+    // Fetch both Sales Orders and existing Invoices/Payments
+    const soDb = JSON.parse(localStorage.getItem('so_records')) || [];
+    const invDb = JSON.parse(localStorage.getItem('inv_records')) || [];
+    
+    const selectedSo = soDb.find(so => so.id === soId);
 
-    if (order) {
-        // Auto-fill Amount Due and Customer info
-        document.getElementById('pay-amount-due').value = order.total;
-        document.getElementById('pay-amount').value = order.total;
-        document.getElementById('pay-cust-id').value = order.customerId;
+    if (selectedSo) {
+        // 1. Calculate the Original Total from the Sales Order
+        const unitPrice = parseFloat(selectedSo.unitPrice) || 0;
+        const qty = parseInt(selectedSo.qty) || 0;
+        const originalTotal = unitPrice * qty;
+        
+        // 2. Calculate Total already paid for this specific Sales Order ID
+        const totalPaidSoFar = invDb
+            .filter(inv => inv.soLink === soId)
+            .reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0);
+
+        // 3. Calculate the Remaining Balance (Amount Due)
+        const remainingBalance = originalTotal - totalPaidSoFar;
+        
+        // 4. Update the UI Amount Due field
+        const amountDueField = document.getElementById('pay-amount-due');
+        if (amountDueField) {
+            amountDueField.value = remainingBalance.toFixed(2);
+            
+            // Visual feedback: Green if balance is 0, Red if balance remains
+            amountDueField.style.color = remainingBalance <= 0 ? "#10b981" : "#ef4444";
+        }
+        
+        // 5. Sync the Customer
+        const custField = document.getElementById('pay-cust-id');
+        if (custField) {
+            custField.value = selectedSo.customer;
+        }
+        
+        // 6. Keep Amount Paid EMPTY for manual entry
+        const amountPaidField = document.getElementById('pay-amount');
+        if (amountPaidField) {
+            amountPaidField.value = ""; 
+            amountPaidField.placeholder = "Enter collection amount";
+            
+            // Prevent interaction if already fully paid
+            if (remainingBalance <= 0) {
+                amountPaidField.disabled = true;
+                amountPaidField.placeholder = "ORDER FULLY PAID";
+            } else {
+                amountPaidField.disabled = false;
+                amountPaidField.focus();
+            }
+        }
     }
 };
+
 window.saveInvoice = function() {
-    let invDb = JSON.parse(localStorage.getItem('invoice_records')) || [];
-    let itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
-    let soDb = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-
-    const soId = document.getElementById('pay-so-link').value;
-    const order = soDb.find(o => o.id === soId);
-
-    if (!order) {
-        alert("Please link a Sales Order to identify the product and quantity.");
-        return;
-    }
-
-    // Capture Invoice Data from the form
-    const data = {
-        id: document.getElementById('inv-pay-id').value,
-        invoiceId: document.getElementById('pay-inv-id').value,
-        customerId: document.getElementById('pay-cust-id').value,
+    const invData = {
+        payId: document.getElementById('inv-pay-id').value,
+        invId: document.getElementById('pay-inv-id').value,
+        soLink: document.getElementById('pay-so-link').value,
+        customer: document.getElementById('pay-cust-id').value,
         date: document.getElementById('pay-date').value,
         method: document.getElementById('pay-method').value,
-        amount: parseFloat(document.getElementById('pay-amount').value || 0).toFixed(2),
-        reference: document.getElementById('pay-ref').value,
+        amount: document.getElementById('pay-amount').value,
+        ref: document.getElementById('pay-ref').value,
         status: "Paid"
     };
 
-    // --- CRITICAL: INVENTORY UPDATE LOGIC ---
-    // Match the product from the Sales Order to Item Management
-    const itemIndex = itemDb.findIndex(i => i.itemName === order.productName || i.id === order.productId);
-    
-    if (itemIndex !== -1) {
-        // Use parseInt and || 0 to prevent "undefined" or NaN errors
-        let currentQty = parseInt(itemDb[itemIndex].unitQty) || 0; 
-        let soldQty = parseInt(order.quantity) || 0;
+    if (!invData.soLink || !invData.date || !invData.amount) return alert("Please complete payment details.");
 
-        if (currentQty >= soldQty) {
-            // Subtract and update the master list
-            itemDb[itemIndex].unitQty = currentQty - soldQty;
-        } else {
-            alert(`Stock error: Only ${currentQty} units left for ${order.productName}.`);
-            return; 
-        }
-    } else {
-        alert("Product not found in Item Management. Inventory could not be updated.");
-        return;
-    }
+    if (editInvIndex === -1) invDb.push(invData);
+    else invDb[editInvIndex] = invData;
 
-    // 1. Save updated inventory back to local storage
-    localStorage.setItem('items_records', JSON.stringify(itemDb));
-    
-    // 2. Mark the specific Sales Order as Paid so it is removed from pending
-    const soIndex = soDb.findIndex(o => o.id === soId);
-    if (soIndex !== -1) {
-        soDb[soIndex].status = "Paid";
-        localStorage.setItem('sales_orders_records', JSON.stringify(soDb));
-    }
-
-    // 3. Finalize and save the new Invoice/Payment record
-    invDb.push(data);
-    localStorage.setItem('invoice_records', JSON.stringify(invDb));
-    
-    // 4. Success Feedback & UI Reset
-    alert(`Payment saved! Inventory for ${order.productName} decreased.`);
+    localStorage.setItem('inv_records', JSON.stringify(invDb));
     window.toggleInvoiceForm(false);
-    window.initInvoiceView(); 
+    window.renderInvoiceTable();
 };
 
-// --- 4. Render Table ---
 window.renderInvoiceTable = function() {
     const tbody = document.getElementById('invoice-table-body');
     if (!tbody) return;
+    invDb = JSON.parse(localStorage.getItem('inv_records')) || [];
+    
+    tbody.innerHTML = invDb.map((inv, index) => `
+        <tr>
+            <td><strong>${inv.payId}</strong></td>
+            <td>${inv.invId}</td>
+            <td>${inv.customer}</td>
+            <td>${inv.date}</td>
+            <td>${inv.method}</td>
+            <td style="font-weight:700;">₱${Number(inv.amount).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td><small>${inv.ref}</small></td>
+            <td><span class="status-pill" style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-size:11px;">${inv.status}</span></td>
+            <td>
+                <i class="fas fa-trash-alt" onclick="deleteInvoice(${index})" style="color:#ef4444; cursor:pointer;"></i>
+            </td>
+        </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center; padding:20px; color:#94a3b8;">No payment history found</td></tr>';
+};
+window.deleteInvoice = function(index) {
+    requestDelete("Are you sure you want to delete this payment record? This will restore the balance to the linked Sales Order.", () => {
+        // 1. Get latest data
+        let currentInvDb = JSON.parse(localStorage.getItem('inv_records')) || [];
+        
+        // 2. Remove the specific payment
+        currentInvDb.splice(index, 1);
+        
+        // 3. Save back to LocalStorage
+        localStorage.setItem('inv_records', JSON.stringify(currentInvDb));
+        
+        // 4. Refresh the table immediately
+        window.renderInvoiceTable();
 
-    const db = JSON.parse(localStorage.getItem('invoice_records')) || [];
-    tbody.innerHTML = '';
-
-    db.forEach((pay, index) => {
-        tbody.innerHTML += `
-            <tr>
-                <td><strong>${pay.id}</strong></td>
-                <td>${pay.invoiceId}</td>
-                <td>${pay.customerId}</td>
-                <td>${pay.date}</td>
-                <td>${pay.method}</td>
-                <td>₱${pay.amount}</td>
-                <td>${pay.reference}</td>
-                <td><span class="status-pill" style="background: #dcfce7; color: #166534;">${pay.status}</span></td>
-                <td>
-                    <button onclick="editInvoice(${index})" style="color: #2563eb; border:none; background:none; cursor:pointer; margin-right: 10px;">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button onclick="deleteInvoice(${index})" style="color: #ef4444; border:none; background:none; cursor:pointer; margin-right: 10px;">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    <button onclick="window.print()" style="border:none; background:none; cursor:pointer;">
-                        <i class="fas fa-print"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
+        // 5. If the form is currently open, refresh it to show updated balances
+        if (document.getElementById('invoice-form-container').style.display !== 'none') {
+            window.initInvoices();
+            // Clear selection to avoid confusion
+            document.getElementById('pay-so-link').value = "";
+            document.getElementById('pay-amount-due').value = "0.00";
+        }
     });
 };
-
-// --- 5. Delete Logic with Sequential Reset ---
-window.deleteInvoice = function(index) {
-    if(confirm("Are you sure you want to delete this payment record?")) {
-        let db = JSON.parse(localStorage.getItem('invoice_records')) || [];
-        db.splice(index, 1);
-        localStorage.setItem('invoice_records', JSON.stringify(db));
-        
-        // Re-run init to recalculate the next PAY ID sequence
-        window.initInvoiceView(); 
-    }
-};
-
-// --- 6. Form Visibility Toggle ---
 window.toggleInvoiceForm = function(show) {
-    const form = document.getElementById('invoice-form-container');
-    if (form) form.style.display = show ? 'block' : 'none';
-    if (!show) {
-        window.editInvoiceIndex = -1; // Reset if cancelled
-        document.getElementById('invoice-form-title').innerText = "New Payment Entry";
-    }
+    const container = document.getElementById('invoice-form-container');
+    container.style.display = show ? 'block' : 'none';
+    if (show) window.initInvoices();
+    else editInvIndex = -1;
 };
 // 1. INITIALIZE CRM ID (Triggered when entering the CRM view)
 window.initCrm = function() {
@@ -7025,385 +6949,11 @@ window.filterCustomerTable = function() {
         row.style.display = text.includes(query) ? '' : 'none';
     });
 };
-window.syncProductData = function() {
-    const selectedId = document.getElementById('so-product-id').value;
-    const priceField = document.getElementById('so-unit-price'); 
-    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
 
-    const product = productDb.find(p => p.id === selectedId);
-    
-    if (product && priceField) {
-        // Pull Master Price (e.g., ₱800,000.00) and clean it for math
-        const cleanPrice = product.price ? product.price.toString().replace(/[₱,]/g, '') : "0";
-        priceField.value = cleanPrice;
-        
-        // Auto-set quantity to 1 if empty
-        const qtyField = document.getElementById('so-quantity');
-        if (qtyField && (!qtyField.value || qtyField.value == 0)) qtyField.value = 1;
 
-        window.calculateOrderTotal();
-    }
-};
 
-window.calculateOrderTotal = function() {
-    // 1. Get input elements
-    const priceField = document.getElementById('so-unit-price');
-    const qtyField = document.getElementById('so-quantity');
-    const totalField = document.getElementById('so-total-amount');
 
-    if (!priceField || !qtyField || !totalField) return;
 
-    // 2. Extract and clean values
-    // Removes '₱' and commas for math operations
-    const price = parseFloat(priceField.value.replace(/[₱,]/g, '') || 0);
-    const qty = parseInt(qtyField.value || 0);
-    
-    // 3. Calculate raw total
-    const rawTotal = price * qty;
-    
-    // 4. Format the total as currency (e.g., ₱1,600,000.00)
-    if (!isNaN(rawTotal)) {
-        const formattedTotal = rawTotal.toLocaleString('en-PH', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-        
-        // Update the display field with the currency symbol
-        totalField.value = `₱${formattedTotal}`;
-    } else {
-        totalField.value = "₱0.00";
-    }
-
-    // Optional: Log for debugging high-value items like Toyota Raize
-    console.log(`Calculation: ${price} x ${qty} = ${totalField.value}`);
-};
-// --- Global Tracking Variables ---
-window.editInvoiceIndex = -1;
-window.editPaymentIndex = -1; // Standardized index for Payment Terms
-
-// --- Local Storage Databases ---
-let paymentDb = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
-
-// ==========================================
-// 1. UI & FORM CONTROLS
-// ==========================================
-
-window.togglePaymentForm = function(show) {
-    const container = document.getElementById('payment-form-container');
-    const title = document.getElementById('payment-form-title');
-    if (!container) return;
-
-    // Show container first so DOM is ready for ID injection
-    container.style.display = show ? 'block' : 'none';
-
-    if (show) {
-        // Reset tracking index for a fresh entry
-        window.editPaymentIndex = -1;
-        if (title) title.innerText = "Add New Term";
-
-        // Clear existing values
-        const fields = ['pay-name', 'pay-days', 'pay-discount'];
-        fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-        });
-
-        // Force generate and show the next TERM_XXX ID
-        window.initPaymentTerms();
-        
-        // Auto-focus the first field for better UX
-        setTimeout(() => {
-            const nameField = document.getElementById('pay-name');
-            if (nameField) nameField.focus();
-        }, 10);
-    }
-};
-
-window.initPaymentTerms = function() {
-    const termsDb = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
-    const idField = document.getElementById('pay-id');
-    
-    if (idField) {
-        // Calculate the next ID based on current records
-        const nextNum = (termsDb.length + 1).toString().padStart(3, '0');
-        const nextId = `TERM${nextNum}`;
-        
-        idField.value = nextId; // Now visible immediately
-        
-        // Match the "System-Locked" readonly style
-        idField.style.backgroundColor = "#f1f5f9";
-        idField.style.color = "#475569";
-        idField.style.fontWeight = "600";
-    }
-};
-
-// ==========================================
-// 2. DATA PERSISTENCE (SAVE/DELETE)
-// ==========================================
-
-window.savePaymentTerm = function() {
-    const idValue = document.getElementById('pay-id').value;
-    const nameValue = document.getElementById('pay-name').value;
-    const daysValue = document.getElementById('pay-days').value;
-    const discountValue = document.getElementById('pay-discount').value;
-
-    if (!nameValue || !daysValue) {
-        alert("Please fill in the Term Name and Days Due.");
-        return;
-    }
-
-    const newTerm = {
-        id: idValue,
-        name: nameValue.toUpperCase(),
-        days: daysValue,
-        discount: discountValue.includes('%') ? discountValue : `${discountValue}%`,
-        status: "Active"
-    };
-
-    let db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
-    
-    // Check if we are updating or adding new based on the global index
-    if (window.editPaymentIndex > -1) {
-        db[window.editPaymentIndex] = newTerm;
-    } else {
-        db.push(newTerm);
-    }
-
-    localStorage.setItem('payment_terms_records', JSON.stringify(db));
-    
-    window.renderPaymentsTable();
-    window.togglePaymentForm(false);
-};
-window.editPaymentTerm = function(index) {
-    const db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
-    const term = db[index];
-    
-    if (term) {
-        // Set the global tracking index
-        window.editPaymentIndex = index;
-        
-        // Update Form Title
-        const title = document.getElementById('payment-form-title');
-        if (title) title.innerText = "Edit Payment Term";
-        
-        // Show the form container
-        document.getElementById('payment-form-container').style.display = 'block';
-        
-        // Populate inputs with existing data
-        document.getElementById('pay-id').value = term.id;
-        document.getElementById('pay-name').value = term.name;
-        document.getElementById('pay-days').value = term.days;
-        document.getElementById('pay-discount').value = term.discount.replace('%', ''); // Remove % for editing
-        
-        // Scroll to the form for better visibility
-        document.getElementById('payment-form-container').scrollIntoView({ behavior: 'smooth' });
-    }
-};
-
-window.deletePaymentTerm = function(index) {
-    // Applying the requestDelete logic from your standard items/CRM pattern
-    requestDelete("Are you sure you want to delete this payment term?", () => {
-        let db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
-        db.splice(index, 1);
-        localStorage.setItem('payment_terms_records', JSON.stringify(db));
-        
-        window.renderPaymentsTable(); 
-        window.initPaymentTerms(); // Recalculate IDs instantly so TERM_XXX is always ready
-    });
-};
-
-// ==========================================
-// 3. TABLE RENDERING LOGIC
-// ==========================================
-window.renderPaymentsTable = function() {
-    const tbody = document.querySelector('#payments-table tbody');
-    if (!tbody) return;
-
-    const db = JSON.parse(localStorage.getItem('payment_terms_records')) || [];
-    tbody.innerHTML = ''; 
-
-    if (db.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">No payment terms configured.</td></tr>';
-        return;
-    }
-
-    db.forEach((term, index) => {
-        const row = `
-            <tr>
-                <td><strong>${term.id}</strong></td>
-                <td>${term.name}</td>
-                <td>${term.days}</td>
-                <td>${term.discount}</td>
-                <td>
-                    <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">
-                        ${term.status}
-                    </span>
-                </td>
-                <td>
-                    <button class="text-btn" onclick="window.editPaymentTerm(${index})" style="background:none; border:none; cursor:pointer; margin-right: 10px;">
-                        <i class="fas fa-edit" style="color:#2563eb;"></i>
-                    </button>
-                    <button class="text-btn" onclick="window.deletePaymentTerm(${index})" style="background:none; border:none; cursor:pointer;">
-                        <i class="fas fa-trash" style="color:#ef4444;"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
-};
-// ==========================================
-// 1. INITIALIZATION & DATA SYNC
-// ==========================================
-
-window.initDeliveries = function() {
-    const deliveryDb = JSON.parse(localStorage.getItem('delivery_records')) || [];
-    const salesOrders = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-    const idField = document.getElementById('dl-id');
-    const soSelect = document.getElementById('dl-so-id');
-
-    // 1. Generate Sequential ID: DN-2026-001
-    if (idField) {
-        const nextNum = (deliveryDb.length + 1).toString().padStart(3, '0');
-        idField.value = `DN-2026-${nextNum}`;
-    }
-
-    // 2. Populate Sales Order Dropdown (Only Confirmed Orders)
-    if (soSelect) {
-        soSelect.innerHTML = '<option value="" disabled selected>Select Confirmed SO</option>';
-        const confirmedOrders = salesOrders.filter(so => so.status === "Confirmed");
-        
-        if (confirmedOrders.length === 0) {
-            soSelect.innerHTML += '<option disabled>No Confirmed Orders Available</option>';
-        } else {
-            confirmedOrders.forEach(so => {
-                soSelect.innerHTML += `<option value="${so.id}">${so.id} - ${so.customerId}</option>`;
-            });
-        }
-    }
-};
-
-// Auto-fill Customer and Address from Sales Order
-window.syncDeliveryData = function() {
-    const selectedSoId = document.getElementById('dl-so-id').value;
-    const salesOrders = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
-    const order = salesOrders.find(o => o.id === selectedSoId);
-
-    if (order) {
-        if (document.getElementById('dl-cust-id')) 
-            document.getElementById('dl-cust-id').value = order.customerId;
-        if (document.getElementById('dl-address')) 
-            document.getElementById('dl-address').value = order.address || "No Address Provided";
-        
-        // Optional: Set default delivery date to today
-        const dateField = document.getElementById('dl-date');
-        if (dateField && !dateField.value) {
-            dateField.value = new Date().toISOString().split('T')[0];
-        }
-    }
-};
-
-// ==========================================
-// 2. UI CONTROLS
-// ==========================================
-
-window.toggleDeliveryForm = function(show) {
-    const container = document.getElementById('delivery-form-container');
-    if (!container) return;
-
-    container.style.display = show ? 'block' : 'none';
-
-    if (show) {
-        window.initDeliveries(); // Refresh IDs and Dropdowns
-    }
-};
-
-// ==========================================
-// 3. CORE CRUD (SAVE/DELETE)
-// ==========================================
-
-window.saveDeliveryNote = function() {
-    const id = document.getElementById('dl-id').value;
-    const soId = document.getElementById('dl-so-id').value;
-    const custId = document.getElementById('dl-cust-id').value;
-    const date = document.getElementById('dl-date').value;
-    const address = document.getElementById('dl-address').value;
-    const courier = document.getElementById('dl-courier').value;
-
-    if (!soId || !date || !address) {
-        alert("Please ensure Sales Order, Date, and Address are filled.");
-        return;
-    }
-
-    const newDelivery = {
-        id: id,
-        soId: soId,
-        customerId: custId,
-        date: date,
-        address: address,
-        courier: courier,
-        status: "Pending"
-    };
-
-    let db = JSON.parse(localStorage.getItem('delivery_records')) || [];
-    db.push(newDelivery);
-    localStorage.setItem('delivery_records', JSON.stringify(db));
-
-    alert(`Delivery Note ${id} generated successfully!`);
-    window.renderDeliveriesTable();
-    window.toggleDeliveryForm(false);
-};
-
-window.deleteDelivery = function(index) {
-    if (confirm("Remove this delivery record?")) {
-        let db = JSON.parse(localStorage.getItem('delivery_records')) || [];
-        db.splice(index, 1);
-        localStorage.setItem('delivery_records', JSON.stringify(db));
-        window.renderDeliveriesTable();
-    }
-};
-
-// ==========================================
-// 4. RENDERING LOGIC
-// ==========================================
-
-window.renderDeliveriesTable = function() {
-    const tbody = document.querySelector('#deliveries-table tbody');
-    if (!tbody) return;
-
-    const db = JSON.parse(localStorage.getItem('delivery_records')) || [];
-    tbody.innerHTML = '';
-
-    if (db.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">No delivery records found.</td></tr>';
-        return;
-    }
-
-    db.forEach((dl, index) => {
-        const statusColor = dl.status === "Delivered" ? "#166534" : "#854d0e";
-        const statusBg = dl.status === "Delivered" ? "#dcfce7" : "#fef9c3";
-
-        tbody.innerHTML += `
-            <tr>
-                <td><strong>${dl.id}</strong></td>
-                <td>${dl.soId}</td>
-                <td>${dl.customerId}</td>
-                <td>${dl.date}</td>
-                <td>${dl.address}</td>
-                <td>${dl.courier}</td>
-                <td><span class="status-pill" style="background: ${statusBg}; color: ${statusColor};">${dl.status}</span></td>
-                <td>
-                    <button class="text-btn" onclick="window.deleteDelivery(${index})">
-                        <i class="fas fa-trash" style="color:#ef4444;"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-};
-// ==========================================
-// 1. INITIALIZATION & DATA SYNC
-// ==========================================
 
 window.initReturns = function() {
     const returnsDb = JSON.parse(localStorage.getItem('returns_records')) || [];
@@ -10015,18 +9565,25 @@ window.renderCosts = function() {
 let itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
 window.editItemIndex = -1;
 
-// 1. Initialize Form & Dropdown
+// 1. Initialize Form & Dropdowns
 window.initItem = function() {
     const idField = document.getElementById('itm-id');
+    const supSelect = document.getElementById('itm-supplier');
     const prodSelect = document.getElementById('itm-product-source');
-    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
-
     
+    // Fetch records
+    const supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
+    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
+    const itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
+
+    // Populate Supplier Dropdown
+    if (supSelect) {
+        supSelect.innerHTML = '<option value="" disabled selected>-- Select Supplier --</option>' + 
+            supplierDb.map(sup => `<option value="${sup.name}">${sup.id} - ${sup.name}</option>`).join('');
+    }
 
     // Generate Sequential ID for new entries
     if (idField && window.editItemIndex === -1) {
-        // Re-sync itemDb to get accurate length
-        itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
         const nextNum = (itemDb.length + 1).toString().padStart(3, '0');
         idField.value = `ITM-${nextNum}`;
     }
@@ -10034,9 +9591,69 @@ window.initItem = function() {
     // Attach real-time calculation listener
     const unitInput = document.getElementById('itm-unit');
     if (unitInput) {
-        unitInput.removeEventListener('input', window.calculateItemCost); // Prevent double listeners
+        unitInput.removeEventListener('input', window.calculateItemCost);
         unitInput.addEventListener('input', window.calculateItemCost);
     }
+};
+
+// --- Edit Item Logic ---
+window.editItem = function(index) {
+    // 1. Re-sync database to ensure data accuracy
+    let itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
+    const item = itemDb[index];
+    
+    if (!item) return;
+
+    // 2. Set the global edit tracker
+    window.editItemIndex = index;
+
+    // 3. Open the form
+    window.toggleItemForm(true);
+
+    // 4. Update Form Title
+    const title = document.getElementById('item-form-title');
+    if (title) title.innerText = `Edit Item: ${item.id}`;
+
+    // 5. Populate fields
+    document.getElementById('itm-id').value = item.id;
+    document.getElementById('itm-name').value = item.itemName;
+    document.getElementById('itm-supplier').value = item.supplier || "";
+    document.getElementById('itm-unit').value = item.unitQty;
+    
+    // Remove ₱ and commas so the number input can display the value
+    const numericCost = item.cost.replace(/[₱,]/g, '');
+    document.getElementById('itm-cost').value = numericCost;
+};
+
+// --- Updated Save Item (with Supplier & Edit handling) ---
+window.saveItem = function() {
+    const itemData = {
+        id: document.getElementById('itm-id').value,
+        itemName: document.getElementById('itm-name').value.trim(),
+        supplier: document.getElementById('itm-supplier').value,
+        unitQty: document.getElementById('itm-unit').value || 0,
+        cost: `₱${parseFloat(document.getElementById('itm-cost').value || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`
+    };
+
+    if (!itemData.itemName || !itemData.supplier || itemData.unitQty <= 0) {
+        return alert("Please fill in all required fields (Name, Supplier, and Quantity).");
+    }
+
+    // Re-sync database before saving
+    let itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
+
+    if (window.editItemIndex === -1) {
+        // Create new
+        itemDb.push(itemData);
+    } else {
+        // Update existing at specific index
+        itemDb[window.editItemIndex] = itemData;
+        window.editItemIndex = -1; // Reset tracker
+    }
+
+    localStorage.setItem('items_records', JSON.stringify(itemDb));
+    window.renderItemTable();
+    window.toggleItemForm(false); // Closes form and usually resets title to "Add New Item"
 };
 
 // 2. Auto-fill and Calculate from Master
@@ -10081,33 +9698,6 @@ window.toggleItemForm = function(show) {
     if (show) window.initItem();
 };
 
-// 5. Save Item
-window.saveItem = function() {
-    const itemData = {
-        id: document.getElementById('itm-id').value,
-        itemName: document.getElementById('itm-name').value.trim(),
-        unitQty: document.getElementById('itm-unit').value || 0,
-        cost: `₱${parseFloat(document.getElementById('itm-cost').value || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`
-    };
-
-    if (!itemData.itemName || itemData.unitQty <= 0) {
-        return alert("Please fill in required fields.");
-    }
-
-    // Re-sync itemDb before saving
-    itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
-
-    if (window.editItemIndex === -1) {
-        itemDb.push(itemData);
-    } else {
-        itemDb[window.editItemIndex] = itemData;
-        window.editItemIndex = -1;
-    }
-
-    localStorage.setItem('items_records', JSON.stringify(itemDb));
-    window.renderItemTable();
-    window.toggleItemForm(false);
-};
 
 // 6. Delete Logic (Callback Style using requestDelete)
 window.deleteItem = function(index) {
@@ -10127,17 +9717,21 @@ window.renderItemTable = function() {
     itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
     
     tbody.innerHTML = itemDb.length === 0 
-        ? `<tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">No items registered.</td></tr>`
+        ? `<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No items registered.</td></tr>`
         : itemDb.map((item, index) => `
             <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 12px;"><strong>${item.id}</strong></td>
                 <td style="padding: 12px;">${item.itemName}</td>
+                <td style="padding: 12px; color: #64748b; font-size: 0.85rem;">${item.supplier || 'N/A'}</td>
                 <td style="padding: 12px;">${item.unitQty} pcs</td>
-                <td style="padding: 12px;">${item.cost}</td>
+                <td style="padding: 12px; font-weight: 600;">${item.cost}</td>
                 <td style="padding: 12px; text-align: center;">
-                    <button onclick="window.deleteItem(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <i class="fas fa-edit" onclick="window.editItem(${index})" 
+                           style="color: #2563eb; cursor: pointer;" title="Edit"></i>
+                        <i class="fas fa-trash-alt" onclick="window.deleteItem(${index})" 
+                           style="color: #ef4444; cursor: pointer;" title="Delete"></i>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -10305,60 +9899,42 @@ window.deletePurchaseInvoice = function(index) {
     });
 };
 
-// --- PAYMENT ENTRY LOGIC ---
-window.initPaymentEntry = function() {
-    const nextId = paymentsDb.length > 0 ? Math.max(...paymentsDb.map(r => parseInt(r.id.split('-')[1]))) + 1 : 1;
-    document.getElementById('pay-id-display').value = `PAY-${nextId.toString().padStart(3, '0')}`;
-    const btn = document.querySelector('#pay-form-container .btn-group button:first-child');
-    btn.onclick = () => window.savePaymentEntry();
-};
-
-window.savePaymentEntry = function(editId = null) {
-    const record = {
-        id: editId || document.getElementById('pay-id-display').value,
-        type: document.getElementById('pay-type-input').value,
-        party: document.getElementById('pay-party-input').value,
-        amount: document.getElementById('pay-amount-input').value,
-        ref: document.getElementById('pay-ref-input').value,
-        date: document.getElementById('pay-date-input').value,
-        status: 'Cleared'
-    };
-    if (editId) {
-        const idx = paymentsDb.findIndex(r => r.id === editId);
-        paymentsDb[idx] = record;
-    } else {
-        paymentsDb.push(record);
-    }
-    localStorage.setItem('payment_entries', JSON.stringify(paymentsDb));
-    document.getElementById('pay-form-container').style.display = 'none';
-    window.renderPaymentsTable();
-};
-
-window.renderPaymentsTable = function() {
+/* --- PAYMENTS TABLE RENDERING (VIEW ONLY) --- */
+window.renderPaymentTable = function() {
     const tbody = document.getElementById('payments-table-body');
     if (!tbody) return;
-    tbody.innerHTML = paymentsDb.map((rec, index) => `
-        <tr>
-            <td><strong style="color: #2563eb;">${rec.id}</strong></td>
-            <td style="color: ${rec.type === 'Receive' ? '#10b981' : '#ef4444'}; font-weight: bold;">${rec.type}</td>
-            <td>${rec.party}</td>
-            <td>₱${parseFloat(rec.amount).toLocaleString()}</td>
-            <td>${rec.ref}</td>
-            <td>${rec.date}</td>
-            <td><span class="status-pill status-active">${rec.status}</span></td>
-            <td>
-                <i class="fas fa-trash" onclick="window.deletePaymentEntry(${index})" style="color: #ef4444; cursor:pointer;"></i>
-            </td>
-        </tr>
-    `).join('') || '<tr><td colspan="8" style="text-align:center;">No entries found</td></tr>';
-};
 
-window.deletePaymentEntry = function(index) {
-    requestDelete("Remove this payment record?", () => {
-        paymentsDb.splice(index, 1);
-        localStorage.setItem('payment_entries', JSON.stringify(paymentsDb));
-        window.renderPaymentsTable();
-    });
+    // Fetch the unified invoice/payment database
+    const invDb = JSON.parse(localStorage.getItem('inv_records')) || [];
+    
+    // Check if there is a search term from the unique ledger search box
+    const searchInput = document.getElementById('pay-ledger-search');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+
+    tbody.innerHTML = invDb
+        .filter(inv => 
+            inv.payId?.toLowerCase().includes(searchTerm) || 
+            inv.invId?.toLowerCase().includes(searchTerm) || 
+            inv.customer?.toLowerCase().includes(searchTerm)
+        )
+        .map((inv) => `
+            <tr>
+                <td style="padding:12px;"><strong>${inv.payId || '---'}</strong></td>
+                <td style="padding:12px;">${inv.invId}</td>
+                <td style="padding:12px;">${inv.customer}</td>
+                <td style="padding:12px;">${inv.date}</td>
+                <td style="padding:12px;">${inv.method || 'N/A'}</td>
+                <td style="padding:12px; font-weight:700; color:#059669;">
+                    ₱${Number(inv.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                </td>
+                <td style="padding:12px;"><small style="color:#64748b;">${inv.ref || '---'}</small></td>
+                <td style="padding:12px;">
+                    <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:600;">
+                        ${inv.status || 'Paid'}
+                    </span>
+                </td>
+            </tr>
+        `).join('') || '<tr><td colspan="9" style="text-align:center; padding:30px; color:#94a3b8;">No payment history found.</td></tr>';
 };
 // Database Initialization - Brand new DB name and storage key
 let paymentTermsDb = JSON.parse(localStorage.getItem('fms_payment_terms_records')) || [];
@@ -10668,6 +10244,7 @@ window.saveWarehouse = function() {
     window.toggleWhForm(false);
     window.renderWhSummaryTable();
 };
+
 // Helper to force standardized dash format
 const toDashFormat = (prefix, id) => {
     if (!id) return "";
@@ -10767,16 +10344,16 @@ function showView(viewId) {
         window.initStockBalance();
     }
 } else if (viewId === 'purchase-receipts-view') {
-        // Initialize Purchase Receipts module
-        if (typeof window.renderPrTable === 'function') {
-            window.renderPrTable();
-        }
-    } else if (viewId === 'delivery-notes-view') {
-        // Initialize Delivery Notes module
-        if (typeof window.renderDnTable === 'function') {
-            window.renderDnTable();
-        }
-    } else if (viewId === 'products-view') {
+    // Consolidated entry point for the Purchase Receipt module
+    if (typeof window.initPr === 'function') {
+        window.initPr();
+    }
+} // Add this inside your main showView or navigation function
+else if (viewId === 'delivery-notes-view') {
+    window.renderDnTable();      // Load existing records
+    window.populateDnDropdowns(); // Ensure dropdowns are ready
+    window.toggleDnForm(false);  // Ensure form starts hidden
+} else if (viewId === 'products-view') {
     // 1. Refresh the global database reference from the correct key
     // This ensures data consistency across the application
     window.sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
@@ -10800,43 +10377,25 @@ function showView(viewId) {
         searchInput.value = '';
     }
 } else if (viewId === 'sales-orders-view') {
-    // 1. Refresh the table (with the new Product column)
-    if (typeof window.renderSOTable === 'function') {
-        window.renderSOTable();
-    }
+    editSoIndex = -1;
+    // Force immediate sync of product list and UI defaults
+    window.initSalesOrders();
     
-    // 2. Refresh sequential IDs and Product dropdown
-    if (typeof window.initSalesOrder === 'function') {
-        window.initSalesOrder();
-    }
+    // Hide form if it was left open
+    const container = document.getElementById('so-form-container');
+    if (container) container.style.display = 'none';
 } // --- NEW: Invoices & Official Receipts Integration ---
 else if (viewId === 'invoices-view') {
-    // 1. Render the billing table
-    if (typeof window.renderInvoiceTable === 'function') {
-        window.renderInvoiceTable();
-    }
-    
-    // 2. Refresh sequential PAY_XXXX IDs and Customer dropdowns
-    if (typeof window.initInvoiceView === 'function') {
-        window.initInvoiceView();
-    }
+    window.initInvoices();
 } else if (viewId === 'customers-view') {
     if (typeof window.initCrm === 'function') {
         window.initCrm(); // Triggers the CUST_001 auto-increment
     }
-} // ACCOUNTS RECEIVABLE & CONFIGURATION TRIGGERS
-else if (viewId === 'payments-view') {
-    window.renderPaymentsTable();
-    window.initPaymentTerms();
-    window.togglePaymentForm(false);
 } 
-
 // LOGISTICS & DISTRIBUTION TRIGGERS
-else if (viewId === 'deliveries-view') {
-    window.renderDeliveriesTable();
-    window.initDeliveries();
-    window.toggleDeliveryForm(false);
-} 
+else if (viewId === 'delivery-notes-view') {
+    window.initDeliveryNotes();
+}
 
 // SALES RETURNS & AFTERSALES TRIGGERS
 else if (viewId === 'returns-view') {
@@ -10939,9 +10498,16 @@ else if (viewId === 'stock-ex-view') {
     if (exForm) exForm.style.display = 'none';
 } else if (viewId === 'stock-trans-view') {
     window.renderStockTransfers();
-    window.initStockTransfer();   // Generates TRNS_xxx and populates pay-ref dropdown
+    window.initStockTransfer();
     const transForm = document.getElementById('transfer-form-container');
     if (transForm) transForm.style.display = 'none';
+} else if (viewId === 'acc-payments-view') {
+    // Refresh the view-only table every time the view is shown
+    window.renderPaymentTable();
+    
+    // Ensure the entry form is hidden by default
+    const payForm = document.getElementById('pay-form-container');
+    if (payForm) payForm.style.display = 'none';
 }
     // --- Sidebar Active State Management ---
     const navMap = {
