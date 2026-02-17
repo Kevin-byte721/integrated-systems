@@ -1736,7 +1736,12 @@ const buyingDashboardHTML = `
                 <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Product Name</label>
                 <input type="text" id="selling-name-input" placeholder="e.g. Bigas (ITM-010)" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
             </div>
-
+            <div class="input-box" style="grid-column: span 2;">
+    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Supplier</label>
+    <select id="selling-sup-dropdown" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white;">
+        <option value="" disabled selected>Select a supplier...</option>
+    </select>
+</div>
             <div class="input-box">
                 <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Quantity</label>
                 <input type="number" id="selling-qty" min="1" value="1" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
@@ -1772,6 +1777,7 @@ const buyingDashboardHTML = `
                     <th>QUO ID</th>
                     <th>PROD ID</th>
                     <th>PRODUCT NAME</th>
+                    <th>SUPPLIER</th>
                     <th>QTY</th>
                     <th>UNIT PRICE</th>
                     <th>TOTAL</th>
@@ -1976,79 +1982,25 @@ const buyingDashboardHTML = `
         <p>Track outgoing shipments and delivery fulfillment status.</p>
     </div>
 
-    <div id="delivery-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
-        <h3 id="delivery-form-title">Create Delivery Note</h3>
-        
-        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-            <div class="input-box">
-                <label>Delivery Note ID</label>
-                <input type="text" id="dl-id" readonly style="background: #f1f5f9;">
-            </div>
-
-            <div class="input-box">
-                <label>Select Sales Order</label>
-                <select id="dl-so-id" onchange="window.syncDeliveryData()" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    </select>
-            </div>
-
-            <div class="input-box">
-                <label>Customer ID</label>
-                <input type="text" id="dl-cust-id" readonly style="background: #f1f5f9;">
-            </div>
-
-            <div class="input-box">
-                <label>Delivery Date</label>
-                <input type="date" id="dl-date">
-            </div>
-
-            <div class="input-box">
-                <label>Shipping Address</label>
-                <input type="text" id="dl-address" placeholder="Enter address">
-            </div>
-
-            <div class="input-box">
-                <label>Delivered By</label>
-                <select id="dl-courier" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    <option>Logistics Team A</option>
-                    <option>Logistics Team B</option>
-                    <option>Third Party Courier</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="login-btn" onclick="window.saveDeliveryNote()" style="width: auto; padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                Generate Note
-            </button>
-            <button class="login-btn" onclick="window.toggleDeliveryForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                Cancel
-            </button>
-        </div>
-    </div>
-
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Delivery ID or SO..." id="dl-search" oninput="window.renderDeliveriesTable()">
+            <div class="search-container" style="position: relative;">
+                <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+                <input type="text" placeholder="Search by Delivery ID or Customer..." id="dl-search" oninput="window.renderDeliveriesTable()" style="padding:10px 10px 10px 35px; border:1px solid #cbd5e1; border-radius:8px; width:300px;">
             </div>
-            <button class="text-btn" onclick="window.toggleDeliveryForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-shipping-fast"></i> Create Delivery Note
-            </button>
         </div>
         
-        <table id="deliveries-table">
+        <table id="deliveries-table" style="width:100%; border-collapse:collapse;">
             <thead>
-    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
-        <th style="padding: 12px;">DELIVERY ID</th>
-        <th style="padding: 12px;">CUSTOMER</th>
-        <th style="padding: 12px;">WAREHOUSE</th> 
-        <th style="padding: 12px;">DELIVERY DATE</th>
-        <th style="padding: 12px;">STATUS</th>
-        <th style="padding: 12px; text-align: center;">ACTIONS</th>
-    </tr>
-</thead>
-            <tbody>
+                <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                    <th style="padding: 12px;">DELIVERY ID</th>
+                    <th style="padding: 12px;">CUSTOMER / PRODUCT</th>
+                    <th style="padding: 12px;">WAREHOUSE</th> 
+                    <th style="padding: 12px;">DATE</th>
+                    <th style="padding: 12px;">STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="deliveries-table-body">
                 </tbody>
         </table>
     </div>
@@ -2059,83 +2011,88 @@ const buyingDashboardHTML = `
         <p>Manage product returns, credit notes, and restock authorizations.</p>
     </div>
 
-    <div id="return-form-container" class="content-card" style="display:none; margin-bottom: 20px;">
-        <h3 id="return-form-title">Process New Return</h3>
+    <div id="return-form-container" class="content-card" style="display:none; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+        <h3 id="return-form-title" style="color: #1e293b; margin-bottom: 15px;">Process New Return</h3>
         
-        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
             <div class="input-box">
-                <label>Return ID</label>
-                <input type="text" id="ret-id" readonly style="background: #f1f5f9;">
+    <label style="font-weight: 600; font-size: 0.85rem; color: #64748b;">Return ID</label>
+    <input type="text" id="ret-id" readonly 
+           style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; 
+                  background: #f8fafc; color: #0f172a; font-weight: 700; cursor: not-allowed;">
+</div>
+
+            <div class="input-box">
+                <label style="font-weight: 600; font-size: 0.85rem; color: #64748b;">Linked Sales Order</label>
+                <select id="ret-so-id" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white;">
+                    <option value="" disabled selected>-- Select SO --</option>
+                </select>
             </div>
 
             <div class="input-box">
-                <label>Sales Order ID</label>
-                <input type="text" id="ret-so-id" placeholder="SO-XXX">
+                <label style="font-weight: 600; font-size: 0.85rem; color: #64748b;">Customer</label>
+                <input type="text" id="ret-cust-id" readonly style="background: #f8fafc; border: 1px solid #e2e8f0; cursor: not-allowed; font-weight: bold;">
             </div>
 
             <div class="input-box">
-                <label>Customer</label>
-                <select id="ret-cust-id" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    </select>
+                <label style="font-weight: 600; font-size: 0.85rem; color: #64748b;">Date of Return</label>
+                <input type="date" id="ret-date" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
             </div>
 
             <div class="input-box">
-                <label>Return Date</label>
-                <input type="date" id="ret-date">
+                <label style="font-weight: 600; font-size: 0.85rem; color: #64748b;">Refund Amount (₱)</label>
+                <input type="number" id="ret-amount" placeholder="0.00" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
             </div>
 
             <div class="input-box">
-                <label>Refund Amount (₱)</label>
-                <input type="text" id="ret-amount" placeholder="0.00">
-            </div>
-
-            <div class="input-box">
-                <label>Condition</label>
-                <select id="ret-condition" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    <option>Like New</option>
-                    <option>Damaged</option>
-                    <option>Defective</option>
+                <label style="font-weight: 600; font-size: 0.85rem; color: #64748b;">Item Condition</label>
+                <select id="ret-condition" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white;">
+                    <option value="Like New">Like New (Restockable)</option>
+                    <option value="Damaged">Damaged</option>
+                    <option value="Defective">Defective</option>
                 </select>
             </div>
         </div>
 
-        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="login-btn" onclick="window.saveReturnRecord()" style="width: auto; padding: 10px 24px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                Authorize Return
+        <div class="btn-group" style="margin-top: 25px; display: flex; gap: 12px;">
+            <button class="login-btn" onclick="window.saveReturnRecord()" style="padding: 12px 28px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: 0.3s;">
+                <i class="fas fa-check-circle"></i> Authorize Return
             </button>
-            <button class="login-btn" onclick="window.toggleReturnForm(false)" style="width: auto; padding: 10px 24px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            <button class="login-btn" onclick="window.toggleReturnForm(false)" style="padding: 12px 28px; background: #94a3b8; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                 Cancel
             </button>
         </div>
     </div>
 
     <div class="content-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search by Return ID or Customer..." id="ret-search" oninput="window.renderReturnsTable()">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div class="search-container" style="flex: 1; max-width: 400px; position: relative;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                <input type="text" placeholder="Search Return ID or Customer..." id="ret-search" oninput="window.renderReturnsTable()" style="width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #e2e8f0; border-radius: 8px;">
             </div>
-            <button class="text-btn" onclick="window.toggleReturnForm(true)" style="background: #ef4444; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600;">
-                <i class="fas fa-undo"></i> Process New Return
+            <button class="text-btn" onclick="window.toggleReturnForm(true)" style="background: #ef4444; color: white; padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 700; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);">
+                <i class="fas fa-plus"></i> Process New Return
             </button>
         </div>
         
-        <table id="returns-table">
-            <thead>
-                <tr>
-                    <th>RETURN ID</th>
-                    <th>SALES ORDER ID</th>
-                    <th>CUSTOMER ID</th>
-                    <th>RETURN DATE</th>
-                    <th>REFUND AMOUNT</th>
-                    <th>CONDITION</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table id="returns-table" style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8fafc; text-align: left;">
+                    <tr>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Return ID</th>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">SO ID</th>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Customer</th>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Date</th>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Amount</th>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Condition</th>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Status</th>
+                        <th style="padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="returns-table-body">
+                    </tbody>
+            </table>
+        </div>
     </div>
 </div>
     </main>`;
@@ -2246,6 +2203,7 @@ const buyingDashboardHTML = `
                 <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                     <th style="padding: 12px;">ITEM ID</th>
                     <th style="padding: 12px;">ITEM NAME</th>
+                    <th style="padding: 12px;">SUPPLIER</th>
                     <th style="padding: 12px;">UNIT QTY</th>
                     <th style="padding: 12px;">COST</th>
                     <th style="padding: 12px;">ACTIONS</th>
@@ -2331,6 +2289,10 @@ const buyingDashboardHTML = `
                 <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Item</label>
                 <select id="stock-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff;"></select>
             </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Product</label>
+                <select id="stock-pr-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff;"></select>
+            </div>
 
             <div class="input-box">
                 <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Warehouse</label>
@@ -2370,7 +2332,7 @@ const buyingDashboardHTML = `
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="background: #f8fafc; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.85rem;">
-                    <th style="text-align: left; padding: 15px;">ITEM ID</th>
+                    <th style="text-align: left; padding: 15px;">ITEM ID / PRODUCT ID</th>
                     <th style="text-align: left; padding: 15px;">WAREHOUSE</th>
                     <th style="text-align: left; padding: 15px;">QTY ON HAND</th>
                     <th style="text-align: left; padding: 15px;">RESERVED</th>
@@ -2475,12 +2437,22 @@ const buyingDashboardHTML = `
                 <option value="" disabled selected>-- Select Warehouse --</option>
             </select>
         </div>
-        <div class="input-box">
-    <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Item</label>
-    <select id="dn-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff; cursor: pointer; color: #1e293b;">
-        <option value="" disabled selected>-- Select Item --</option>
-    </select>
-</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+    <div class="input-box">
+        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Inventory Item</label>
+        <select id="dn-master-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff;">
+            <option value="" disabled selected>-- Select from Inventory --</option>
+        </select>
+    </div>
+
+    <div class="input-box">
+        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Quoted Item (Selling)</label>
+        <select id="dn-selling-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff;">
+            <option value="" disabled selected>-- Select from Quotations --</option>
+        </select>
+    </div>
+
+    </div>
         <div class="input-box">
             <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Delivery Date</label>
             <input type="date" id="dn-date" 
@@ -2515,7 +2487,8 @@ const buyingDashboardHTML = `
     <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
         <th style="padding: 12px;">DELIVERY ID</th>
         <th style="padding: 12px;">CUSTOMER</th>
-        <th style="padding: 12px;">ITEM</th> <th style="padding: 12px;">WAREHOUSE</th> 
+        <th style="padding: 12px;">ITEM / PRODUCT</th> 
+        <th style="padding: 12px;">WAREHOUSE</th> 
         <th style="padding: 12px;">DATE</th>
         <th style="padding: 12px;">STATUS</th>
         <th style="padding: 12px; text-align: center;">ACTIONS</th>
@@ -2556,77 +2529,41 @@ const buyingDashboardHTML = `
         </div>
     </nav>
     <main class="main-container">
-        <div id="sales-invoices-view">
-    <div class="header">
-        <h1>Sales Invoices</h1>
-        <p>Manage accounts receivable and customer billing.</p>
+        <div id="sales-invoices-view" style="">
+    <div class="header" style="margin-bottom: 25px;">
+        <h1 style="font-weight: 800; color: #1e293b;">Sales Invoice Summary</h1>
+        <p style="color: #64748b;">Consolidated payments grouped by Sales Order links.</p>
     </div>
 
     <div class="content-card">
-        <div id="sinv-form-container" style="display:none; margin-bottom: 20px; padding: 20px; border-left: 4px solid #2563eb; background: #f8fafc; border-radius: 4px;">
-            <h3 style="margin-bottom: 15px; color: #1e293b; font-weight: 600; border:none;">Create New Sales Invoice</h3>
-            <div class="form-grid">
-                <div class="input-box">
-                    <label>Invoice ID</label>
-                    <input type="text" id="sinv-id-display" readonly style="background-color: #f1f5f9; cursor: not-allowed;">
-                </div>
-                <div class="input-box">
-                    <label>Customer</label>
-                    <input type="text" id="sinv-customer-input" placeholder="Enter customer name">
-                </div>
-                <div class="input-box">
-                    <label>Posting Date</label>
-                    <input type="date" id="sinv-post-date">
-                </div>
-                <div class="input-box">
-                    <label>Due Date</label>
-                    <input type="date" id="sinv-due-date">
-                </div>
-                <div class="input-box">
-                    <label>Total Amount (₱)</label>
-                    <input type="number" id="sinv-amount-input" step="0.01" placeholder="0.00">
-                </div>
-                <div class="input-box">
-                    <label>Status</label>
-                    <select id="sinv-status-input">
-                        <option value="Paid">Paid</option>
-                        <option value="Unpaid">Unpaid</option>
-                        <option value="Overdue">Overdue</option>
-                    </select>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button class="text-btn" style="background: #2563eb; color: white; padding: 10px 24px; border-radius: 6px;">Save Invoice</button>
-                <button onclick="document.getElementById('sinv-form-container').style.display='none'" class="text-btn" style="background: #64748b; color: white; padding: 10px 24px; border-radius: 6px;">Cancel</button>
-            </div>
-        </div>
-
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container" style="position:relative; width: 300px;">
-                <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
-                <input type="text" id="sinv-search-input" placeholder="Search invoices..." style="width:100%; padding:10px 10px 10px 40px; border:1px solid #e2e8f0; border-radius:8px;">
+            <div class="search-container" style="position: relative; width: 350px;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
+                <input type="text" id="sinv-search-input" placeholder="Search SO or Customer..." oninput="window.renderSalesInvoiceTable()" style="width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #cbd5e1; border-radius: 8px;">
             </div>
-            <button class="text-btn" onclick="document.getElementById('sinv-form-container').style.display='block'; window.initSalesInvoice();" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
-                <i class="fas fa-plus"></i> Create Invoice
-            </button>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>INVOICE ID</th>
-                    <th>CUSTOMER</th>
-                    <th>POSTING DATE</th>
-                    <th>DUE DATE</th>
-                    <th>TOTAL AMOUNT</th>
-                    <th>OUTSTANDING</th>
-                    <th>STATUS</th>
-                    <th style="text-align:center;">ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody id="sales-invoice-table-body">
-                </tbody>
-        </table>
+        <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; background: white;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569;">
+                        <th style="padding: 15px;">SALES ORDER</th>
+                        <th style="padding: 15px;">INVOICE ID(S)</th>
+                        <th style="padding: 15px;">CUSTOMER</th>
+                        <th style="padding: 15px;">LAST PAYMENT</th>
+                        <th style="padding: 15px; text-align: right;">TOTAL COLLECTED</th>
+                        <th style="padding: 15px; text-align: center;">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="sales-invoice-table-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; display: flex; justify-content: flex-end; gap: 20px; align-items: center;">
+            <span style="color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase;">Total Portfolio Collection:</span>
+            <span id="sinv-grand-total" style="color: #1e293b; font-weight: 800; font-size: 16px;">₱0.00</span>
+        </div>
     </div>
 </div>
 
@@ -2762,53 +2699,75 @@ const buyingDashboardHTML = `
     </div>
 
     <div class="content-card">
-        <div id="term-form-container" style="display:none; margin-bottom: 20px; padding: 20px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
-            <h3 style="margin-bottom: 15px; color: #1e293b; font-weight: 600; border:none;">New Payment Term</h3>
-            <div class="form-grid">
+        <div id="term-form-container" style="display:none; margin-bottom: 25px; padding: 25px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 8px;">
+            <h3 style="margin-bottom: 20px; font-weight: 700;">New Payment Term</h3>
+            
+            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                 <div class="input-box">
-                    <label>Term ID</label>
-                    <input type="text" id="term-id-display" readonly style="background-color: #f1f5f9;">
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:5px;">Term ID</label>
+                    <input type="text" id="term-id-input" readonly style="background: #e2e8f0; border: 1px solid #cbd5e1; width: 100%; padding: 10px; border-radius: 6px;">
                 </div>
+                
                 <div class="input-box">
-                    <label>Term Name</label>
-                    <input type="text" id="term-name-input" placeholder="e.g. Net 30">
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:5px;">Term Name</label>
+                    <select id="term-name-input" style="width:100%; padding:10px; border-radius:6px; border:1px solid #cbd5e1;">
+                        <option value="">Select Term Name</option>
+                        <option value="Net 30">Net 30</option>
+                        <option value="2/10 Net 30">2/10 Net 30</option>
+                        <option value="COD">COD (Cash on Delivery)</option>
+                        <option value="EOM">End of Month (EOM)</option>
+                    </select>
                 </div>
+
                 <div class="input-box">
-                    <label>Days Due</label>
-                    <input type="number" id="term-days-input" placeholder="0">
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:5px;">Days Due</label>
+                    <select id="term-days-input" style="width:100%; padding:10px; border-radius:6px; border:1px solid #cbd5e1;">
+                        <option value="0">0 Days (Immediate)</option>
+                        <option value="15">15 Days</option>
+                        <option value="30">30 Days</option>
+                        <option value="60">60 Days</option>
+                    </select>
                 </div>
+
                 <div class="input-box">
-                    <label>Discount %</label>
-                    <input type="number" id="term-discount-input" step="0.1" value="0">
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:5px;">Discount %</label>
+                    <select id="term-discount-input" style="width:100%; padding:10px; border-radius:6px; border:1px solid #cbd5e1;">
+                        <option value="0">0%</option>
+                        <option value="1">1%</option>
+                        <option value="2">2%</option>
+                        <option value="5">5%</option>
+                    </select>
                 </div>
             </div>
+
             <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
-                <button class="text-btn" style="background:#10b981; color:white; padding:10px 24px; border-radius:6px; border:none; cursor:pointer; font-weight:600;">Save Term</button>
-                <button onclick="document.getElementById('term-form-container').style.display='none'" class="text-btn" style="background:#64748b; color:white; padding:10px 24px; border-radius:6px; border:none; cursor:pointer;">Cancel</button>
+                <button id="save-term-btn" onclick="window.savePaymentTerm()" style="padding: 10px 25px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700;">Save Term</button>
+                <button onclick="window.toggleMasterForm(false)" style="padding: 10px 20px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
             </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="border:none; margin:0; color: #1e293b; font-size: 1.1rem; font-weight:600;">Payment Terms</h3>
-          <button class="text-btn" onclick="document.getElementById('term-form-container').style.display='block'; window.initPaymentTerm();" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="font-weight: 700; color: #1e293b; margin: 0;">Payment Terms</h3>
+            <button onclick="window.toggleMasterForm(true)" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-plus"></i> New Term
             </button>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>TERM ID</th>
-                    <th>TERM NAME</th>
-                    <th>DAYS DUE</th>
-                    <th>DISCOUNT %</th>
-                    <th>STATUS</th>
-                    <th style="text-align:center;">ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody id="terms-table-body">
-                </tbody>
-        </table>
+        <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569;">
+                        <th style="padding: 15px;">TERM ID</th>
+                        <th style="padding: 15px;">TERM NAME</th>
+                        <th style="padding: 15px;">DAYS DUE</th>
+                        <th style="padding: 15px;">DISCOUNT %</th>
+                        <th style="padding: 15px;">STATUS</th>
+                        <th style="padding: 15px; text-align: center;">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="terms-table-body"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -2822,8 +2781,12 @@ const buyingDashboardHTML = `
             <h3 style="border:none; margin-bottom: 15px;">Create Landed Cost Voucher</h3>
             <div class="form-grid">
                 <div class="input-box"><label>Voucher ID</label><input type="text" id="lcv-id-display" readonly style="background:#f1f5f9;"></div>
-                <div class="input-box"><label>Purchase Receipt</label><input type="text" id="lcv-receipt-input" readonly placeholder="PR-001"></div>
-                <div class="input-box"><label>Charges Type</label>
+<div class="input-box">
+    <label>Purchase Receipt</label>
+    <select id="lcv-receipt-input" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+        <option value="" disabled selected>Select Purchase Receipt</option>
+    </select>
+</div>                <div class="input-box"><label>Charges Type</label>
                     <select id="lcv-type-input"><option>Freight & Insurance</option><option>Customs Duties</option><option>Local Transport</option></select>
                 </div>
                 <div class="input-box"><label>Total Charges (₱)</label><input type="number" id="lcv-amount-input"></div>
@@ -3138,9 +3101,6 @@ const buyingDashboardHTML = `
     
     <div class="nav-group">
         <div class="nav-section-title">Masters</div>
-        <div class="nav-item" id="nav-item-master" onclick="showView('item-master-view')">
-            <i class="fas fa-boxes"></i> Item Master
-        </div>
         <div class="nav-item" id="nav-op-master" onclick="showView('op-master-view')">
             <i class="fas fa-cogs"></i> Operation Master
         </div>
@@ -3178,92 +3138,6 @@ const buyingDashboardHTML = `
     </div>
 </nav>
                 <main class="main-container">
-                    <div id="item-master-view" style="">
-    <div class="header">
-        <h1>Item Master</h1>
-        <p>Maintain a central repository of all raw materials, sub-assemblies, and finished goods.</p>
-    </div>
-
-    <div class="content-card">
-        <div id="item-form-container" style="display:none; margin-bottom: 20px; padding: 20px; border-left: 4px solid #2563eb; background: #f8fafc; border-radius: 4px;">
-            <h3 style="margin-bottom: 15px; color: #1e293b; font-weight: 600;">Register New Master Item</h3>
-            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Item Code</label>
-                    <input type="text" id="item-code-display" readonly style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background-color: #f1f5f9; cursor: not-allowed;">
-                </div>
-
-                <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Item Name</label>
-                    <input type="text" id="item-name-input" placeholder="e.g. Steel Plate" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
-                </div>
-
-                <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Item Type</label>
-                    <select id="item-type-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
-                        <option>Raw Material</option>
-                        <option>Sub-Assembly</option>
-                        <option>Finished Good</option>
-                    </select>
-                </div>
-
-                <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">UOM</label>
-                    <select id="item-uom-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
-                        <option>kg</option>
-                        <option>L</option>
-                        <option>pcs</option>
-                        <option>box</option>
-                        <option>set</option>
-                    </select>
-                </div>
-
-                <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Standard Cost (₱)</label>
-                    <input type="number" id="item-cost-input" step="0.01" placeholder="0.00" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
-                </div>
-
-                <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Status</label>
-                    <select id="item-status-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
-                <button onclick="window.saveItemMaster()" class="text-btn" style="background: #2563eb; color: white; padding: 10px 24px; border-radius: 6px; border:none; cursor:pointer; font-weight:600;">Save Item</button>
-                <button onclick="window.closeItemMasterForm()" class="text-btn" style="background: #64748b; color: white; padding: 10px 24px; border-radius: 6px; border:none; cursor:pointer; font-weight:600;">Cancel</button>
-            </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="search-container" style="position:relative; width: 300px;">
-                <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
-                <input type="text" placeholder="Search Master..." style="width:100%; padding:10px 10px 10px 40px; border:1px solid #e2e8f0; border-radius:8px;">
-            </div>
-            <button class="text-btn" onclick="document.getElementById('item-form-container').style.display='block'; window.initItemMaster();" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
-                <i class="fas fa-plus"></i> New Master Item
-            </button>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ITEM CODE</th>
-                    <th>ITEM NAME</th>
-                    <th>TYPE</th>
-                    <th>UOM</th>
-                    <th>STD. COST</th>
-                    <th>STATUS</th>
-                    <th style="text-align:center;">ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody id="item-master-table-body"></tbody>
-        </table>
-    </div>
-</div>
         <div id="work-order-view" style="display:none;">
     <div class="header">
         <h1>Work Orders</h1>
@@ -3337,7 +3211,7 @@ const buyingDashboardHTML = `
     </div>
 </div>
 
-<div id="op-master-view" style="display:none;">
+<div id="op-master-view" style="">
     <div class="header">
         <h1>Operation Master</h1>
         <p>Define and manage standard manufacturing operations, processing times, and hourly cost rates.</p>
@@ -3522,15 +3396,15 @@ const buyingDashboardHTML = `
                     <input type="text" id="bom-id-display" readonly style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background-color: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div class="input-box">
-    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Finished Item ID</label>
-    <select id="bom-finished-item-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white; height: 38px;">
-        <option value="" disabled selected>Select Finished Item...</option>
-    </select>
+    <label>Finished Product Name</label>
+    <select id="bom-name-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        </select>
 </div>
-                <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">BOM Name</label>
-                    <input type="text" id="bom-name-input" placeholder="e.g. Recipe for Ensaymada" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
-                </div>
+
+<div class="input-box">
+    <label>Finished Item ID</label>
+    <input type="text" id="bom-finished-item-input" readonly style="background: #f1f5f9; font-weight: bold;">
+</div>
                 <div class="input-box">
                     <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Version</label>
                     <input type="text" id="bom-version-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
@@ -3569,7 +3443,6 @@ const buyingDashboardHTML = `
                 <tr>
                     <th>BOM ID</th>
                     <th>FINISHED ITEM ID</th>
-                    <th>BOM NAME</th>
                     <th>VERSION</th>
                     <th>CREATED DATE</th>
                     <th>STATUS</th>
@@ -3761,48 +3634,20 @@ const buyingDashboardHTML = `
             </select>
     </div>
                 <div class="input-box">
-        <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">To Location (Batangas)</label>
-        <select id="stock-to-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
-            <optgroup label="Cities">
-                <option value="Batangas City">Batangas City</option>
-                <option value="Lipa City">Lipa City</option>
-                <option value="Santo Tomas City">Santo Tomas City</option>
-                <option value="Tanauan City">Tanauan City</option>
-                <option value="Calaca City">Calaca City</option>
-            </optgroup>
-            <optgroup label="Municipalities">
-                <option value="Agoncillo">Agoncillo</option>
-                <option value="Alitagtag">Alitagtag</option>
-                <option value="Balayan">Balayan</option>
-                <option value="Balete">Balete</option>
-                <option value="Bauan">Bauan</option>
-                <option value="Calatagan">Calatagan</option>
-                <option value="Cuenca">Cuenca</option>
-                <option value="Ibaan">Ibaan</option>
-                <option value="Laurel">Laurel</option>
-                <option value="Lemery">Lemery</option>
-                <option value="Lian">Lian</option>
-                <option value="Lobo">Lobo</option>
-                <option value="Mabini">Mabini</option>
-                <option value="Malvar">Malvar</option>
-                <option value="Mataasnakahoy">Mataasnakahoy</option>
-                <option value="Nasugbu">Nasugbu</option>
-                <option value="Padre Garcia">Padre Garcia</option>
-                <option value="Rosario">Rosario</option>
-                <option value="San Jose">San Jose</option>
-                <option value="San Juan">San Juan</option>
-                <option value="San Luis">San Luis</option>
-                <option value="San Nicolas">San Nicolas</option>
-                <option value="San Pascual">San Pascual</option>
-                <option value="Santa Teresita">Santa Teresita</option>
-                <option value="Taal">Taal</option>
-                <option value="Talisay">Talisay</option>
-                <option value="Taysan">Taysan</option>
-                <option value="Tingloy">Tingloy</option>
-                <option value="Tuy">Tuy</option>
-            </optgroup>
-        </select>
-    </div>
+                <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">To (Batangas)</label>
+                <select id="transfer-to-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;">
+                    <optgroup label="Cities">
+                        <option value="Batangas City">Batangas City</option>
+                        <option value="Lipa City">Lipa City</option>
+                        <option value="Santo Tomas City">Santo Tomas City</option>
+                    </optgroup>
+                    <optgroup label="Municipalities">
+                        <option value="Bauan">Bauan</option>
+                        <option value="Mabini">Mabini</option>
+                        <option value="San Jose">San Jose</option>
+                        </optgroup>
+                </select>
+            </div>
                 <div class="input-box">
                     <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Status</label>
                     <select id="stock-status-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
@@ -3954,7 +3799,6 @@ let journalEntriesDb = JSON.parse(localStorage.getItem('journal_entries_records'
 let crmDb = JSON.parse(localStorage.getItem('crm_records')) || [];
 let editCrmIndex = -1;
 let editJVIndex = -1;
-let editIndex = -1;
 let editPayIndex = -1;
 let editEntryIndex = -1;
 let editExpIndex = -1;
@@ -4597,7 +4441,6 @@ window.savePayrollEntry = function() {
     localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
     renderPayrollHistoryTable();
     window.initPayrollEntry();
-    alert("Payroll Entry Processed Successfully!");
 };
 
 // --- 2. UPDATED INITIALIZATION (PR Increment & JV Dropdown) ---
@@ -5818,25 +5661,57 @@ window.initStockBalance = function() {
 window.populateStockDropdowns = function() {
     const itemSelect = document.getElementById('stock-item-select');
     const whSelect = document.getElementById('stock-wh-id');
+    const prSelect = document.getElementById('stock-pr-select');
     const qtyInput = document.getElementById('stock-qty');
     
+    const products = JSON.parse(localStorage.getItem('selling_items')) || [];
     const items = JSON.parse(localStorage.getItem('items_records')) || [];
     const warehouses = JSON.parse(localStorage.getItem('warehouse_records')) || [];
 
-    // Map Items: id and itemName
+    // 1. Map Items from items_records
     itemSelect.innerHTML = '<option value="" disabled selected>-- Select Item --</option>' + 
         items.map(i => `<option value="${i.id}">${i.id} - ${i.itemName}</option>`).join('');
+    
+    // 2. Map Products from selling_items (Unique List)
+    const uniqueProdIds = [...new Set(products.map(p => p.prodId))];
+    prSelect.innerHTML = '<option value="" disabled selected>-- Select Product --</option>' + 
+        uniqueProdIds.map(id => {
+            const prod = products.find(p => p.prodId === id);
+            return `<option value="${id}">${id} - ${prod.prodName}</option>`;
+        }).join('');
         
-    // Map Warehouses: name field
+    // 3. Map Warehouses
     whSelect.innerHTML = '<option value="" disabled selected>-- Select Warehouse --</option>' + 
         warehouses.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
 
-    // --- Pairing Logic ---
+    // --- Pairing Logic for MASTER ITEMS ---
     itemSelect.onchange = function() {
-        const selectedItem = items.find(i => i.id === itemSelect.value);
-        if (selectedItem) {
-            // Pair the selected item with its master unitQty
-            qtyInput.value = selectedItem.unitQty;
+        if (itemSelect.value) {
+            // Visual Feedback: Reset the Product dropdown
+            prSelect.selectedIndex = 0; 
+            
+            const selectedItem = items.find(i => i.id === itemSelect.value);
+            if (selectedItem) {
+                qtyInput.value = selectedItem.unitQty;
+            }
+        }
+    };
+
+    // --- Pairing & Computation Logic for SELLING PRODUCTS ---
+    prSelect.onchange = function() {
+        if (prSelect.value) {
+            // Visual Feedback: Reset the Master Item dropdown
+            itemSelect.selectedIndex = 0;
+
+            const selectedId = prSelect.value;
+            
+            // Compute Total Master Quantity from selling_items database
+            const totalQty = products
+                .filter(p => p.prodId === selectedId)
+                .reduce((sum, p) => sum + (parseFloat(p.qty) || 0), 0);
+
+            // Auto-fill the Stock Adjustment Quantity
+            qtyInput.value = totalQty;
         }
     };
 };
@@ -5846,21 +5721,33 @@ window.populateStockDropdowns = function() {
  * Saves the paired quantity and reserved units to stock_records.
  */
 window.saveStock = function() {
-    const itemId = document.getElementById('stock-item-select').value;
+    // 1. Capture inputs from both potential sources
+    const itemSelectValue = document.getElementById('stock-item-select').value;
+    const prodSelectValue = document.getElementById('stock-pr-select').value;
     const whId = document.getElementById('stock-wh-id').value;
     const qty = document.getElementById('stock-qty').value;
     const reserved = document.getElementById('stock-reserved').value;
 
-    // Validate selection
-    if (!itemId || !whId) {
-        return alert("Please select an item and a warehouse.");
+    // 2. Determine the Final ID: Prioritize Item Select, fallback to Product Select
+    // This allows the user to use either dropdown
+    const finalItemId = itemSelectValue || prodSelectValue;
+
+    // 3. Validation: Must have an ID (from either source) and a Warehouse
+    if (!finalItemId) {
+        return alert("Please select either an Item or a Product.");
+    }
+    if (!whId) {
+        return alert("Please select a warehouse.");
     }
 
     const stockData = { 
-        itemId, 
-        whId, 
+        itemId: finalItemId, 
+        whId: whId, 
         qty: Number(qty), 
-        reserved: Number(reserved) 
+        reserved: Number(reserved),
+        // Track the source for record-keeping
+        source: itemSelectValue ? 'Master Item' : 'Selling Product',
+        lastUpdated: new Date().toISOString()
     };
 
     let stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
@@ -5871,7 +5758,11 @@ window.saveStock = function() {
         stockDb[editStockIndex] = stockData;
     }
 
+    // 4. Persist and Refresh
     localStorage.setItem('stock_records', JSON.stringify(stockDb));
+    
+    alert(`Stock record for ${finalItemId} saved successfully.`);
+    
     window.toggleStockForm(false);
     window.renderStockBalanceTable();
 };
@@ -5907,37 +5798,55 @@ window.renderStockBalanceTable = function() {
     const tbody = document.getElementById('stock-table-body');
     if (!tbody) return;
 
-    // Load both databases
+    // Load all necessary databases for cross-referencing
     const stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
     const itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
+    const sellingDb = JSON.parse(localStorage.getItem('selling_items')) || [];
     
     tbody.innerHTML = stockDb.length === 0 
         ? `<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">No stock records found.</td></tr>`
         : stockDb.map((stockEntry, index) => {
-            // Find the item details in the items_records database
-            const itemDetails = itemsDb.find(i => i.id === stockEntry.itemId);
             
-            // Get Qty on Hand from items_records.unitQty, fallback to 0 if not found
-            const onHand = itemDetails ? Number(itemDetails.unitQty) : 0;
+            // 1. Resolve Item Name
+            // Try to find the name in selling_items first, then items_records
+            const sellingInfo = sellingDb.find(s => s.prodId === stockEntry.itemId);
+            const masterInfo = itemsDb.find(i => i.id === stockEntry.itemId);
+            
+            const displayName = sellingInfo ? sellingInfo.prodName : (masterInfo ? masterInfo.itemName : "Unknown Item");
+
+            // 2. Resolve Qty on Hand
+            // Use the stockEntry.qty (the value saved during reconciliation)
+            // or fallback to master unitQty
+            const onHand = Number(stockEntry.qty) || (masterInfo ? Number(masterInfo.unitQty) : 0);
+            
             const reserved = Number(stockEntry.reserved) || 0;
             const available = onHand - reserved;
             
+            // 3. Status Badge Logic
+            const isLowStock = available <= 10;
+            const badgeBg = isLowStock ? '#fef3c7' : '#dcfce7';
+            const badgeColor = isLowStock ? '#92400e' : '#15803d';
+            const statusText = isLowStock ? 'LOW STOCK' : 'IN STOCK';
+            
             return `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding:15px;"><strong>${stockEntry.itemId}</strong></td>
-                    <td style="padding:15px; color:#475569;">${stockEntry.whId}</td>
-                    <td style="padding:15px; font-weight:600;">${onHand} pcs</td>
-                    <td style="padding:15px; color:#ef4444;">${reserved} pcs</td>
-                    <td style="padding:15px; color:#10b981; font-weight:700;">${available} pcs</td>
                     <td style="padding:15px;">
-                         <span style="background:${available > 10 ? '#dcfce7' : '#fef3c7'}; color:${available > 10 ? '#15803d' : '#92400e'}; padding:4px 8px; border-radius:4px; font-size:0.7rem; font-weight:700;">
-                            ${available > 10 ? 'IN STOCK' : 'LOW STOCK'}
+                        <div style="font-weight:700; color:#1e293b;">${displayName}</div>
+                        <div style="font-size:11px; color:#94a3b8;">ID: ${stockEntry.itemId}</div>
+                    </td>
+                    <td style="padding:15px; color:#475569;">${stockEntry.whId}</td>
+                    <td style="padding:15px; font-weight:600;">${onHand.toLocaleString()} pcs</td>
+                    <td style="padding:15px; color:#ef4444;">${reserved.toLocaleString()} pcs</td>
+                    <td style="padding:15px; color:#10b981; font-weight:700;">${available.toLocaleString()} pcs</td>
+                    <td style="padding:15px;">
+                         <span style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:12px; font-size:0.7rem; font-weight:700; border: 1px solid transparent;">
+                            ${statusText}
                          </span>
                     </td>
                     <td style="padding:15px; text-align:center;">
-                        <div style="display:flex; gap:12px; justify-content:center;">
-                            <i class="fas fa-edit" onclick="window.editStock(${index})" style="color:#2563eb; cursor:pointer;"></i>
-                            <i class="fas fa-trash" onclick="window.deleteStock(${index})" style="color:#ef4444; cursor:pointer;"></i>
+                        <div style="display:flex; gap:15px; justify-content:center;">
+                            <i class="fas fa-edit" onclick="window.editStock(${index})" style="color:#2563eb; cursor:pointer; font-size:14px;" title="Edit"></i>
+                            <i class="fas fa-trash-alt" onclick="window.deleteStock(${index})" style="color:#ef4444; cursor:pointer; font-size:14px;" title="Delete"></i>
                         </div>
                     </td>
                 </tr>`;
@@ -6154,18 +6063,38 @@ let editDnIndex = -1;
  */
 // --- Initialize Form ---
 window.initDeliveryNotes = function() {
-    // 1. Sync records from storage
     dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
     
-    // 2. Refresh Table
     if (typeof window.renderDnTable === 'function') {
         window.renderDnTable();
     }
     
-    // 3. Populate Dropdowns (CRM and Warehouses only)
     window.populateDnDropdowns();
+
+    // --- 1. Populate Master Items (items_records) ---
+    const masterSelect = document.getElementById('dn-master-item-select');
+    if (masterSelect) {
+        const masterItems = JSON.parse(localStorage.getItem('items_records')) || [];
+        masterSelect.innerHTML = '<option value="" disabled selected>-- Select from Inventory --</option>';
+        masterItems.forEach(item => {
+            // Updated: Removed (${item.id}) from the display text
+            masterSelect.innerHTML += `<option value="${item.id}">${item.itemName}</option>`;
+        });
+    }
+
+    // --- 2. Populate Selling Items (selling_items) ---
+    const sellingSelect = document.getElementById('dn-selling-item-select');
+    if (sellingSelect) {
+        const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
+        sellingSelect.innerHTML = '<option value="" disabled selected>-- Select from Quotations --</option>';
+        sellingItems.forEach(item => {
+            // Updated: Use prodId as the value for better linking, and removed [qiId] from display
+            const val = item.prodId || item.qiId; 
+            sellingSelect.innerHTML += `<option value="${val}">${item.prodName}</option>`;
+        });
+    }
     
-    // 4. Handle Auto-Increment ID
+    // --- 3. Handle Auto-Increment ID ---
     const idField = document.getElementById('dl-id');
     if (idField && editDnIndex === -1) {
         let nextId = "DN-001";
@@ -6179,7 +6108,7 @@ window.initDeliveryNotes = function() {
         idField.value = nextId;
     }
 
-    // 5. Default Date
+    // --- 4. Default Date ---
     const dateField = document.getElementById('dn-date');
     if (dateField && !dateField.value) {
         dateField.value = new Date().toISOString().split('T')[0];
@@ -6214,30 +6143,46 @@ window.toggleDnForm = function(show) {
     }
 };
 window.populateDnDropdowns = function() {
+    // 1. Target the IDs for all four dropdowns
     const custSelect = document.getElementById('dn-customer-dropdown');
     const whSelect = document.getElementById('dn-warehouse-dropdown');
-    const itemSelect = document.getElementById('dn-item-select'); // New target
+    const masterItemSelect = document.getElementById('dn-master-item-select'); // Inventory Master
+    const sellingItemSelect = document.getElementById('dn-selling-item-select'); // Quoted/Sold Item
     
+    // 2. Fetch all required databases
     const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
     const warehouses = JSON.parse(localStorage.getItem('warehouse_records')) || [];
-    const items = JSON.parse(localStorage.getItem('items_records')) || [];
+    const masterItems = JSON.parse(localStorage.getItem('items_records')) || [];
+    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
 
-    // 1. Populate Customers
+    // 3. Populate Customers
     if (custSelect) {
         custSelect.innerHTML = '<option value="" disabled selected>-- Select Customer --</option>' + 
             customers.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
     }
 
-    // 2. Populate Warehouses
+    // 4. Populate Warehouses
     if (whSelect) {
         whSelect.innerHTML = '<option value="" disabled selected>-- Select Warehouse --</option>' + 
             warehouses.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
     }
 
-    // 3. Populate Items (Synchronized with items_records)
-    if (itemSelect) {
-        itemSelect.innerHTML = '<option value="" disabled selected>-- Select Item --</option>' + 
-            items.map(i => `<option value="${i.id}">${i.id} - ${i.itemName}</option>`).join('');
+    // 5. Populate Inventory Master (Items Records)
+    if (masterItemSelect) {
+        masterItemSelect.innerHTML = '<option value="" disabled selected>-- Select from Inventory --</option>' + 
+            masterItems.map(i => `<option value="${i.id}">${i.id} - ${i.itemName}</option>`).join('');
+    }
+
+    if (sellingItemSelect) {
+        // Updated to only show Product Name and use prodId as the value
+        sellingItemSelect.innerHTML = '<option value="" disabled selected>-- Select from Quotations --</option>' + 
+            sellingItems.map(si => {
+                const name = si.prodName || "Unknown Item"; 
+                const id = si.prodId || "N/A";
+                
+                // Removed [QI_XXX] from the display text
+                return `<option value="${id}">${name} [${id}]</option>`; 
+            }).join('');
     }
 };
 
@@ -6245,42 +6190,59 @@ window.renderDnTable = function() {
     const tbody = document.getElementById('dn-table-body');
     if (!tbody) return;
     
-    // 1. Fetch all required data
     const dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
     const itemsMaster = JSON.parse(localStorage.getItem('items_records')) || [];
+    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
 
     if (dnDb.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">No delivery records.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">No delivery records found.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = dnDb.map((dn, index) => {
-        // 2. Lookup the item name using the ID stored in the delivery note
-        const itemData = itemsMaster.find(i => i.id === dn.item);
-        const itemDisplay = itemData ? `${itemData.id} - ${itemData.itemName}` : (dn.item || '---');
+        const masterData = itemsMaster.find(i => i.id === dn.masterItemId);
+        const saleData = sellingItems.find(si => si.prodId === dn.sellingItemId || si.qiId === dn.sellingItemId);
+
+        let itemHeader = "";
+        let itemSub = "";
+
+        // 1. Logic for Selling Item (Quoted Product)
+        if (saleData) {
+            itemHeader = `<strong>${saleData.prodName || 'Product'}</strong>`;
+            // Removed Ref ID as requested
+            itemSub = `<div style="font-size:11px; color:#64748b;">ID: ${saleData.prodId || '---'}</div>`;
+        } 
+        // 2. Logic for Inventory Master Item
+        else if (masterData) {
+            itemHeader = `<strong>${masterData.itemName}</strong>`;
+            // Removed "Manual Delivery" label as requested
+            itemSub = `<div style="font-size:11px; color:#64748b;">ID: ${masterData.id}</div>`;
+        } 
+        // 3. Fallback for missing records
+        else {
+            itemHeader = `<span style="color:#64748b;">Data Reference Missing</span>`;
+            itemSub = `<div style="font-size:11px; color:#94a3b8;">ID: ${dn.masterItemId || dn.sellingItemId || 'N/A'}</div>`;
+        }
 
         return `
-            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+            <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding:12px;"><strong>${dn.id}</strong></td>
                 <td style="padding:12px;">${dn.customer}</td>
-                
-                <td style="padding:12px; font-size: 0.95em; color: #334155;">
-                    ${itemDisplay}
+                <td style="padding:12px;">
+                    ${itemHeader}
+                    ${itemSub}
                 </td>
-
                 <td style="padding:12px;">${dn.warehouse}</td>
                 <td style="padding:12px;">${dn.date}</td>
                 <td style="padding:12px;">
-                    <span class="status-pill" style="background:#dcfce7; color:#166534; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:600;">
-                        ${dn.status || 'Delivered'}
+                    <span class="status-pill" style="background:#dcfce7; color:#166534; padding:4px 12px; border-radius:12px; font-size:11px; font-weight:600;">
+                        ${dn.status || 'Shipped'}
                     </span>
                 </td>
                 <td style="padding:12px; text-align:center;">
                     <div style="display: flex; gap: 15px; justify-content: center;">
-                        <i class="fas fa-edit" onclick="window.editDeliveryNote(${index})" 
-                           style="color:#2563eb; cursor:pointer;" title="Edit"></i>
-                        <i class="fas fa-trash-alt" onclick="window.deleteDeliveryNote(${index})" 
-                           style="color:#ef4444; cursor:pointer;" title="Delete"></i>
+                        <i class="fas fa-edit" onclick="window.editDeliveryNote(${index})" style="color:#2563eb; cursor:pointer;"></i>
+                        <i class="fas fa-trash-alt" onclick="window.deleteDeliveryNote(${index})" style="color:#ef4444; cursor:pointer;"></i>
                     </div>
                 </td>
             </tr>`;
@@ -6290,19 +6252,21 @@ window.saveDeliveryNote = function() {
     const dnData = {
         id: document.getElementById('dl-id').value,
         customer: document.getElementById('dn-customer-dropdown').value,
-        item: document.getElementById('dn-item-select').value, // Captured from new dropdown
         warehouse: document.getElementById('dn-warehouse-dropdown').value,
+        masterItemId: document.getElementById('dn-master-item-select').value,
+        sellingItemId: document.getElementById('dn-selling-item-select').value,
         date: document.getElementById('dn-date').value,
-        status: "Delivered" 
+        status: "Shipped"
     };
 
-    // Updated validation to include the Item field
-    if (!dnData.customer || !dnData.item || !dnData.warehouse || !dnData.date) {
-        return alert("Please fill in all required fields (Customer, Item, Warehouse, and Date).");
+    // Updated Validation: Allow save if Master Item OR Selling Item is present
+    const hasItem = dnData.masterItemId || dnData.sellingItemId; //
+    
+    if (!hasItem || !dnData.warehouse) {
+        return alert("At minimum, please select either an Inventory Item or a Quoted Product, and a Warehouse.");
     }
 
-    dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
-    
+    // Save Logic
     if (editDnIndex === -1) {
         dnDb.push(dnData);
     } else {
@@ -6368,7 +6332,6 @@ window.deleteDeliveryNote = function(index) {
 let sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
 let editSellingIndex = -1;
 
-// --- 2. Initialize Form (Add Mode) ---
 window.initSellingItem = function() {
     const form = document.getElementById('selling-prod-form');
     if (form) form.style.display = 'block'; 
@@ -6380,11 +6343,22 @@ window.initSellingItem = function() {
     const nextNum = sellingitemdb.length + 1;
     const suffix = String(nextNum).padStart(3, '0');
     
-    // Auto-populate IDs
+    // 1. Auto-populate IDs
     document.getElementById('selling-qi-id').value = "QI_" + suffix;
     document.getElementById('selling-prod-input').value = "prod_" + suffix;
 
-    // Reset fields
+    // 2. Populate Supplier Dropdown
+    const supDropdown = document.getElementById('selling-sup-dropdown');
+    if (supDropdown) {
+        // Load data from supplier_records
+        const supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
+        
+        // Map supplier names to option tags
+        supDropdown.innerHTML = '<option value="" disabled selected>Select a supplier...</option>' + 
+            supplierDb.map(sup => `<option value="${sup.name}">${sup.name}</option>`).join('');
+    }
+
+    // 3. Reset fields
     document.getElementById('selling-name-input').value = ""; 
     document.getElementById('selling-qty').value = "1";
     document.getElementById('selling-price-input').value = "0.00";
@@ -6440,11 +6414,13 @@ window.fillItemFormFromSelling = function() {
 window.saveSellingItem = function() {
     const prodId = document.getElementById('selling-prod-input').value;
     const prodName = document.getElementById('selling-name-input').value;
+    const supplier = document.getElementById('selling-sup-dropdown').value; //
     const qty = parseFloat(document.getElementById('selling-qty').value) || 0;
     const price = parseFloat(document.getElementById('selling-price-input').value) || 0;
 
-    if (!prodId || !prodName || qty <= 0) {
-        alert("Please enter Product ID, Name, and valid quantity.");
+    // Enhanced Validation
+    if (!prodId || !prodName || !supplier || qty <= 0) { //
+        alert("Please enter Product details, select a Supplier, and enter a valid quantity.");
         return;
     }
 
@@ -6453,6 +6429,7 @@ window.saveSellingItem = function() {
         quoId: "QUO0001",
         prodId: prodId,
         prodName: prodName,
+        supplier: supplier, // Added to data object
         qty: qty,
         price: price,
         total: qty * price
@@ -6464,11 +6441,8 @@ window.saveSellingItem = function() {
         sellingitemdb[editSellingIndex] = itemData;
     }
 
-    // Persist to 'selling_items'
     localStorage.setItem('selling_items', JSON.stringify(sellingitemdb));
 
-    // --- CRITICAL DATA SHARE ---
-    // Trigger Sales Order initialization to refresh its internal product list
     if (typeof window.initSalesOrders === 'function') {
         window.initSalesOrders();
     }
@@ -6477,12 +6451,10 @@ window.saveSellingItem = function() {
     window.renderSellingProductTable();
 };
 
-// --- 4. Render Table ---
 window.renderSellingProductTable = function() {
     const tbody = document.getElementById('selling-table-body');
     if (!tbody) return;
     
-    // Always fetch latest data from the correct key
     sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
 
     tbody.innerHTML = sellingitemdb.map((item, index) => `
@@ -6491,7 +6463,7 @@ window.renderSellingProductTable = function() {
             <td><strong>${item.quoId}</strong></td>
             <td>${item.prodId}</td>
             <td>${item.prodName}</td>
-            <td>${item.qty} pcs</td>
+            <td style="color: #64748b; font-size: 0.85rem;">${item.supplier || 'N/A'}</td> <td>${item.qty} pcs</td>
             <td>₱${Number(item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
             <td><strong>₱${Number(item.total).toLocaleString(undefined, {minimumFractionDigits: 2})}</strong></td>
             <td>
@@ -6499,24 +6471,22 @@ window.renderSellingProductTable = function() {
                 <i class="fas fa-trash" onclick="deleteSellingItem(${index})" style="color:#ef4444; cursor:pointer;"></i>
             </td>
         </tr>
-    `).join('') || '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">No items found</td></tr>';
+    `).join('') || '<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No items found</td></tr>'; // Increased colspan to 9
 };
 
-// --- 5. Edit/Delete Actions ---
 window.editSellingItem = function(index) {
-    sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
     const item = sellingitemdb[index];
-    editSellingIndex = index;
+    window.initSellingItem(); // This populates the dropdown options first
     
-    document.getElementById('selling-prod-form').style.display = 'block';
+    editSellingIndex = index;
     document.getElementById('selling-qi-id').value = item.qiId;
     document.getElementById('selling-prod-input').value = item.prodId;
     document.getElementById('selling-name-input').value = item.prodName;
+    document.getElementById('selling-sup-dropdown').value = item.supplier; // Set supplier value
     document.getElementById('selling-qty').value = item.qty;
     document.getElementById('selling-price-input').value = item.price;
     
-    const btn = document.getElementById('add-product-btn');
-    if(btn) btn.innerHTML = '<i class="fas fa-save"></i> Update Product';
+    document.getElementById('add-product-btn').innerHTML = '<i class="fas fa-save"></i> Update Product';
 };
 
 window.deleteSellingItem = function(index) {
@@ -6958,29 +6928,55 @@ window.filterCustomerTable = function() {
 window.initReturns = function() {
     const returnsDb = JSON.parse(localStorage.getItem('returns_records')) || [];
     const idField = document.getElementById('ret-id');
+    const soSelect = document.getElementById('ret-so-id');
     const custSelect = document.getElementById('ret-cust-id');
 
-    // 1. Generate Sequential ID: RET-2026-001
+    // 1. Generate and Display Sequential ID: RET-2026-001
     if (idField) {
         const nextNum = (returnsDb.length + 1).toString().padStart(3, '0');
-        idField.value = `RET-2026-${nextNum}`;
+        const newID = `RET-2026-${nextNum}`;
+        idField.value = newID;
+        // Ensure visibility with styling
+        idField.style.color = "#0f172a"; 
+        idField.style.fontWeight = "700";
     }
 
-    // 2. Populate Customer Dropdown from CRM Records
+    // 2. Populate Sales Orders from so_records
+    const salesOrders = JSON.parse(localStorage.getItem('so_records')) || [];
+    if (soSelect) {
+        soSelect.innerHTML = '<option value="" disabled selected>Select Sales Order</option>' + 
+            salesOrders.map(so => `<option value="${so.id}">${so.id}</option>`).join('');
+    }
+
+    // 3. Populate Customer Dropdown from CRM (Required for the value to exist)
+    const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
     if (custSelect) {
-        const customers = JSON.parse(localStorage.getItem('crm_records')) || [];
-        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>';
-        
-        if (customers.length === 0) {
-            custSelect.innerHTML += '<option disabled>No Customers Found in CRM</option>';
-        } else {
-            customers.forEach(c => {
-                custSelect.innerHTML += `<option value="${c.id}">${c.id} - ${c.name}</option>`;
-            });
-        }
+        custSelect.innerHTML = '<option value="" disabled selected>Select Customer</option>' + 
+            customers.map(c => `<option value="${c.id}">${c.id} - ${c.name}</option>`).join('');
     }
 
-    // 3. Auto-set Return Date to Today
+    // 4. Sync Logic: When SO is chosen, auto-select Customer
+    if (soSelect && custSelect) {
+        soSelect.onchange = function() {
+            const selectedOrderId = soSelect.value;
+            const orderRecord = salesOrders.find(so => so.id === selectedOrderId);
+            
+            if (orderRecord) {
+                // orderRecord.customer should contain the Customer ID
+                custSelect.value = orderRecord.customer;
+                
+                // Visual feedback for the sync
+                custSelect.style.backgroundColor = "#f0fdf4";
+                custSelect.style.borderColor = "#10b981";
+                setTimeout(() => {
+                    custSelect.style.backgroundColor = "#f1f5f9";
+                    custSelect.style.borderColor = "#e2e8f0";
+                }, 1000);
+            }
+        };
+    }
+
+    // 5. Auto-set Return Date to Today
     const dateField = document.getElementById('ret-date');
     if (dateField && !dateField.value) {
         dateField.value = new Date().toISOString().split('T')[0];
@@ -7043,12 +7039,25 @@ window.saveReturnRecord = function() {
 };
 
 window.deleteReturn = function(index) {
-    if (confirm("Delete this return record?")) {
-        let db = JSON.parse(localStorage.getItem('returns_records')) || [];
-        db.splice(index, 1);
-        localStorage.setItem('returns_records', JSON.stringify(db));
+    // Uses your standard confirmation wrapper
+    requestDelete("Delete this return record? This action cannot be undone.", () => {
+        // 1. Fetch the latest database from localStorage
+        let returnsDb = JSON.parse(localStorage.getItem('returns_records')) || [];
+        
+        // 2. Remove the specific record at the given index
+        returnsDb.splice(index, 1);
+        
+        // 3. Persist the updated array back to localStorage
+        localStorage.setItem('returns_records', JSON.stringify(returnsDb));
+        
+        // 4. Refresh the UI table to show current data
         window.renderReturnsTable();
-    }
+        
+        // Optional: If the form was open for that specific index, close it
+        if (typeof window.toggleReturnForm === 'function') {
+            window.toggleReturnForm(false);
+        }
+    });
 };
 
 // ==========================================
@@ -7079,7 +7088,6 @@ window.renderReturnsTable = function() {
                 <td>${ret.date}</td>
                 <td>${ret.condition}</td>
                 <td>${ret.amount}</td>
-                <td>${ret.condition}</td>
                 <td><span class="status-pill" style="background: ${statusBg}; color: ${statusColor};">${ret.status}</span></td>
                 <td>
                     <button class="text-btn" onclick="window.deleteReturn(${index})">
@@ -8019,13 +8027,29 @@ let editBomIndex = -1;
  */
 window.initBomMaster = function(index = -1) {
     const idField = document.getElementById('bom-id-display');
-    const itemIdField = document.getElementById('bom-finished-item-input');
-    const nameField = document.getElementById('bom-name-input');
+    const itemIdField = document.getElementById('bom-finished-item-input'); // This becomes readonly
+    const nameField = document.getElementById('bom-name-input'); // This should be a <select> in your HTML
     const versionField = document.getElementById('bom-version-input');
     const dateField = document.getElementById('bom-date-input');
     const statusField = document.getElementById('bom-status-input');
     const formTitle = document.querySelector('#bom-form-container h3');
     const submitBtn = document.querySelector('#bom-form-container .btn-group button:first-child');
+
+    // Load Items Database to populate names
+    const itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
+
+    // --- Populate the Name Dropdown ---
+    if (nameField && nameField.tagName === 'SELECT') {
+        nameField.innerHTML = '<option value="" disabled selected>-- Select Product --</option>' + 
+            itemsDb.map(item => `<option value="${item.itemName}" data-id="${item.id}">${item.itemName}</option>`).join('');
+
+        // Sync ID when Name is selected
+        nameField.onchange = function() {
+            const selectedOption = nameField.options[nameField.selectedIndex];
+            const linkedId = selectedOption.getAttribute('data-id');
+            if (itemIdField) itemIdField.value = linkedId;
+        };
+    }
 
     if (index > -1) {
         // --- EDIT MODE ---
@@ -8040,7 +8064,6 @@ window.initBomMaster = function(index = -1) {
 
         if (formTitle) formTitle.textContent = "Edit BOM Details";
         if (submitBtn) submitBtn.textContent = "Update BOM";
-        document.getElementById('bom-form-container').style.display = 'block';
     } else {
         // --- NEW MODE ---
         editBomIndex = -1;
@@ -8048,7 +8071,7 @@ window.initBomMaster = function(index = -1) {
         
         if (idField) idField.value = nextId;
         if (itemIdField) itemIdField.value = "";
-        if (nameField) nameField.value = "";
+        if (nameField) nameField.selectedIndex = 0;
         if (versionField) versionField.value = "v1";
         if (dateField) dateField.value = new Date().toISOString().split('T')[0];
         if (statusField) statusField.value = "Draft";
@@ -9736,103 +9759,79 @@ window.renderItemTable = function() {
             </tr>
         `).join('');
 };
-// Database Initialization
-let salesInvoiceDb = JSON.parse(localStorage.getItem('sales_invoice_records') || '[]');
+/* --- SALES INVOICE VIEW LOGIC --- */
 
-// 1. Init: Prepare form and generate ID
-window.initSalesInvoice = function() {
-    const nextId = salesInvoiceDb.length > 0 
-        ? Math.max(...salesInvoiceDb.map(r => parseInt(r.id.split('-')[1]))) + 1 
-        : 1;
-    const invoiceId = `SINV-${nextId.toString().padStart(3, '0')}`;
-    
-    document.getElementById('sinv-id-display').value = invoiceId;
-    document.getElementById('sinv-customer-input').value = '';
-    document.getElementById('sinv-amount-input').value = '';
-    document.getElementById('sinv-post-date').value = new Date().toISOString().split('T')[0];
-    document.getElementById('sinv-due-date').value = '';
-    
-    const saveBtn = document.querySelector('#sinv-form-container .btn-group button:first-child');
-    saveBtn.onclick = () => window.saveSalesInvoice();
-    saveBtn.innerText = 'Save Invoice';
-};
-
-// 2. Save: Create or Update record
-window.saveSalesInvoice = function(editId = null) {
-    const record = {
-        id: editId || document.getElementById('sinv-id-display').value,
-        customer: document.getElementById('sinv-customer-input').value,
-        postingDate: document.getElementById('sinv-post-date').value,
-        dueDate: document.getElementById('sinv-due-date').value,
-        amount: document.getElementById('sinv-amount-input').value,
-        outstanding: document.getElementById('sinv-amount-input').value,
-        status: document.getElementById('sinv-status-input').value
-    };
-
-    if (!record.customer || !record.amount) return; // Validation logic
-
-    if (editId) {
-        const index = salesInvoiceDb.findIndex(r => r.id === editId);
-        salesInvoiceDb[index] = record;
-    } else {
-        salesInvoiceDb.push(record);
-    }
-
-    localStorage.setItem('sales_invoice_records', JSON.stringify(salesInvoiceDb));
-    document.getElementById('sinv-form-container').style.display = 'none';
-    window.renderSalesInvoiceTable();
-};
-
-// 3. Render & Edit: Display data and populate form
+/* --- SALES INVOICE AGGREGATION LOGIC --- */
 window.renderSalesInvoiceTable = function() {
     const tbody = document.getElementById('sales-invoice-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = salesInvoiceDb.map((rec, index) => `
-        <tr>
-            <td><strong>${rec.id}</strong></td>
-            <td>${rec.customer}</td>
-            <td>${rec.postingDate}</td>
-            <td>${rec.dueDate}</td>
-            <td>₱${parseFloat(rec.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-            <td>₱${parseFloat(rec.outstanding).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-            <td><span class="status-pill ${rec.status === 'Paid' ? 'status-active' : 'status-inactive'}">${rec.status}</span></td>
-            <td style="text-align:center;">
-                <i class="fas fa-edit" onclick="window.editSalesInvoice('${rec.id}')" style="color: #2563eb; cursor:pointer; margin-right:12px;"></i>
-                <i class="fas fa-trash" onclick="window.deleteSalesInvoice(${index})" style="color: #ef4444; cursor:pointer;"></i>
-            </td>
-        </tr>
-    `).join('') || `<tr><td colspan="8" style="text-align:center; color:#94a3b8;">No invoices found</td></tr>`;
-};
+    const invDb = JSON.parse(localStorage.getItem('inv_records')) || [];
+    const searchTerm = document.getElementById('sinv-search-input')?.value.toLowerCase() || "";
 
-window.editSalesInvoice = function(id) {
-    const rec = salesInvoiceDb.find(r => r.id === id);
-    if (!rec) return;
-
-    document.getElementById('sinv-id-display').value = rec.id;
-    document.getElementById('sinv-customer-input').value = rec.customer;
-    document.getElementById('sinv-post-date').value = rec.postingDate;
-    document.getElementById('sinv-due-date').value = rec.dueDate;
-    document.getElementById('sinv-amount-input').value = rec.amount;
-    document.getElementById('sinv-status-input').value = rec.status;
-
-    document.getElementById('sinv-form-container').style.display = 'block';
-    
-    const saveBtn = document.querySelector('#sinv-form-container .btn-group button:first-child');
-    saveBtn.onclick = () => window.saveSalesInvoice(id);
-    saveBtn.innerText = 'Update Invoice';
-};
-
-// 4. Delete: Logic integrated with requestDelete
-window.deleteSalesInvoice = function(index) {
-    requestDelete("Are you sure you want to delete this invoice?", () => {
-        // This executes only when the Global Banner's 'Delete' is confirmed
-        salesInvoiceDb.splice(index, 1);
+    // 1. Group and Aggregate
+    const aggregatedData = invDb.reduce((acc, current) => {
+        const soKey = current.soLink || "No-Link";
         
-        // Save to local storage and refresh table
-        localStorage.setItem('sales_invoice_records', JSON.stringify(salesInvoiceDb));
-        window.renderSalesInvoiceTable(); 
-    });
+        if (!acc[soKey]) {
+            acc[soKey] = {
+                soLink: soKey,
+                invoiceIds: new Set(), // Using a Set to avoid duplicate IDs
+                customer: current.customer,
+                lastPostDate: current.date,
+                totalPaid: 0,
+                status: current.status
+            };
+        }
+        
+        // Add Invoice ID to the Set and sum the amount
+        if (current.invId) acc[soKey].invoiceIds.add(current.invId);
+        acc[soKey].totalPaid += parseFloat(current.amount || 0);
+        
+        // Update to latest date if current is newer
+        if (new Date(current.date) > new Date(acc[soKey].lastPostDate)) {
+            acc[soKey].lastPostDate = current.date;
+        }
+
+        return acc;
+    }, {});
+
+    // 2. Filter & Render
+    const rows = Object.values(aggregatedData).filter(item => 
+        item.customer?.toLowerCase().includes(searchTerm) || 
+        item.soLink?.toLowerCase().includes(searchTerm)
+    );
+
+    tbody.innerHTML = rows.map(item => {
+        // Convert Set of IDs to a clean, comma-separated string
+        const invoiceList = Array.from(item.invoiceIds).join(', ');
+
+        return `
+            <tr style="border-bottom: 1px solid #edf2f7;">
+                <td style="padding:15px; font-weight:700; color:#2563eb;">${item.soLink}</td>
+                <td style="padding:15px;">
+                    <span style="font-size:11px; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#475569;">
+                        ${invoiceList || '---'}
+                    </span>
+                </td>
+                <td style="padding:15px;">${item.customer}</td>
+                <td style="padding:15px;">${item.lastPostDate}</td>
+                <td style="padding:15px; text-align:right; font-weight:700; color:#059669;">
+                    ₱${item.totalPaid.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                </td>
+                <td style="padding:15px; text-align:center;">
+                    <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:600;">
+                        ${item.status}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('') || '<tr><td colspan="6" style="text-align:center; padding:40px;">No records match your search.</td></tr>';
+
+    // Update Footer Grand Total
+    const grandTotal = rows.reduce((sum, item) => sum + item.totalPaid, 0);
+    const footerTotal = document.getElementById('sinv-grand-total');
+    if (footerTotal) footerTotal.innerText = `₱${grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
 };
 // Database Initialization
 let purchaseDb = JSON.parse(localStorage.getItem('purchase_invoices')) || [];
@@ -9936,84 +9935,131 @@ window.renderPaymentTable = function() {
             </tr>
         `).join('') || '<tr><td colspan="9" style="text-align:center; padding:30px; color:#94a3b8;">No payment history found.</td></tr>';
 };
-// Database Initialization - Brand new DB name and storage key
-let paymentTermsDb = JSON.parse(localStorage.getItem('fms_payment_terms_records')) || [];
+/* --- FINANCIAL MASTERS MODULE --- */
+let termsDb = JSON.parse(localStorage.getItem('payment_terms')) || [];
+/* --- FINANCIAL MASTERS LOGIC (WITH EDIT) --- */
 
-// --- PAYMENT TERMS LOGIC ---
-window.initPaymentTerm = function() {
-    // Generate sequential ID based on the new paymentTermsDb
-    const nextId = paymentTermsDb.length > 0 
-        ? Math.max(...paymentTermsDb.map(r => {
-            const num = parseInt(r.id.replace('TERM', ''));
-            return isNaN(num) ? 0 : num;
-        })) + 1 
-        : 1;
+let editIndex = -1; // Tracks if we are editing an existing item
+
+window.initMasters = function() {
+    const termsDb = JSON.parse(localStorage.getItem('payment_terms')) || [];
+    editIndex = -1; 
     
-    document.getElementById('term-id-display').value = `TERM${nextId.toString().padStart(3, '0')}`;
-    document.getElementById('term-name-input').value = '';
-    document.getElementById('term-days-input').value = '';
-    document.getElementById('term-discount-input').value = '0';
-    
-    const btn = document.querySelector('#term-form-container .btn-group button:first-child');
-    btn.onclick = () => window.savePaymentTerm();
-    btn.innerText = 'Save Term';
+    // UI Reset
+    const saveBtn = document.getElementById('save-term-btn');
+    if (saveBtn) {
+        saveBtn.innerText = "Save Payment Term";
+        saveBtn.style.background = "#10b981";
+    }
+
+    // Auto-ID Logic
+    const nextId = "TERM_" + (termsDb.length + 1).toString().padStart(3, '0');
+    document.getElementById('term-id-input').value = nextId;
+    document.getElementById('term-name-input').value = "";
+    document.getElementById('term-days-input').value = "0";
+    document.getElementById('term-discount-input').value = "0";
+
+    window.renderTermsTable();
+};
+window.toggleMasterForm = function(show) {
+    const formContainer = document.getElementById('term-form-container');
+    if (!formContainer) return;
+
+    if (show) {
+        formContainer.style.display = 'block';
+        window.initMasters(); // Ensure ID is visible and inputs are fresh
+        formContainer.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        formContainer.style.display = 'none';
+        editIndex = -1; // Reset edit state if closing
+    }
 };
 
-window.savePaymentTerm = function(editId = null) {
-    const record = {
-        id: editId || document.getElementById('term-id-display').value,
+// Update editTerm to trigger the toggle
+window.editTerm = function(index) {
+    window.toggleMasterForm(true); // Open the form first
+    
+    const termsDb = JSON.parse(localStorage.getItem('payment_terms')) || [];
+    const term = termsDb[index];
+    editIndex = index;
+
+    document.getElementById('term-id-input').value = term.id;
+    document.getElementById('term-name-input').value = term.name;
+    document.getElementById('term-days-input').value = term.days;
+    document.getElementById('term-discount-input').value = term.discount;
+
+    const saveBtn = document.getElementById('save-term-btn');
+    if (saveBtn) {
+        saveBtn.innerText = "Update Term";
+        saveBtn.style.background = "#2563eb"; 
+    }
+};
+
+window.savePaymentTerm = function() {
+    let termsDb = JSON.parse(localStorage.getItem('payment_terms')) || [];
+    
+    const termData = {
+        id: document.getElementById('term-id-input').value,
         name: document.getElementById('term-name-input').value,
         days: document.getElementById('term-days-input').value,
         discount: document.getElementById('term-discount-input').value,
-        status: 'Active'
+        status: "Active"
     };
 
-    if (!record.name || !record.days) return;
+    if (!termData.name) return alert("Please select a Term Name.");
 
-    if (editId) {
-        const idx = paymentTermsDb.findIndex(r => r.id === editId);
-        paymentTermsDb[idx] = record;
+    if (editIndex > -1) {
+        // Update existing
+        termsDb[editIndex] = termData;
     } else {
-        paymentTermsDb.push(record);
+        // Create new
+        termsDb.push(termData);
     }
 
-    // Save using the new key
-    localStorage.setItem('fms_payment_terms_records', JSON.stringify(paymentTermsDb));
-    document.getElementById('term-form-container').style.display = 'none';
-    window.renderTermsTable();
+    localStorage.setItem('payment_terms', JSON.stringify(termsDb));
+    window.initMasters(); 
 };
 
+window.deleteTerm = function(index) {
+    requestDelete("Remove this payment term?", () => {
+        let termsDb = JSON.parse(localStorage.getItem('payment_terms')) || [];
+        termsDb.splice(index, 1);
+        localStorage.setItem('payment_terms', JSON.stringify(termsDb));
+        window.initMasters(); 
+    });
+};
 window.renderTermsTable = function() {
     const tbody = document.getElementById('terms-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = paymentTermsDb.map((rec, index) => `
-        <tr>
-            <td><strong>${rec.id}</strong></td>
-            <td>${rec.name}</td>
-            <td>${rec.days}</td>
-            <td>${rec.discount}%</td>
-            <td><span class="status-pill status-active">Active</span></td>
-            <td style="text-align:center;">
-                <i class="fas fa-trash" onclick="window.deletePaymentTerm(${index})" style="color: #ef4444; cursor:pointer;"></i>
+    const termsDb = JSON.parse(localStorage.getItem('payment_terms')) || [];
+
+    tbody.innerHTML = termsDb.map((term, index) => `
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 15px;"><strong>${term.id}</strong></td>
+            <td style="padding: 15px;">${term.name}</td>
+            <td style="padding: 15px;">${term.days} Days</td>
+            <td style="padding: 15px;">${term.discount}%</td>
+            <td style="padding: 15px;">
+                <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                    ${term.status}
+                </span>
+            </td>
+            <td style="padding: 15px; text-align: center;">
+                <div style="display:flex; gap:15px; justify-content:center;">
+                    <i class="fas fa-edit" onclick="window.editTerm(${index})" style="color: #2563eb; cursor: pointer;" title="Edit"></i>
+                    <i class="fas fa-trash-alt" onclick="window.deleteTerm(${index})" style="color: #ef4444; cursor: pointer;" title="Delete"></i>
+                </div>
             </td>
         </tr>
-    `).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No terms configured</td></tr>';
-};
-
-window.deletePaymentTerm = function(index) {
-    // Global banner integration
-    requestDelete("Remove this payment term?", () => {
-        paymentTermsDb.splice(index, 1);
-        localStorage.setItem('fms_payment_terms_records', JSON.stringify(paymentTermsDb));
-        window.renderTermsTable();
-    });
+    `).join('') || '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">No terms found.</td></tr>';
 };
 let landedCostDb = JSON.parse(localStorage.getItem('landed_cost_db')) || [];
 let currentEditLcvId = null; // Track if we are editing
-
 window.initLandedCost = function() {
     currentEditLcvId = null; // Reset edit mode
+    
+    // 1. Generate Sequential ID
     const nextNum = landedCostDb.length > 0 
         ? Math.max(...landedCostDb.map(r => {
             const parts = r.id.split('-');
@@ -10023,11 +10069,32 @@ window.initLandedCost = function() {
     
     const suffix = nextNum.toString().padStart(3, '0');
     document.getElementById('lcv-id-display').value = `LCV-2026-${suffix}`;
-    document.getElementById('lcv-receipt-input').value = `PR-${suffix}`;
+    
+    // 2. Get PR Records and Populate Dropdown
+    const prRecords = JSON.parse(localStorage.getItem('pr_records')) || [];
+    const receiptDropdown = document.getElementById('lcv-receipt-input');
+    
+    if (receiptDropdown) {
+        // Reset and add default option
+        receiptDropdown.innerHTML = '<option value="" disabled selected>Select Purchase Receipt</option>';
+        
+        if (prRecords.length === 0) {
+            receiptDropdown.innerHTML += '<option disabled>No Purchase Receipts Found</option>';
+        } else {
+            // Populate with actual PR IDs
+            prRecords.forEach(pr => {
+                // Use the correct ID field based on your pr_records structure (e.g., pr.id or pr.prId)
+                const prId = pr.id || pr.prId || pr['pr-id-input']; 
+                receiptDropdown.innerHTML += `<option value="${prId}">${prId}</option>`;
+            });
+        }
+    }
+
+    // 3. Reset other fields
     document.getElementById('lcv-amount-input').value = '';
     
     const btn = document.querySelector('#lcv-form-container .btn-group button:first-child');
-    btn.innerText = 'Submit Voucher';
+    if (btn) btn.innerText = 'Submit Voucher';
 };
 
 window.editLandedCost = function(id) {
@@ -10244,7 +10311,64 @@ window.saveWarehouse = function() {
     window.toggleWhForm(false);
     window.renderWhSummaryTable();
 };
+window.renderDeliveriesTable = function() {
+    const tbody = document.getElementById('deliveries-table-body');
+    if (!tbody) return;
+    
+    const dnDb = JSON.parse(localStorage.getItem('dn_records')) || [];
+    const itemsMaster = JSON.parse(localStorage.getItem('items_records')) || [];
+    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
+    const search = document.getElementById('dl-search')?.value.toLowerCase() || "";
 
+    const filtered = dnDb.filter(dn => 
+        dn.id.toLowerCase().includes(search) || 
+        dn.customer.toLowerCase().includes(search)
+    );
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#64748b;">No delivery records found.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map((dn) => {
+        // 1. DATA LOOKUP: Check both sources for the product name
+        const master = itemsMaster.find(i => i.id === dn.masterItemId);
+        // We check against both prodId and qiId to ensure the link isn't broken
+        const sale = sellingItems.find(si => si.prodId === dn.sellingItemId || si.qiId === dn.sellingItemId);
+
+        let pName = "";
+        let pId = "";
+
+        // 2. PRIORITY LOGIC: Use Selling Item data if available, otherwise Master Item
+        if (sale) {
+            pName = sale.prodName || "Unknown Product";
+            pId = sale.prodId || dn.sellingItemId;
+        } else if (master) {
+            pName = master.itemName || "Unknown Item";
+            pId = master.id || dn.masterItemId;
+        } else {
+            // Fallback if record exists but source data was deleted
+            pName = "Item Not Found";
+            pId = dn.masterItemId || dn.sellingItemId || "N/A";
+        }
+
+        return `
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
+                <td style="padding:12px;"><strong>${dn.id}</strong></td>
+                <td style="padding:12px;">
+                    <div style="font-weight:600; color:#1e293b;">${dn.customer}</div>
+                    <div style="font-size:12px; color:#64748b;">${pName} [${pId}]</div>
+                </td>
+                <td style="padding:12px;">${dn.warehouse || 'Main'}</td>
+                <td style="padding:12px;">${dn.date}</td>
+                <td style="padding:12px;">
+                    <span style="background:#dcfce7; color:#166534; padding:4px 12px; border-radius:12px; font-size:11px; font-weight:600;">
+                        ${dn.status || 'Shipped'}
+                    </span>
+                </td>
+            </tr>`;
+    }).join('');
+};
 // Helper to force standardized dash format
 const toDashFormat = (prefix, id) => {
     if (!id) return "";
@@ -10454,7 +10578,7 @@ else if (viewId === 'item-master-view') {
     window.renderProdPlanTable();
     window.initProdPlan();
 } else if (viewId === 'work-order-view') {
-    window.renderWOTable();
+    window.renderWorkOrders();
     window.initWorkOrder();
 } else if (viewId === 'job-card-view') {
     window.renderJobCardTable();
@@ -10508,6 +10632,19 @@ else if (viewId === 'stock-ex-view') {
     // Ensure the entry form is hidden by default
     const payForm = document.getElementById('pay-form-container');
     if (payForm) payForm.style.display = 'none';
+} else if (viewId === 'sales-invoices-view') {
+    window.renderSalesInvoiceTable();
+} else if (viewId === 'masters-view') {
+    window.renderTermsTable();
+    window.initMasters();
+} else if (viewId === 'deliveries-view') {
+    if (typeof window.renderDeliveriesTable === 'function') {
+        window.renderDeliveriesTable();
+    }
+    // Initialize IDs and dropdowns for the form inside this view
+    if (typeof window.initDeliveryNotes === 'function') {
+        window.initDeliveryNotes();
+    }
 }
     // --- Sidebar Active State Management ---
     const navMap = {
