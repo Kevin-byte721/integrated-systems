@@ -5135,46 +5135,46 @@ window.fillItemFormFromMaster = function() {
 };
 
 // --- 3. Initialize & Populate Dropdowns ---
+// --- 3. Initialize & Populate Dropdowns (Rebuilt) ---
 window.initBundle = function() {
     const idField = document.getElementById('bundle-id');
     const prodSelect = document.getElementById('bundle-prod-id');
     const itemSourceSelect = document.getElementById('itm-product-source');
     
-    // Sync local DB safely
+    // Safety check for localStorage
     const bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
-    
-    // 1. Improved Auto-Increment Bundle ID
-    // Checks if we are in 'New' mode (editBundleIndex === -1)
+    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
+
+    // 1. Logic for Auto-Incrementing Bundle ID
     if (idField && (window.editBundleIndex === -1 || window.editBundleIndex === undefined)) {
         let nextNumber = 1;
 
         if (bundleDb.length > 0) {
-            // Extract numbers from existing IDs to find the true maximum
+            // Extract the numeric suffix from strings like "BUNDLE_002" or "BUNDLE003"
             const numericIds = bundleDb.map(b => {
-                const idStr = String(b.id || "");
-                // Matches digits at the end of the string (handles BUNDLE_003 or BUNDLE003)
-                const match = idStr.match(/\d+$/); 
+                const match = String(b.id || "").match(/\d+$/);
                 return match ? parseInt(match[0]) : 0;
             });
             nextNumber = Math.max(...numericIds) + 1;
         }
-        
-        idField.value = "BUNDLE_" + String(nextNumber).padStart(3, '0');
+        idField.value = `BUNDLE_${String(nextNumber).padStart(3, '0')}`;
     }
 
-    // Fetch data from selling_items
-    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
-
-    // 2. Populate Bundle Dropdown (using .map for cleaner injection)
+    // 2. Populate Linked Product Dropdown
     if (prodSelect) {
         prodSelect.innerHTML = '<option value="" disabled selected>Select Product</option>' + 
             sellingItems.map(item => `
-                <option value="${item.prodId}" data-name="${item.prodName}" data-price="${item.price}">
+                <option value="${item.prodId}" 
+                        data-name="${item.prodName}" 
+                        data-price="${item.price}">
                     ${item.prodId} - ${item.prodName}
                 </option>`).join('');
+
+        // NEW: Add event listener for auto-filling the form
+        prodSelect.onchange = window.autoFillBundleDetails;
     }
 
-    // 3. Populate Item Form Source Dropdown
+    // 3. Populate Master Source Dropdown
     if (itemSourceSelect) {
         itemSourceSelect.innerHTML = '<option value="" disabled selected>-- Select from Product Master --</option>' + 
             sellingItems.map(item => `
@@ -5185,7 +5185,23 @@ window.initBundle = function() {
                     ${item.prodId} - ${item.prodName}
                 </option>`).join('');
     }
-};// --- 4. Form Toggles ---
+};
+
+// --- NEW: Auto-fill helper for Bundle Form ---
+window.autoFillBundleDetails = function() {
+    const select = document.getElementById('bundle-prod-id');
+    const selectedOption = select.options[select.selectedIndex];
+
+    if (selectedOption && selectedOption.value) {
+        const nameField = document.getElementById('bundle-name');
+        const priceField = document.getElementById('bundle-price');
+        
+        // Auto-populate based on data-attributes from the dropdown
+        if (nameField) nameField.value = selectedOption.getAttribute('data-name');
+        if (priceField) priceField.value = selectedOption.getAttribute('data-price');
+    }
+};
+// --- 4. Form Toggles ---
 window.toggleBundleForm = function(show) {
     const form = document.getElementById('bundle-form-container');
     const btnBox = document.getElementById('bundle-add-btn-container');
