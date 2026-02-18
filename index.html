@@ -1089,65 +1089,50 @@
         </table>
     </div>
 </div>
-<div id="bundle-view" style="display:none;">
-    <div class="header">
-        <h1>Bundle Management</h1>
-        <p>Maintain and configure product bundles for your quotations.</p>
-    </div>
-<div class="search-container" style="position: relative; display: flex; align-items: center; width: 300px; margin-bottom: 25px;">
-    <i class="fas fa-search" style="position: absolute; left: 12px; color: #94a3b8; pointer-events: none;"></i>
-    
-    <input type="text" 
-           placeholder="Search Bundles or Products..." 
-           id="bundle-search" 
-           oninput="window.renderBundleGrid()" 
-           style="width: 100%; padding: 10px 35px 10px 35px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-
-    <i class="fas fa-times-circle" 
-       id="bundle-search-clear"
-       onclick="document.getElementById('bundle-search').value=''; window.renderBundleGrid();" 
-       style="position: absolute; right: 12px; color: #cbd5e1; cursor: pointer; display: none; transition: color 0.2s;"
-       onmouseover="this.style.color='#64748b'"
-       onmouseout="this.style.color='#cbd5e1'">
-    </i>
-</div>
-    <div id="bundle-form-container" class="content-card" style="display:none; border-left: 4px solid #2563eb; margin-bottom: 25px;">
-        <h3 style="margin-bottom:20px; font-weight:600; color:#1e293b; border:none;">Bundle Configuration</h3>
-        <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-            <div class="input-box">
-                <label>Bundle ID</label>
-                <input type="text" id="bundle-id" readonly style="background:#f1f5f9; font-weight:600; color:#475569;">
-            </div>
-            <div class="input-box">
-                <label>Bundle Name</label>
-                <input type="text" id="bundle-name" placeholder="Enter package name...">
-            </div>
-            <div class="input-box">
-                <label>Linked Product (from Selling Items)</label>
-                <select id="bundle-prod-id" onchange="const opt=this.options[this.selectedIndex]; document.getElementById('bundle-price').value=opt.dataset.price;" style="background:white;"></select>
-            </div>
-            <div class="input-box">
-                <label>Quantity</label>
-                <input type="number" id="bundle-qty" value="1" min="1">
-            </div>
-            <div class="input-box" style="grid-column: span 2;">
-                <label>Unit Price (₱)</label>
-                <input type="number" id="bundle-price" step="0.01" placeholder="0.00" style="font-weight:700; color:#2563eb;">
-            </div>
+<div id="bundle-view" class="view-section" style="display:none;">
+    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+        <div>
+            <h2 style="font-size:1.8rem; font-weight:700; color:#1e293b; margin:0;">Bundle Management</h2>
+            <p style="color:#64748b; margin:5px 0 0;">Maintain and configure product bundles for your quotations.</p>
         </div>
-        <div class="btn-group" style="margin-top:25px; display:flex; justify-content:flex-end; gap:12px;">
-            <button onclick="window.toggleBundleForm(false)" class="text-btn" style="background:#f1f5f9; color:#475569; padding:10px 25px; border-radius:6px; font-weight:600;">Cancel</button>
-            <button onclick="window.saveBundle()" class="text-btn" style="background:#2563eb; color:white; padding:10px 25px; border-radius:6px; font-weight:600; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2);">Save Bundle Configuration</button>
-        </div>
-    </div>
-
-    <div id="bundle-add-btn-container" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-        <button class="text-btn" onclick="window.toggleBundleForm(true)" style="background:#2563eb; color:white; padding:12px 24px; border-radius:8px; font-weight:600; display:flex; align-items:center; gap:8px; border:none; cursor:pointer;">
-            <i class="fas fa-plus"></i> Create New Bundle
+        <button onclick="window.prepareNewBundle()" class="primary-btn" style="background:#2563eb; color:white; border:none; padding:12px 24px; border-radius:6px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; transition: background 0.2s;">
+            <i class="fas fa-plus-circle"></i> Create New Bundle
         </button>
     </div>
 
-    <div id="bundle-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    <div id="bundle-prod-form" class="content-card" style="display:none; border-left: 4px solid #2563eb; margin-bottom: 25px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 id="bundle-form-title" style="margin-bottom:15px; font-weight:600; color:#1e293b;">Bundle Configuration</h3>
+        <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-size:0.85rem; color:#64748b;">Bundle ID</label>
+                <input type="text" id="bundle-id" readonly style="background:#f8fafc; width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; color:#64748b;">
+            </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-size:0.85rem; color:#64748b;">Bundle Name</label>
+                <input type="text" id="bundle-name" placeholder="Enter package name..." style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px;">
+            </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-size:0.85rem; color:#64748b;">Linked Product (from Selling Items)</label>
+                <select id="bundle-prod-id" onchange="window.autoFillBundleDetails()" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; background:white; cursor:pointer;">
+                    <option value="" disabled selected>Select Product</option>
+                </select>
+            </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-size:0.85rem; color:#64748b;">Quantity</label>
+                <input type="number" id="bundle-qty" min="1" value="1" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px;">
+            </div>
+            <div class="input-box" style="grid-column: span 2;">
+                <label style="display:block; margin-bottom:5px; font-size:0.85rem; color:#64748b;">Unit Price (₱)</label>
+                <input type="number" id="bundle-price" step="0.01" placeholder="0.00" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; font-weight:600;">
+            </div>
+        </div>
+        <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <button onclick="window.toggleBundleForm(false)" style="padding:10px 20px; border-radius:6px; border:none; background:#f1f5f9; color:#475569; cursor:pointer; font-weight:500;">Cancel</button>
+            <button id="add-bundle-btn" onclick="window.saveBundle()" style="padding:10px 20px; border-radius:6px; border:none; background:#2563eb; color:white; cursor:pointer; font-weight:600;">Save Bundle Configuration</button>
+        </div>
+    </div>
+
+    <div id="bundle-grid-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
         </div>
 </div>
 </main>`;
@@ -5112,9 +5097,6 @@ function generateNextAssigneeId(db, prefix) {
     return `${prefix}-${String(maxNum + 1).padStart(3, '0')}`;
 }
 
-// --- 1. State & Storage ---
-let bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
-let editBundleIndex = -1;
 
 // --- 2. Item Form Master Logic (NEW) ---
 window.fillItemFormFromMaster = function() {
@@ -5133,249 +5115,159 @@ window.fillItemFormFromMaster = function() {
     document.getElementById('itm-unit').value = prodQty || "1";
     document.getElementById('itm-cost').value = prodPrice || "0.00";
 };
+/* --- Global Tracker --- */
+window.editBundleIndex = -1;
 
-// --- 3. Initialize & Populate Dropdowns ---
-// --- 3. Initialize & Populate Dropdowns (Rebuilt) ---
+/* --- Initialization & Auto-ID --- */
 window.initBundle = function() {
     const idField = document.getElementById('bundle-id');
     const prodSelect = document.getElementById('bundle-prod-id');
-    const itemSourceSelect = document.getElementById('itm-product-source');
-    
-    // Safety check for localStorage
-    const bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
-    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
+    let bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
 
-    // 1. Logic for Auto-Incrementing Bundle ID
-    if (idField && (window.editBundleIndex === -1 || window.editBundleIndex === undefined)) {
-        let nextNumber = 1;
-
+    // Auto-Increment: Finds highest number to prevent BUNDLE_002/BUNDLE003 conflicts
+    if (idField && window.editBundleIndex === -1) {
+        let nextNum = 1;
         if (bundleDb.length > 0) {
-            // Extract the numeric suffix from strings like "BUNDLE_002" or "BUNDLE003"
             const numericIds = bundleDb.map(b => {
                 const match = String(b.id || "").match(/\d+$/);
                 return match ? parseInt(match[0]) : 0;
             });
-            nextNumber = Math.max(...numericIds) + 1;
+            nextNum = Math.max(...numericIds) + 1;
         }
-        idField.value = `BUNDLE_${String(nextNumber).padStart(3, '0')}`;
+        idField.value = "BUNDLE_" + String(nextNum).padStart(3, '0');
     }
 
-    // 2. Populate Linked Product Dropdown
+    // Populate Linked Products from Selling Items
+    const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
     if (prodSelect) {
         prodSelect.innerHTML = '<option value="" disabled selected>Select Product</option>' + 
-            sellingItems.map(item => `
-                <option value="${item.prodId}" 
-                        data-name="${item.prodName}" 
-                        data-price="${item.price}">
-                    ${item.prodId} - ${item.prodName}
-                </option>`).join('');
-
-        // NEW: Add event listener for auto-filling the form
-        prodSelect.onchange = window.autoFillBundleDetails;
-    }
-
-    // 3. Populate Master Source Dropdown
-    if (itemSourceSelect) {
-        itemSourceSelect.innerHTML = '<option value="" disabled selected>-- Select from Product Master --</option>' + 
-            sellingItems.map(item => `
-                <option value="${item.prodId}" 
-                        data-name="${item.prodName}" 
-                        data-price="${item.price}" 
-                        data-qty="${item.qty}">
-                    ${item.prodId} - ${item.prodName}
-                </option>`).join('');
+            sellingItems.map(item => `<option value="${item.prodId}" data-name="${item.prodName || item.name}" data-price="${item.price}">${item.prodId} - ${item.prodName || item.name}</option>`).join('');
     }
 };
+/* --- Preparation for New Entry --- */
+window.prepareNewBundle = function() {
+    // 1. Reset the edit tracker to "New" mode
+    window.editBundleIndex = -1;
 
-// --- NEW: Auto-fill helper for Bundle Form ---
+    // 2. Reset Form Labels to "Add" mode
+    const title = document.getElementById('bundle-form-title');
+    const saveBtn = document.getElementById('add-bundle-btn');
+    if (title) title.innerText = "Bundle Configuration";
+    if (saveBtn) saveBtn.innerText = "Save Bundle Configuration";
+
+    // 3. Clear existing inputs
+    document.getElementById('bundle-name').value = '';
+    document.getElementById('bundle-prod-id').value = '';
+    document.getElementById('bundle-qty').value = 1;
+    document.getElementById('bundle-price').value = '0.00';
+
+    // 4. Generate the next Bundle ID and show the form
+    window.initBundle(); 
+    window.toggleBundleForm(true);
+};
+/* --- Auto-Fill Logic --- */
 window.autoFillBundleDetails = function() {
     const select = document.getElementById('bundle-prod-id');
-    const selectedOption = select.options[select.selectedIndex];
-
-    if (selectedOption && selectedOption.value) {
-        const nameField = document.getElementById('bundle-name');
-        const priceField = document.getElementById('bundle-price');
-        
-        // Auto-populate based on data-attributes from the dropdown
-        if (nameField) nameField.value = selectedOption.getAttribute('data-name');
-        if (priceField) priceField.value = selectedOption.getAttribute('data-price');
+    const selected = select.options[select.selectedIndex];
+    if (selected && selected.value) {
+        document.getElementById('bundle-name').value = selected.getAttribute('data-name');
+        document.getElementById('bundle-price').value = selected.getAttribute('data-price');
     }
 };
-// --- 4. Form Toggles ---
-window.toggleBundleForm = function(show) {
-    const form = document.getElementById('bundle-form-container');
-    const btnBox = document.getElementById('bundle-add-btn-container');
-    if (!form || !btnBox) return;
 
-    if (show) {
-        form.style.setProperty('display', 'block', 'important');
-        btnBox.style.setProperty('display', 'none', 'important');
-        if (editBundleIndex === -1) window.initBundle();
-        form.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        form.style.setProperty('display', 'none', 'important');
-        btnBox.style.setProperty('display', 'flex', 'important');
-        ["bundle-name", "bundle-prod-id", "bundle-qty", "bundle-price"].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = id === "bundle-qty" ? "1" : "";
-        });
-        editBundleIndex = -1;
-    }
-};
-/* --- EDIT BUNDLE ACTION --- */
-window.editBundle = function(index) {
-    // 1. Set the global edit tracker to the current index
-    window.editBundleIndex = index;
-    
-    // 2. Fetch the current database
-    const bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
-    const bundle = bundleDb[index];
-
-    if (bundle) {
-        // 3. Open the form
-        window.toggleBundleForm(true);
-
-        // 4. Update UI labels and buttons for Edit Mode
-        const title = document.getElementById('bundle-form-title');
-        if (title) title.innerText = "Edit Product Bundle";
-        
-        const saveBtn = document.getElementById('add-bundle-btn');
-        if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save"></i> Update Bundle';
-
-        // 5. Populate the form fields with existing data
-        document.getElementById('bundle-id').value = bundle.id;
-        document.getElementById('bundle-name').value = bundle.name;
-        document.getElementById('bundle-prod-id').value = bundle.prodId;
-        document.getElementById('bundle-qty').value = bundle.qty;
-        document.getElementById('bundle-price').value = bundle.price;
-
-        // 6. Force a grid re-render to reflect the "active edit" state (if implemented)
-        if (typeof window.renderBundleGrid === "function") {
-            window.renderBundleGrid();
-        }
-
-        console.log("Editing Bundle at index:", index);
-    }
-};
+/* --- CRUD Operations --- */
 window.saveBundle = function() {
-    // 1. Capture Current Form Data
     const bundleData = {
         id: document.getElementById('bundle-id').value,
-        name: document.getElementById('bundle-name').value.trim(),
+        name: document.getElementById('bundle-name').value,
         prodId: document.getElementById('bundle-prod-id').value,
         qty: parseInt(document.getElementById('bundle-qty').value) || 1,
         price: parseFloat(document.getElementById('bundle-price').value) || 0
     };
 
-    // 2. Validation
-    if (!bundleData.name || !bundleData.prodId) {
-        return alert("Please provide a Bundle Name and select a Product.");
-    }
+    if (!bundleData.name || !bundleData.prodId) return alert("Fill all fields.");
 
-    // 3. Load Database
     let bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
-    
-    // Use the global tracker to decide between Update or Create
-    const currentIndex = window.editBundleIndex;
 
-    if (currentIndex !== -1 && currentIndex !== undefined) {
-        // --- EDIT MODE ---
-        // Overwrite the existing record at the specific index
-        bundleDb[currentIndex] = bundleData;
-        console.log("Updated existing record at index:", currentIndex);
-    } else {
-        // --- ADD MODE ---
-        // Add as a new entry to the end of the array
+    if (window.editBundleIndex === -1) {
         bundleDb.push(bundleData);
-        console.log("Saved as new record.");
+    } else {
+        bundleDb[window.editBundleIndex] = bundleData;
     }
 
-    // 4. Persistence
     localStorage.setItem('bundle_records', JSON.stringify(bundleDb));
-
-    // 5. Cleanup & UI Refresh
-    window.editBundleIndex = -1; // CRITICAL: Reset tracker to default 'Add' state
-    window.renderBundleGrid();    // Refresh cards to show changes
-    window.toggleBundleForm(false); // Close the form
+    window.editBundleIndex = -1;
+    window.renderBundleGrid();
+    window.toggleBundleForm(false);
 };
-/* --- DELETE BUNDLE ACTION --- */
+
+window.editBundle = function(index) {
+    window.editBundleIndex = index;
+    const bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
+    const item = bundleDb[index];
+
+    if (item) {
+        window.toggleBundleForm(true);
+        document.getElementById('bundle-form-title').innerText = "Edit Bundle Configuration";
+        document.getElementById('add-bundle-btn').innerText = "Update Bundle Configuration";
+        
+        document.getElementById('bundle-id').value = item.id;
+        document.getElementById('bundle-name').value = item.name;
+        document.getElementById('bundle-prod-id').value = item.prodId;
+        document.getElementById('bundle-qty').value = item.qty;
+        document.getElementById('bundle-price').value = item.price;
+    }
+};
+
 window.deleteBundle = function(index) {
-    requestDelete("Are you sure you want to delete this product bundle? This action cannot be undone.", () => {
+    requestDelete("Delete this bundle?", () => {
         bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
         bundleDb.splice(index, 1);
         localStorage.setItem('bundle_records', JSON.stringify(bundleDb));
         window.renderBundleGrid(); 
     });
 };
+
+/* --- UI Rendering --- */
 window.renderBundleGrid = function() {
-    const storageKey = 'bundle_records';
-    const searchId = 'bundle-search';
-    const gridId = 'bundle-grid';
+    const container = document.getElementById('bundle-grid-container');
+    const bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
     
-    const grid = document.getElementById(gridId);
-    if (!grid) return;
+    if (!container) return;
 
-    // 1. Fetch Fresh Data
-    const bundleDb = JSON.parse(localStorage.getItem(storageKey)) || [];
-    const searchInput = document.getElementById(searchId);
-    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
-
-    // Toggle Clear Icon Visibility
-    const clearBtn = document.getElementById('bundle-search-clear');
-    if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
-
-    // 2. Filter Logic (Searching Bundle Name, ID, or Product ID)
-    const filteredData = bundleDb.filter(b => 
-        String(b.name || "").toLowerCase().includes(searchTerm) || 
-        String(b.id || "").toLowerCase().includes(searchTerm) ||
-        String(b.prodId || "").toLowerCase().includes(searchTerm)
-    );
-
-    // 3. Handle Empty Results
-    if (filteredData.length === 0) {
-        grid.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8; background: #f8fafc; border-radius: 12px; border: 2px dashed #e2e8f0;">
-                <i class="fas fa-cubes" style="font-size: 32px; margin-bottom: 10px; opacity: 0.5;"></i>
-                <p>No matching bundles found.</p>
-            </div>`;
-        return;
-    }
-
-    // 4. Render Grid Cards
-    grid.innerHTML = filteredData.map((b) => {
-        // Find the index in the ORIGINAL database so actions target the right record
-        const actualIndex = bundleDb.findIndex(item => item.id === b.id);
-
+    container.innerHTML = bundleDb.map((b, index) => {
+        const total = (b.qty * b.price).toLocaleString(undefined, { minimumFractionDigits: 2 });
         return `
-            <div class="content-card" style="position: relative; border-left: 4px solid #2563eb; transition: transform 0.2s, box-shadow 0.2s;">
-                <div style="position: absolute; top: 15px; right: 15px; display: flex; gap: 12px;">
-                    <i class="fas fa-edit" onclick="editBundle(${actualIndex})" style="color:#2563eb; cursor:pointer;"></i>
-                    <i class="fas fa-trash" onclick="deleteBundle(${actualIndex})" style="color:#ef4444; cursor:pointer;"></i>
+            <div class="content-card" style="padding:15px; position:relative;">
+                <div style="position:absolute; top:10px; right:10px; display:flex; gap:8px;">
+                    <i class="fas fa-edit" onclick="window.editBundle(${index})" style="color:#2563eb; cursor:pointer;"></i>
+                    <i class="fas fa-trash" onclick="window.deleteBundle(${index})" style="color:#ef4444; cursor:pointer;"></i>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-                    <div style="background:#eff6ff; color:#2563eb; padding:10px; border-radius:8px;">
-                        <i class="fas fa-cubes"></i>
-                    </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <div style="background:#eff6ff; padding:8px; border-radius:6px; color:#2563eb;"><i class="fas fa-cubes"></i></div>
                     <div>
-                        <h4 style="margin:0;">${b.name}</h4>
-                        <small style="color:#64748b;">${b.id}</small>
+                        <div style="font-weight:700; color:#1e293b;">${b.name}</div>
+                        <div style="font-size:0.75rem; color:#64748b;">${b.id}</div>
                     </div>
                 </div>
-                <div style="background:#f8fafc; padding:10px; border-radius:6px; margin-bottom:15px; font-size:0.9rem;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
-                        <span style="color:#64748b;">Product:</span><strong>${b.prodId}</strong>
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span style="color:#64748b;">Quantity:</span><strong>${b.qty}</strong>
-                    </div>
+                <div style="background:#f8fafc; padding:10px; border-radius:6px; margin-bottom:10px; font-size:0.85rem;">
+                    <div style="display:flex; justify-content:space-between;"><span>Product:</span><strong>${b.prodId}</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Quantity:</span><strong>${b.qty}</strong></div>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; pt:10px;">
                     <span style="font-weight:600; color:#475569;">Total Value</span>
-                    <span style="font-weight:800; color:#2563eb; font-size:1.1rem;">₱${(b.price * b.qty).toLocaleString(undefined,{minimumFractionDigits:2})}</span>
+                    <span style="font-weight:800; color:#2563eb; font-size:1.1rem;">₱${total}</span>
                 </div>
-            </div>
-        `;
+            </div>`;
     }).join('');
+};
+
+window.toggleBundleForm = function(show) {
+    document.getElementById('bundle-prod-form').style.display = show ? 'block' : 'none';
+    if (!show) {
+        window.editBundleIndex = -1;
+        window.initBundle(); // Reset to next BUNDLE_ID
+    }
 };
 // --- Render Table (Read-only from selling_items) ---
 window.renderProductTable = function() {
@@ -11590,25 +11482,9 @@ function showView(viewId) {
     const searchInput = document.getElementById('prod-view-search');
     if (searchInput) searchInput.value = '';
 } else if (viewId === 'bundle-view') {
-    // 1. Sync data
-    window.bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
-
-    // 2. Render UI
-    if (typeof window.renderBundleGrid === 'function') {
+        window.initBundle();
         window.renderBundleGrid();
-    }
-
-    // 3. Prep Dropdown
-    if (typeof window.initBundle === 'function') {
-        window.initBundle(); 
-    }
-
-    // 4. Force Clean State
-    const form = document.getElementById('bundle-form-container');
-    const btnBox = document.getElementById('bundle-add-btn-container');
-    if (form) form.style.setProperty('display', 'none', 'important');
-    if (btnBox) btnBox.style.setProperty('display', 'flex', 'important');
-} else if (viewId === 'opp-view') {
+    } else if (viewId === 'opp-view') {
         window.renderOppTable(); 
         window.initOpp();        
     } // SUPPLY CHAIN & BUYING TRIGGERS
