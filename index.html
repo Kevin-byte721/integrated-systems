@@ -4124,29 +4124,32 @@ window.editEmpIndex = -1;
 // --- INITIALIZATION ---
 window.initEmployeeId = function() {
     const idField = document.getElementById('reg-id');
-    if (!idField || window.editEmpIndex !== -1) return;
+    
+    // Prevent overwriting the ID if we are currently in Edit Mode
+    if (!idField || (window.editEmpIndex !== undefined && window.editEmpIndex !== -1)) return;
 
-    // 1. Fetch fresh data from storage to calculate the next number
-    // Note: Ensure this key matches your save function (hr_employee_records)
+    // 1. Fetch fresh data from storage using the correct key
     const currentDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
     
-    let nextNum = 1;
+    let nextNum = 1; // Default starting number
+
     if (currentDb.length > 0) {
-        // 2. UPDATED: Robustly extract numbers from the end of the string
+        // 2. Extract numeric suffixes from all IDs
         const existingNums = currentDb.map(emp => {
-            // Using match(/\d+$/) is safer than split('_') if the format ever changes
+            // This regex finds the digits at the end of the string (e.g., "EMP_002" -> "002")
             const match = String(emp.id).match(/\d+$/);
             return match ? parseInt(match[0], 10) : 0;
         });
         
-        // 3. Increment the highest number found
-        nextNum = Math.max(...existingNums) + 1;
+        // 3. Find the highest existing number and add 1
+        // This prevents ID reuse even if the last employee was deleted
+        const maxNum = Math.max(...existingNums);
+        nextNum = maxNum >= 1 ? maxNum + 1 : 1;
     }
 
-    // 4. Format to EMP_XXX (3-digit padding)
+    // 4. Set the field value with EMP_ prefix and 3-digit padding (001, 002, etc.)
     idField.value = `EMP_${String(nextNum).padStart(3, '0')}`;
 };
-
 // --- UPDATED TOGGLE ---
 window.toggleEmployeeForm = function(show) {
     const container = document.getElementById('employee-form-container');
@@ -4178,8 +4181,8 @@ window.clearForm = function() {
 window.saveEmployee = function() {
     const fn = document.getElementById('reg-fname').value.trim();
     const ln = document.getElementById('reg-lname').value.trim();
-    const contact = document.getElementById('reg-contact').value.trim(); // New field
-    const email = document.getElementById('reg-email').value.trim();     // New field
+    const contact = document.getElementById('reg-contact').value.trim(); 
+    const email = document.getElementById('reg-email').value.trim();     
     const currentId = document.getElementById('reg-id').value;
 
     if (!fn || !ln) return alert("Please enter First and Last name.");
@@ -4189,22 +4192,35 @@ window.saveEmployee = function() {
         name: `${fn} ${ln}`,
         dept: document.getElementById('reg-dept').value || "General",
         status: document.getElementById('reg-status').value,
-        contact: contact, // Added to object
-        email: email      // Added to object
+        contact: contact, 
+        email: email      
     };
 
-    // Load fresh DB to ensure we don't overwrite other sessions
+    // 1. Load fresh DB to ensure we don't overwrite other sessions
     let employeeDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
 
+    // 2. Logic to Save or Update
     if (window.editEmpIndex === -1) {
         employeeDb.push(empData);
     } else {
         employeeDb[window.editEmpIndex] = empData;
     }
 
+    // 3. Save to LocalStorage
     localStorage.setItem('hr_employee_records', JSON.stringify(employeeDb));
     
-    if (typeof window.renderEmployeeTable === "function") window.renderEmployeeTable();
+    // 4. REFRESH the table view immediately
+    if (typeof window.renderEmployeeTable === "function") {
+        window.renderEmployeeTable();
+    }
+
+    // 5. RESET form state and increment ID for the next user
+    window.editEmpIndex = -1; // Clear edit index
+    if (typeof window.initEmployeeId === "function") {
+        window.initEmployeeId(); // This ensures the ID jumps to the next number (e.g., EMP_004)
+    }
+
+    // 6. Close the form
     window.toggleEmployeeForm(false);
 };
 window.editEmployee = function(index) {
