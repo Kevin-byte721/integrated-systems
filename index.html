@@ -5140,43 +5140,52 @@ window.initBundle = function() {
     const prodSelect = document.getElementById('bundle-prod-id');
     const itemSourceSelect = document.getElementById('itm-product-source');
     
-    // Sync local DB
-    bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
+    // Sync local DB safely
+    const bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
     
-    // Auto-Increment Bundle ID
-    if (idField && editBundleIndex === -1) {
-        idField.value = "BUNDLE_" + String(bundleDb.length + 1).padStart(3, '0');
+    // 1. Improved Auto-Increment Bundle ID
+    // Checks if we are in 'New' mode (editBundleIndex === -1)
+    if (idField && (window.editBundleIndex === -1 || window.editBundleIndex === undefined)) {
+        let nextNumber = 1;
+
+        if (bundleDb.length > 0) {
+            // Extract numbers from existing IDs to find the true maximum
+            const numericIds = bundleDb.map(b => {
+                const idStr = String(b.id || "");
+                // Matches digits at the end of the string (handles BUNDLE_003 or BUNDLE003)
+                const match = idStr.match(/\d+$/); 
+                return match ? parseInt(match[0]) : 0;
+            });
+            nextNumber = Math.max(...numericIds) + 1;
+        }
+        
+        idField.value = "BUNDLE_" + String(nextNumber).padStart(3, '0');
     }
 
     // Fetch data from selling_items
     const sellingItems = JSON.parse(localStorage.getItem('selling_items')) || [];
 
-    // Populate Bundle Dropdown
+    // 2. Populate Bundle Dropdown (using .map for cleaner injection)
     if (prodSelect) {
-        prodSelect.innerHTML = '<option value="" disabled selected>Select Product</option>';
-        sellingItems.forEach(item => {
-            prodSelect.innerHTML += `<option value="${item.prodId}" data-name="${item.prodName}" data-price="${item.price}">
-                ${item.prodId} - ${item.prodName}
-            </option>`;
-        });
+        prodSelect.innerHTML = '<option value="" disabled selected>Select Product</option>' + 
+            sellingItems.map(item => `
+                <option value="${item.prodId}" data-name="${item.prodName}" data-price="${item.price}">
+                    ${item.prodId} - ${item.prodName}
+                </option>`).join('');
     }
 
-    // Populate Item Form Source Dropdown (Optional Link)
+    // 3. Populate Item Form Source Dropdown
     if (itemSourceSelect) {
-        itemSourceSelect.innerHTML = '<option value="" disabled selected>-- Select from Product Master --</option>';
-        sellingItems.forEach(item => {
-            itemSourceSelect.innerHTML += `
+        itemSourceSelect.innerHTML = '<option value="" disabled selected>-- Select from Product Master --</option>' + 
+            sellingItems.map(item => `
                 <option value="${item.prodId}" 
                         data-name="${item.prodName}" 
                         data-price="${item.price}" 
                         data-qty="${item.qty}">
                     ${item.prodId} - ${item.prodName}
-                </option>`;
-        });
+                </option>`).join('');
     }
-};
-
-// --- 4. Form Toggles ---
+};// --- 4. Form Toggles ---
 window.toggleBundleForm = function(show) {
     const form = document.getElementById('bundle-form-container');
     const btnBox = document.getElementById('bundle-add-btn-container');
