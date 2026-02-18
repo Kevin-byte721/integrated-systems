@@ -4571,7 +4571,7 @@ document.getElementById('lead-save-btn').innerText = "Save Lead";
     document.querySelectorAll('#lead-form-container input:not([readonly]), #lead-form-container select').forEach(i => i.value = "");
 };
 // --- 1. Consolidated Auto-Login and View Fix ---
-/*
+
 window.onload = function() {
     const deptSelect = document.getElementById('dept-select');
     const passwordInput = document.getElementById('password-input');
@@ -4584,7 +4584,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     }
-}; */
+}; 
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -9001,6 +9001,7 @@ window.initWorkOrder = function(index = -1) {
 };
 
 window.saveWorkOrder = function() {
+    // 1. Capture Form Data
     const newOrder = {
         id: document.getElementById('wo-id-display').value,
         item: document.getElementById('wo-item-input').value,
@@ -9010,17 +9011,39 @@ window.saveWorkOrder = function() {
         status: document.getElementById('wo-status-input').value
     };
 
-    if (!newOrder.item || newOrder.qty <= 0) return alert("Please select an item and quantity.");
-
-    if (window.editWoIndex > -1) {
-        workOrders[window.editWoIndex] = newOrder;
-    } else {
-        workOrders.push(newOrder);
+    // 2. Basic Validation
+    if (!newOrder.item || newOrder.qty <= 0) {
+        return alert("Please select an item and quantity.");
     }
 
-    localStorage.setItem('work_order_records', JSON.stringify(workOrders));
-    window.initWorkOrder(); // Reset form & increment ID
+    // 3. Sync with LocalStorage before updating
+    // This prevents losing data if multiple tabs are open or the page refreshed
+    let currentDb = JSON.parse(localStorage.getItem('work_order_records')) || [];
+
+    if (window.editWoIndex > -1) {
+        // Update existing record
+        currentDb[window.editWoIndex] = newOrder;
+    } else {
+        // Add new record
+        currentDb.push(newOrder);
+    }
+
+    // 4. Save back to LocalStorage
+    localStorage.setItem('work_order_records', JSON.stringify(currentDb));
+    
+    // 5. Update the global variable used by the rest of the script
+    window.workOrders = currentDb;
+
+    // 6. Refresh the Table View immediately
+    if (typeof window.renderWorkOrders === "function") {
+        window.renderWorkOrders();
+    }
+
+    // 7. Reset Form and Hide Container
+    window.initWorkOrder(); // Generates next ID and clears fields
     document.getElementById('wo-form-container').style.display = 'none';
+    
+    console.log("Work Order saved and table refreshed.");
 };
 /* --- Render and Edit Functions --- */
 
@@ -9028,39 +9051,56 @@ window.renderWorkOrders = function() {
     const tableBody = document.getElementById('wo-table-body');
     if (!tableBody) return;
 
-    // Ensure we are pulling the latest data
-    const workOrders = JSON.parse(localStorage.getItem('work_order_records')) || [];
+    // 1. Force a fresh pull from localStorage
+    const storedData = localStorage.getItem('work_order_records');
+    const workOrders = JSON.parse(storedData) || [];
     
-    tableBody.innerHTML = workOrders.map((wo, index) => `
-        <tr style="border-bottom: 1px solid #e2e8f0; hover: background-color: #f8fafc;">
-            <td style="padding: 15px; font-weight: 600; color: #2563eb;">${wo.id}</td>
-            <td style="padding: 15px;">${wo.item}</td>
-            <td style="padding: 15px;">${wo.qty}</td>
-            <td style="padding: 15px;">
-                <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; 
-                    ${wo.status === 'Completed' ? 'background: #dcfce7; color: #166534;' : 
-                      wo.status === 'In Progress' ? 'background: #fef9c3; color: #854d0e;' : 
-                      'background: #f1f5f9; color: #475569;'}">
-                    ${wo.status}
-                </span>
-            </td>
-            <td style="padding: 15px;">${wo.start}</td>
-            <td style="padding: 15px;">${wo.due || '---'}</td>
-            <td style="padding: 15px; text-align: center;">
-                <button onclick="window.editWorkOrder(${index})" style="color: #2563eb; background: none; border: none; cursor: pointer; margin-right: 10px;">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button onclick="window.deleteWorkOrder(${index})" style="color: #ef4444; background: none; border: none; cursor: pointer;">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-
-    // If table is empty
-    if (workOrders.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="7" style="padding: 30px; text-align: center; color: #64748b;">No work orders found. Click "Create Work Order" to start.</td></tr>';
+    // 2. Sync the global variable (if your app uses one) to prevent "ghost" data
+    if (window.workOrderDb) {
+        window.workOrderDb = workOrders;
     }
+
+    // 3. Handle Empty State early for cleaner code
+    if (workOrders.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" style="padding: 40px; text-align: center; color: #94a3b8; background: #ffffff;">
+                    <div style="margin-bottom: 10px;"><i class="fas fa-clipboard-list" style="font-size: 2rem; color: #e2e8f0;"></i></div>
+                    No work orders found. Click "Create Work Order" to start.
+                </td>
+            </tr>`;
+        return;
+    }
+
+    // 4. Render Table Rows
+    tableBody.innerHTML = workOrders.map((wo, index) => {
+        // Status Styling Logic
+        let statusStyle = 'background: #f1f5f9; color: #475569;'; // Default (Pending)
+        if (wo.status === 'Completed') statusStyle = 'background: #dcfce7; color: #166534;';
+        if (wo.status === 'In Progress') statusStyle = 'background: #fef9c3; color: #854d0e;';
+
+        return `
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                <td style="padding: 15px; font-weight: 700; color: #2563eb;">${wo.id}</td>
+                <td style="padding: 15px; color: #1e293b; font-weight: 500;">${wo.item}</td>
+                <td style="padding: 15px; color: #475569;">${wo.qty}</td>
+                <td style="padding: 15px;">
+                    <span style="padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; ${statusStyle}">
+                        ${wo.status}
+                    </span>
+                </td>
+                <td style="padding: 15px; color: #64748b; font-size: 13px;">${wo.start}</td>
+                <td style="padding: 15px; color: #64748b; font-size: 13px;">${wo.due || '---'}</td>
+                <td style="padding: 15px; text-align: center;">
+                    <button onclick="window.editWorkOrder(${index})" title="Edit" style="color: #2563eb; background: none; border: none; cursor: pointer; margin-right: 12px; font-size: 14px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="window.deleteWorkOrder(${index})" title="Delete" style="color: #ef4444; background: none; border: none; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>`;
+    }).join('');
 };
 
 window.editWorkOrder = function(index) {
@@ -9084,13 +9124,6 @@ window.deleteWorkOrder = function(index) {
         }
     }
 };
-
-// Initial call to display data on page load
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('work-order-view')) {
-        window.renderWorkOrders();
-    }
-});
 window.deleteWorkOrder = function(index) {
     requestDelete("Cancel this Work Order?", () => {
         workOrders.splice(index, 1);
