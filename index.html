@@ -11816,9 +11816,10 @@ else if (viewId === 'stock-ex-view') {
         window.initDeliveryNotes();
     }
 } else if (viewId === 'landed-cost-view') {
-    renderLandedCostTable();
-    window.initLandedCost();
-}
+        if (typeof window.renderLandedCostTable === 'function') {
+            window.renderLandedCostTable();
+        }
+    }
     // --- Sidebar Active State Management ---
     const navMap = {
         'dashboard-main': 'nav-dash', 
