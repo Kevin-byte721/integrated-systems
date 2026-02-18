@@ -11815,6 +11815,9 @@ else if (viewId === 'stock-ex-view') {
     if (typeof window.initDeliveryNotes === 'function') {
         window.initDeliveryNotes();
     }
+} else if (viewId === 'landed-cost-view') {
+    renderLandedCostTable();
+    window.initLandedCost();
 }
     // --- Sidebar Active State Management ---
     const navMap = {
