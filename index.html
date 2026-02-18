@@ -5197,7 +5197,42 @@ window.toggleBundleForm = function(show) {
         editBundleIndex = -1;
     }
 };
+/* --- EDIT BUNDLE ACTION --- */
+window.editBundle = function(index) {
+    // 1. Set the global edit tracker to the current index
+    window.editBundleIndex = index;
+    
+    // 2. Fetch the current database
+    const bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
+    const bundle = bundleDb[index];
 
+    if (bundle) {
+        // 3. Open the form
+        window.toggleBundleForm(true);
+
+        // 4. Update UI labels to indicate "Edit Mode"
+        const title = document.getElementById('bundle-form-title');
+        if (title) title.innerText = "Edit Product Bundle";
+        
+        const saveBtn = document.getElementById('add-bundle-btn');
+        if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save"></i> Update Bundle';
+
+        // 5. Populate the form fields with existing data
+        document.getElementById('bundle-id').value = bundle.id;
+        document.getElementById('bundle-name').value = bundle.name;
+        document.getElementById('bundle-prod-id').value = bundle.prodId;
+        document.getElementById('bundle-qty').value = bundle.qty;
+        document.getElementById('bundle-price').value = bundle.price;
+
+        // 6. Optional: Populate the source dropdown if it matches the prodId
+        const sourceDropdown = document.getElementById('itm-product-source');
+        if (sourceDropdown) {
+            sourceDropdown.value = bundle.prodId;
+        }
+
+        console.log("Editing Bundle at index:", index);
+    }
+};
 // --- 5. Save & Render (Bundle) ---
 window.saveBundle = function() {
     const bundleData = {
@@ -5217,6 +5252,15 @@ window.saveBundle = function() {
     localStorage.setItem('bundle_records', JSON.stringify(bundleDb));
     window.renderBundleGrid();
     window.toggleBundleForm(false);
+};
+/* --- DELETE BUNDLE ACTION --- */
+window.deleteBundle = function(index) {
+    requestDelete("Are you sure you want to delete this product bundle? This action cannot be undone.", () => {
+        bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
+        bundleDb.splice(index, 1);
+        localStorage.setItem('bundle_records', JSON.stringify(bundleDb));
+        window.renderBundleGrid(); 
+    });
 };
 window.renderBundleGrid = function() {
     const storageKey = 'bundle_records';
