@@ -5235,7 +5235,7 @@ window.editBundle = function(index) {
         // 3. Open the form
         window.toggleBundleForm(true);
 
-        // 4. Update UI labels to indicate "Edit Mode"
+        // 4. Update UI labels and buttons for Edit Mode
         const title = document.getElementById('bundle-form-title');
         if (title) title.innerText = "Edit Product Bundle";
         
@@ -5249,34 +5249,54 @@ window.editBundle = function(index) {
         document.getElementById('bundle-qty').value = bundle.qty;
         document.getElementById('bundle-price').value = bundle.price;
 
-        // 6. Optional: Populate the source dropdown if it matches the prodId
-        const sourceDropdown = document.getElementById('itm-product-source');
-        if (sourceDropdown) {
-            sourceDropdown.value = bundle.prodId;
+        // 6. Force a grid re-render to reflect the "active edit" state (if implemented)
+        if (typeof window.renderBundleGrid === "function") {
+            window.renderBundleGrid();
         }
 
         console.log("Editing Bundle at index:", index);
     }
 };
-// --- 5. Save & Render (Bundle) ---
 window.saveBundle = function() {
+    // 1. Capture Current Form Data
     const bundleData = {
         id: document.getElementById('bundle-id').value,
-        name: document.getElementById('bundle-name').value,
+        name: document.getElementById('bundle-name').value.trim(),
         prodId: document.getElementById('bundle-prod-id').value,
         qty: parseInt(document.getElementById('bundle-qty').value) || 1,
         price: parseFloat(document.getElementById('bundle-price').value) || 0
     };
 
-    if (!bundleData.prodId || !bundleData.name) return alert("Please fill in all fields.");
+    // 2. Validation
+    if (!bundleData.name || !bundleData.prodId) {
+        return alert("Please provide a Bundle Name and select a Product.");
+    }
 
-    bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
-    if (editBundleIndex === -1) bundleDb.push(bundleData);
-    else bundleDb[editBundleIndex] = bundleData;
+    // 3. Load Database
+    let bundleDb = JSON.parse(localStorage.getItem('bundle_records')) || [];
+    
+    // Use the global tracker to decide between Update or Create
+    const currentIndex = window.editBundleIndex;
 
+    if (currentIndex !== -1 && currentIndex !== undefined) {
+        // --- EDIT MODE ---
+        // Overwrite the existing record at the specific index
+        bundleDb[currentIndex] = bundleData;
+        console.log("Updated existing record at index:", currentIndex);
+    } else {
+        // --- ADD MODE ---
+        // Add as a new entry to the end of the array
+        bundleDb.push(bundleData);
+        console.log("Saved as new record.");
+    }
+
+    // 4. Persistence
     localStorage.setItem('bundle_records', JSON.stringify(bundleDb));
-    window.renderBundleGrid();
-    window.toggleBundleForm(false);
+
+    // 5. Cleanup & UI Refresh
+    window.editBundleIndex = -1; // CRITICAL: Reset tracker to default 'Add' state
+    window.renderBundleGrid();    // Refresh cards to show changes
+    window.toggleBundleForm(false); // Close the form
 };
 /* --- DELETE BUNDLE ACTION --- */
 window.deleteBundle = function(index) {
