@@ -581,72 +581,81 @@
         </table>
     </div>
 </div>
-
-          <div id="payroll-entry-view" style="display:none;">
-    <div class="header">
-        <h1 style="color: #1e293b; font-weight: 800;">Payroll Entry</h1>
-        <p style="color: #64748b;">Process batches and link them to Journal Entries.</p>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px;">
-        <div class="search-container" style="position: relative; display: flex; align-items: center; width: 340px;">
-            <i class="fas fa-search" style="position: absolute; left: 14px; color: #94a3b8; font-size: 14px;"></i>
-            <input type="text" placeholder="Search Payroll ID or JV ID..." id="pe-search-input" oninput="window.renderPayrollEntryTable()" 
-                   style="width: 100%; padding: 11px 40px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none;">
+<div id="payroll-entry-view" class="main-view" style="display: none; padding: 20px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
+        <div>
+            <h2 style="color: #1e293b; margin: 0 0 5px 0; font-size: 1.5rem;">Payroll Entry</h2>
+            <p style="color: #64748b; margin: 0; font-size: 0.9rem;">Process batches and link them to Journal Entries.</p>
         </div>
-
+        
         <button onclick="window.togglePayrollEntryForm(true)" 
-                style="background: #2563eb; color: white; padding: 10px 22px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                style="background: #2563eb; color: white; padding: 10px 22px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
             <i class="fas fa-plus"></i> New Payroll Batch
         </button>
     </div>
 
-    <div id="payroll-entry-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #2563eb;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px;">
+    <div id="payroll-form-container" class="content-card" 
+         style="display: none; background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 30px;">
+        
+        <h3 id="pe-form-title" style="margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; color: #1e293b;">Process New Batch</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Payroll ID</label>
-                <input type="text" id="pe-id" readonly style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; font-family: monospace; font-weight: bold;">
+                <label style="display:block; margin-bottom:8px; font-weight:600; color: #475569; font-size: 0.85rem;">Payroll ID</label>
+                <input type="text" id="pe-payroll-id" readonly 
+                       style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-weight: 700; color: #1e293b;" 
+                       placeholder="PAYROLL_001">
             </div>
 
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Posting Date</label>
-                <input type="date" id="pe-date" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                <label style="display:block; margin-bottom:8px; font-weight:600; color: #475569; font-size: 0.85rem;">Posting Date</label>
+                <input type="date" id="pe-post-date" 
+                       style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; outline: none;">
             </div>
 
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Journal Entry (From Accounts)</label>
-                <select id="pe-jv-id" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#fff;">
+                <label style="display:block; margin-bottom:8px; font-weight:600; color: #475569; font-size: 0.85rem;">Journal Entry (From Accounts)</label>
+                <select id="pe-jv-id" 
+                        style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; cursor: pointer; outline: none;">
                     <option value="" disabled selected>Select Journal Entry</option>
                 </select>
             </div>
         </div>
 
-        <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end;">
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
             <button onclick="window.togglePayrollEntryForm(false)" 
-                    style="background: #f1f5f9; color: #475569; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+                    style="padding: 10px 20px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; color: #64748b; font-weight: 500; cursor: pointer;">
                 Cancel
             </button>
-            <button onclick="window.processPayroll()" id="pe-submit-btn" 
-                    style="background: #2563eb; color: white; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+            <button onclick="processPayrollBatch()" 
+                    id="pe-save-btn"
+                    style="padding: 10px 24px; border: none; border-radius: 6px; background: #2563eb; color: white; font-weight: 600; cursor: pointer;">
                 Process Batch
             </button>
         </div>
     </div>
 
-    <div class="content-card">
-        <h3 style="margin-bottom: 20px; color: #1e293b; font-size: 16px;">Payroll Batch History</h3>
-        <table style="width:100%; border-collapse: collapse;">
-            <thead>
-                <tr style="text-align: left; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 12px; text-transform: uppercase;">
-                    <th style="padding: 12px;">Payroll ID</th>
-                    <th style="padding: 12px;">Post Date</th>
-                    <th style="padding: 12px;">JV ID</th>
-                    <th style="padding: 12px;">Status</th>
-                    <th style="padding: 12px; text-align: center;">Action</th>
-                </tr>
-            </thead>
-            <tbody id="payroll-entry-table-body"></tbody>
-        </table>
+    <div class="content-card" style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
+        <div style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 1rem; color: #1e293b;">Payroll Batch History</h3>
+            </div>
+        
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                <thead style="background: #f8fafc; color: #64748b; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;">
+                    <tr>
+                        <th style="padding: 15px 20px;">Payroll ID</th>
+                        <th style="padding: 15px 20px;">Post Date</th>
+                        <th style="padding: 15px 20px;">JV ID</th>
+                        <th style="padding: 15px 20px;">Status</th>
+                        <th style="padding: 15px 20px; text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="payroll-history-body" style="color: #334155;">
+                    </tbody>
+            </table>
+        </div>
     </div>
 </div>
             <div id="expense-claim-view" style="display:none;">
@@ -1170,15 +1179,19 @@ const buyingDashboardHTML = `
             </div>
 
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Supplier Name</label>
-                <select id="sup-name-dropdown" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; background: white;">
-                    <option value="">-- Select Registered Name --</option>
-                    <option value="Global Industrial Parts Co">Global Industrial Parts Co</option>
-                    <option value="MetalWorks Incorporated">MetalWorks Incorporated</option>
-                    <option value="ElectroSupply Philippines">ElectroSupply Philippines</option>
-                    <option value="Asia Electrical Trading">Asia Electrical Trading</option>
-                </select>
-            </div>
+    <label style="display:block; margin-bottom:5px; font-weight:600;">Supplier Name</label>
+    
+    <input list="supplier-options" id="sup-name-input" 
+           placeholder="Type or select supplier..." 
+           style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; background: white;">
+    
+    <datalist id="supplier-options">
+        <option value="Global Industrial Parts Co">
+        <option value="MetalWorks Incorporated">
+        <option value="ElectroSupply Philippines">
+        <option value="Asia Electrical Trading">
+    </datalist>
+</div>
 
             <div class="input-box">
                 <label style="display:block; margin-bottom:5px; font-weight:600;">Contact Person</label>
@@ -1872,10 +1885,7 @@ const buyingDashboardHTML = `
             <div class="nav-item" id="nav-deliveries" onclick="showView('deliveries-view')">
                 <i class="fas fa-truck"></i> Deliveries
             </div>
-            <div class="nav-item" id="nav-returns" onclick="showView('returns-view')">
-                <i class="fas fa-undo"></i> Returns
             </div>
-        </div>
         <div class="logout-section">
             <button class="logout-btn" onclick="location.reload()">
                 <i class="fas fa-right-from-bracket"></i> Logout
@@ -1943,10 +1953,19 @@ const buyingDashboardHTML = `
                 <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Product ID</label>
                 <input type="text" id="selling-prod-input" readonly style="background: #f8fafc; width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; color: #475569;">
             </div>
-
+            <div class="input-box" style="grid-column: span 2;">
+    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Select Product Name</label>
+    <div style="position: relative;">
+        <select id="selling-name-input" onchange="window.syncSellingProductDetails()" 
+                style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; appearance: none; cursor: pointer;">
+            <option value="" disabled selected>-- Select Item from Master List --</option>
+        </select>
+        <i class="fas fa-chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+    </div>
+</div>
             <div class="input-box" style="grid-column: span 2;">
                 <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Product Name</label>
-                <input type="text" id="selling-name-input" placeholder="e.g. Bigas (ITM-010)" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                <input type="text" id="selling-prod-name-text" placeholder="e.g. Bigas (ITM-010)" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
             </div>
             <div class="input-box" style="grid-column: span 2;">
     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Supplier</label>
@@ -2000,8 +2019,8 @@ const buyingDashboardHTML = `
                 <tr>
                     <th>QI ID</th>
                     <th>QUO ID</th>
-                    <th>PROD ID</th>
-                    <th>PRODUCT NAME</th>
+                    <th>PROD ID / ITEM ID</th>
+                    <th>PRODUCT NAME / ITEM NAME</th>
                     <th>SUPPLIER</th>
                     <th>QTY</th>
                     <th>UNIT PRICE</th>
@@ -2035,11 +2054,10 @@ const buyingDashboardHTML = `
                     <option value="" disabled selected>-- Select Customer --</option>
                 </select>
             </div>
-
             <div class="input-box" style="grid-column: span 2;">
                 <label style="display:block; margin-bottom:5px; font-weight:600;">Select Product</label>
                 <select id="so-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-                    <option value="" disabled selected>-- Select Item --</option>
+                    <option value="" disabled selected>-- Select Product --</option>
                 </select>
             </div>
 
@@ -2381,104 +2399,69 @@ const buyingDashboardHTML = `
         </div>
     </nav>
     <main class="main-container">
-<div id="items-view">
+<!--<div class="content-card" style="margin-bottom: 25px;">
+    <h3 style="margin-bottom: 15px; font-size: 1rem;">Item Stock Levels</h3>
+    <div id="item-column-chart" style="
+        display: flex; 
+        flex-direction: column; /* Stack bars vertically */
+        gap: 16px; 
+        padding: 10px 20px; 
+        background: #f8fafc; 
+        border-radius: 8px;
+        max-height: 400px; /* Limits height and allows scrolling */
+        overflow-y: auto;
+    ">
+        </div>
+</div> --!>
+<div id="items-view" class="main-view">
     <div class="header" style="margin-bottom: 20px;">
-        <h1>Item Management</h1>
-        <p>Maintain your master list of products and raw materials.</p>
+        <h1 style="color: #1e293b; font-weight: 700;">Item Management</h1>
+        <p style="color: #64748b;">Maintain your master list of products and raw materials.</p>
     </div>
 
-    <div id="item-form-container" class="content-card" style="display: none; margin-bottom: 20px; border-left: 4px solid #2563eb;">
-    <h3 id="item-form-title" style="margin-bottom: 15px; color: #1e293b; font-weight: 700;">Add New Item</h3>
-    
-    <div class="input-box" style="margin-bottom: 20px;">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Link to Product Management (Optional)</label>
-        <div style="position: relative;">
-            <select id="itm-product-source" onchange="window.fillItemFormFromSelling()" 
-                    style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer; font-size: 0.95rem;">
-                <option value="" disabled selected>-- Select from Product Inventory --</option>
-            </select>
-            <i class="fas fa-chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
-        </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-        <div class="input-box">
-            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Item ID</label>
-            <input type="text" id="itm-id" readonly 
-                   style="background: #f1f5f9; border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; cursor: not-allowed; font-family: monospace; font-weight: 600;">
-        </div>
-
-        <div class="input-box">
-            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Item Name</label>
-            <input type="text" id="itm-name" placeholder="Enter name" 
-                   style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; outline: none;">
-        </div>
-
-        <div class="input-box">
-            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Supplier</label>
-            <div style="position: relative;">
-                <select id="itm-supplier" style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer;">
-                    <option value="" disabled selected>-- Select Supplier --</option>
-                </select>
-                <i class="fas fa-truck" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
-            </div>
-        </div>
-
-        <div class="input-box">
-            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Unit Quantity</label>
-            <div style="position: relative; display: flex; align-items: center;">
-                <input type="number" id="itm-unit" placeholder="0" 
-                       style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; padding-right: 45px; outline: none;">
-                <span style="position: absolute; right: 12px; color: #64748b; font-size: 0.85rem; font-weight: 600;">pcs</span>
-            </div>
-        </div>
-
-        <div class="input-box">
-            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Cost (₱)</label>
-            <input type="number" id="itm-cost" placeholder="0.00" step="0.01" 
-                   style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; font-weight: 700; color: #2563eb; outline: none;">
-        </div>
-    </div>
-
-    <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-        <button class="text-btn" onclick="window.toggleItemForm(false)" style="background: #f1f5f9; color: #475569; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer;">Cancel</button>
-        <button class="text-btn" onclick="window.saveItem()" style="background: #2563eb; color: white; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">Save Item</button>
-    </div>
-</div>
-
-    <div class="content-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="content-card" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <div class="search-container" style="position: relative; display: flex; align-items: center; width: 340px;">
-    <i class="fas fa-search" style="position: absolute; left: 12px; color: #94a3b8; pointer-events: none;"></i>
-    <input type="text" 
-           placeholder="Search Item ID, Name, or Supplier..." 
-           id="item-search-input" 
-           oninput="window.renderItemTable()" 
-           style="width: 100%; padding: 10px 35px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;">
-    
-    <i class="fas fa-times-circle" 
-       id="item-search-clear"
-       onclick="document.getElementById('item-search-input').value=''; window.renderItemTable();" 
-       style="position: absolute; right: 12px; color: #cbd5e1; cursor: pointer; display: none;">
-    </i>
-</div>
-            <button class="text-btn" onclick="window.toggleItemForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
-                <i class="fas fa-plus"></i> Add New Item
-            </button>
+                <i class="fas fa-search" style="position: absolute; left: 14px; color: #94a3b8; pointer-events: none; font-size: 14px;"></i>
+                
+                <input type="text" 
+                       placeholder="Filter by ID, Item, or Supplier..." 
+                       id="item-search-input-view" 
+                       oninput="window.renderItemTableViewOnly()" 
+                       style="width: 100%; padding: 11px 40px 11px 40px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #ffffff; color: #1e293b;"
+                       onfocus="this.style.borderColor='#2563eb'; this.style.boxShadow='0 0 0 4px rgba(37, 99, 235, 0.1)';"
+                       onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none';">
+
+                <i class="fas fa-times-circle" 
+                   id="item-search-clear-view"
+                   onclick="document.getElementById('item-search-input-view').value=''; window.renderItemTableViewOnly();" 
+                   style="position: absolute; right: 14px; color: #cbd5e1; cursor: pointer; display: none; font-size: 16px; transition: color 0.2s;"
+                   onmouseover="this.style.color='#64748b'"
+                   onmouseout="this.style.color='#cbd5e1'">
+                </i>
+            </div>
         </div>
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
-                    <th style="padding: 12px;">ITEM ID</th>
-                    <th style="padding: 12px;">ITEM NAME</th>
-                    <th style="padding: 12px;">SUPPLIER</th>
-                    <th style="padding: 12px;">UNIT QTY</th>
-                    <th style="padding: 12px;">COST</th>
-                    <th style="padding: 12px;">ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody id="item-table-body"></tbody>
-        </table>
+
+        <div style="margin-bottom: 30px;">
+            <h4 style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.05em;">Stock Levels Overview</h4>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                <thead>
+                    <tr style="text-align: left; background: #f1f5f9; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <th style="padding: 15px 12px; border-radius: 8px 0 0 8px;">ID</th>
+                        <th style="padding: 15px 12px;">Item Name</th>
+                        <th style="padding: 15px 12px;">Supplier</th>
+                        <th style="padding: 15px 12px;">Current Stock</th>
+                        <th style="padding: 15px 12px; border-radius: 0 8px 8px 0;">Standard Cost</th>
+                    </tr>
+                </thead>
+                <tbody id="item-table-body-view">
+                    </tbody>
+            </table>
+        </div>
     </div>
 </div>
 <div id="warehouses-view" style="display:none;">
@@ -3267,9 +3250,31 @@ const buyingDashboardHTML = `
                     <input type="text" id="visit-service-id" readonly style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background-color: #f1f5f9; cursor: not-allowed;" placeholder="MV_001">
                 </div>
                 <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Technician</label>
-                    <input type="text" id="visit-tech-id" readonly style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background-color: #f1f5f9; cursor: not-allowed;" placeholder="TECH_001">
-                </div>
+    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Technician</label>
+    <select id="visit-tech-id" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background-color: white; cursor: pointer;">
+        <option value="">Select Technician</option>
+        <option value="TECH_001">TECH_001</option>
+        <option value="TECH_002">TECH_002</option>
+        <option value="TECH_003">TECH_003</option>
+        <option value="TECH_004">TECH_004</option>
+        <option value="TECH_005">TECH_005</option>
+        <option value="TECH_006">TECH_006</option>
+        <option value="TECH_007">TECH_007</option>
+        <option value="TECH_008">TECH_008</option>
+        <option value="TECH_009">TECH_009</option>
+        <option value="TECH_010">TECH_010</option>
+        <option value="TECH_011">TECH_011</option>
+        <option value="TECH_012">TECH_012</option>
+        <option value="TECH_013">TECH_013</option>
+        <option value="TECH_014">TECH_014</option>
+        <option value="TECH_015">TECH_015</option>
+        <option value="TECH_016">TECH_016</option>
+        <option value="TECH_017">TECH_017</option>
+        <option value="TECH_018">TECH_018</option>
+        <option value="TECH_019">TECH_019</option>
+        <option value="TECH_020">TECH_020</option>
+    </select>
+</div>
                 <div class="input-box">
                     <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Visit Date</label>
                     <input type="date" id="visit-date" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
@@ -3432,7 +3437,11 @@ const buyingDashboardHTML = `
     </div>
     
     <div class="nav-group">
-        <div class="nav-section-title">Masters</div>
+        <!--
+        <div class="nav-section-title">Masters</div> --!>
+        <div class="nav-item" id="nav-item-master" onclick="showView('item-master-view')">
+    <i class="fas fa-boxes"></i> Item Master
+</div>
         <div class="nav-item" id="nav-op-master" onclick="showView('op-master-view')">
             <i class="fas fa-cogs"></i> Operation Master
         </div>
@@ -3442,8 +3451,8 @@ const buyingDashboardHTML = `
         <div class="nav-item" id="nav-bom" onclick="showView('bom-view')">
             <i class="fas fa-sitemap"></i> Bill of Materials
         </div>
-        
-        <div class="nav-section-title">Production</div>
+        <!--
+        <div class="nav-section-title">Production</div> --!>
         <div class="nav-item" id="nav-prod-plan" onclick="showView('prod-plan-view')">
             <i class="fas fa-calendar-check"></i> Production Planning
         </div>
@@ -3453,8 +3462,8 @@ const buyingDashboardHTML = `
         <div class="nav-item" id="nav-job-card" onclick="showView('job-card-view')">
             <i class="fas fa-id-badge"></i> Job Card
         </div>
-        
-        <div class="nav-section-title">Stock & Logistics</div>
+        <!--
+        <div class="nav-section-title">Stock & Logistics</div> --!>
         <div class="nav-item" id="nav-stock-ex" onclick="showView('stock-ex-view')">
             <i class="fas fa-exchange-alt"></i> Stock Exchange
         </div>
@@ -3470,6 +3479,134 @@ const buyingDashboardHTML = `
     </div>
 </nav>
                 <main class="main-container">
+<div id="item-master-view">
+    <div class="header" style="margin-bottom: 20px;">
+        <h1>Item Management</h1>
+        <p>Maintain your central list of manufacturing parts, raw materials, and finished goods.</p>
+    </div>
+
+    <div id="item-form-container" class="content-card" style="display: none; margin-bottom: 20px; border-left: 4px solid #2563eb;">
+        <h3 id="item-form-title" style="margin-bottom: 15px; color: #1e293b; font-weight: 700;">Add New Item</h3>
+        
+        <div class="input-box" style="margin-bottom: 20px;">
+            <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Link to Product Management (Optional)</label>
+            <div style="position: relative;">
+                <select id="itm-product-source" onchange="window.fillItemFormFromSelling()" 
+                        style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer; font-size: 0.95rem;">
+                    <option value="" disabled selected>-- Select from Product Inventory --</option>
+                </select>
+                <i class="fas fa-chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Item ID</label>
+                <input type="text" id="itm-id" readonly 
+                       style="background: #f1f5f9; border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; cursor: not-allowed; font-family: monospace; font-weight: 600;">
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Item Name</label>
+                <input type="text" id="itm-name" placeholder="Enter name" 
+                       style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; outline: none;">
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Item Type</label>
+                <div style="position: relative;">
+                    <select id="itm-type" style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer;">
+                        <option value="" disabled selected>-- Select Type --</option>
+                        <option value="Raw Material">Raw Material</option>
+                        <option value="Work In Progress">Work In Progress</option>
+                        <option value="Finished Goods">Finished Goods</option>
+                    </select>
+                    <i class="fas fa-layer-group" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+                </div>
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Supplier</label>
+                <div style="position: relative;">
+                    <select id="itm-supplier" style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer;">
+                        <option value="" disabled selected>-- Select Supplier --</option>
+                    </select>
+                    <i class="fas fa-truck" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+                </div>
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">UOM (Unit of Measurement)</label>
+                <div style="position: relative;">
+                    <select id="itm-uom" style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; background: #fff; appearance: none; cursor: pointer;">
+                        <option value="" disabled selected>-- Select UOM --</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="lt">Liter (lt)</option>
+                        <option value="gram">Gram (gram)</option>
+                        <option value="box">Box</option>
+                        <option value="pack">Pack</option>
+                        <option value="ml">Milliliter (ml)</option>
+                        <option value="pcs">Pieces (pcs)</option>
+                    </select>
+                    <i class="fas fa-balance-scale" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+                </div>
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Opening Quantity</label>
+                <input type="number" id="itm-unit" placeholder="0" 
+                       style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; outline: none;">
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Cost (₱)</label>
+                <input type="number" id="itm-cost" placeholder="0.00" step="0.01" 
+                       style="border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; font-weight: 700; color: #2563eb; outline: none;">
+            </div>
+        </div>
+
+        <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+            <button class="text-btn" onclick="window.toggleItemForm(false)" style="background: #f1f5f9; color: #475569; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer;">Cancel</button>
+            <button class="text-btn" onclick="window.saveItem()" style="background: #2563eb; color: white; padding: 10px 24px; border-radius:6px; border:none; font-weight:600; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">Save Item</button>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="search-container" style="position: relative; display: flex; align-items: center; width: 340px;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; color: #94a3b8; pointer-events: none;"></i>
+                <input type="text" 
+                       placeholder="Search Item ID, Name, or Supplier..." 
+                       id="item-search-input" 
+                       oninput="window.renderItemTable()" 
+                       style="width: 100%; padding: 10px 35px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;">
+                
+                <i class="fas fa-times-circle" 
+                   id="item-search-clear"
+                   onclick="document.getElementById('item-search-input').value=''; window.renderItemTable();" 
+                   style="position: absolute; right: 12px; color: #cbd5e1; cursor: pointer; display: none;">
+                </i>
+            </div>
+            <button class="text-btn" onclick="window.toggleItemForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; border:none; cursor:pointer; font-weight:600;">
+                <i class="fas fa-plus"></i> Add New Item
+            </button>
+        </div>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.85rem;">
+                    <th style="padding: 12px;">ITEM ID</th>
+                    <th style="padding: 12px;">ITEM NAME</th>
+                    <th style="padding: 12px;">TYPE</th>
+                    <th style="padding: 12px;">SUPPLIER</th>
+                    <th style="padding: 12px;">STOCK (UOM)</th>
+                    <th style="padding: 12px;">COST</th>
+                    <th style="padding: 12px;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="item-table-body"></tbody>
+        </table>
+    </div>
+</div>
         <div id="work-order-view" class="view-section" style="display:none;">
     <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
         <div>
@@ -3535,7 +3672,7 @@ const buyingDashboardHTML = `
     </div>
 </div>
 
-<div id="op-master-view" style="">
+<div id="op-master-view" style="display:none;">
     <div class="header">
         <h1>Operation Master</h1>
         <p>Define and manage standard manufacturing operations, processing times, and hourly cost rates.</p>
@@ -4724,7 +4861,7 @@ window.initSalaryStructId = function() {
         });
         nextNum = Math.max(...ids) + 1;
     }
-    idField.value = `Salary_Struct_2026-${String(nextNum).padStart(3, '0')}`;
+    idField.value = `Salary_Struct_${String(nextNum).padStart(3, '0')}`;
 };
 
 // --- EDIT & SAVE ---
@@ -4873,8 +5010,8 @@ window.initJournalEntry = function() {
 
     // Only generate a new ID if we are NOT in edit mode
     if (editJVIndex === -1 && jvIdField) {
-        // Calculate next ID based on your records
-        jvIdField.value = generateNextId(journalEntriesDb, "JV-2026");
+        // Changed prefix to "JV-" for a result like JV-001
+        jvIdField.value = generateNextId(journalEntriesDb, "JV");
         
         // Set the date to today's date by default
         if (jvDateField) {
@@ -4888,25 +5025,34 @@ window.renderJVTable = function() {
     const tbody = document.getElementById('jv-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = journalEntriesDb.map((jv, index) => `
+    tbody.innerHTML = journalEntriesDb.map((jv, index) => {
+        // Ensure amount is a valid number for formatting
+        const formattedAmount = parseFloat(jv.amount || 0).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        return `
         <tr>
             <td><strong style="color: #2563eb;">${jv.id}</strong></td>
             <td>${jv.type}</td>
             <td>${jv.date}</td>
-            <td>$${parseFloat(jv.amount).toLocaleString()}</td>
-            <td>$${parseFloat(jv.amount).toLocaleString()}</td>
+            <td style="font-weight: 500;">₱${formattedAmount}</td>
+            <td style="font-weight: 500;">₱${formattedAmount}</td>
             <td><span class="status-pill" style="background: #dbeafe; color: #1e40af;">Submitted</span></td>
             <td>
-                <button onclick="editJV(${index})" style="color:#2563eb; background:none; border:none; cursor:pointer; margin-right:10px;">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button onclick="deleteJV(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <div style="display: flex; align-items: center;">
+                    <button onclick="editJV(${index})" style="color:#2563eb; background:none; border:none; cursor:pointer; margin-right:10px;" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteJV(${index})" style="color:#ef4444; background:none; border:none; cursor:pointer;" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </td>
-        </tr>`).join('');
+        </tr>`;
+    }).join('');
 };
-
 window.saveJournalEntry = function() {
     const idField = document.getElementById('jv-id');
     const amountField = document.getElementById('jv-amount');
@@ -4924,7 +5070,7 @@ window.saveJournalEntry = function() {
         type: typeField.value,
         date: dateField.value,
         amount: amountValue,
-        status: "Submitted" // Matches the status-pill in your screenshots
+        status: "Submitted"
     };
 
     if (editJVIndex === -1) {
@@ -4935,7 +5081,6 @@ window.saveJournalEntry = function() {
         journalEntriesDb[editJVIndex] = jvData;
         editJVIndex = -1; // Reset index after update
         
-        // Reset form title if you have one
         const formTitle = document.getElementById('jv-form-title');
         if (formTitle) formTitle.innerText = "New Journal Entry";
     }
@@ -4946,15 +5091,15 @@ window.saveJournalEntry = function() {
     // Update the UI Table
     renderJVTable();
 
-    // --- PREPARE FOR NEXT ENTRY (KEEPING FORM OPEN) ---
+    // --- PREPARE FOR NEXT ENTRY ---
     
     // 1. Clear the amount field
     amountField.value = '';
     
-    // 2. Generate and display the NEXT ID (e.g., JV-2026-002)
-    idField.value = generateNextId(journalEntriesDb, "JV-2026");
+    // 2. Generate the NEXT ID with the clean "JV-" prefix
+    idField.value = generateNextId(journalEntriesDb, "JV-");
     
-    // 3. Keep focus on the amount field for rapid entry
+    // 3. Keep focus for fast data entry
     amountField.focus();
     
     console.log("Record saved. Ready for next ID: " + idField.value);
@@ -4974,21 +5119,23 @@ window.editJV = function(index) {
 };
 
 window.deleteJV = function(index) {
-    // Triggers the floating red popup instead of the window.confirm alert
     requestDelete("Are you sure you want to delete this Journal Entry?", () => {
         
-        // 1. Fetch the current records from storage
-        let journalEntriesDb = JSON.parse(localStorage.getItem('journal_entries_records')) || [];
-        
-        // 2. Remove the specific entry using the index
+        // 1. Remove the entry from the global array (CRITICAL FIX)
+        // This ensures the live data matches the storage
         journalEntriesDb.splice(index, 1);
         
-        // 3. Save the updated array back to localStorage
+        // 2. Save the updated global array back to localStorage
         localStorage.setItem('journal_entries_records', JSON.stringify(journalEntriesDb));
         
-        // 4. Refresh the Journal Voucher table UI
+        // 3. Refresh the Journal Voucher table UI
         if (typeof renderJVTable === 'function') {
             renderJVTable();
+        }
+
+        // 4. Optional: Reset the form ID if the user was in the middle of an edit
+        if (typeof initJournalEntry === 'function') {
+            initJournalEntry();
         }
     });
 };
@@ -5857,31 +6004,64 @@ let supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
 
 
 window.saveSupplier = function() {
-    // Capture data using the exact IDs in your HTML
+    // 1. Capture data using the new input ID for the Supplier Name
     const supData = {
         id: document.getElementById('sup-id-input').value,
-        name: document.getElementById('sup-name-dropdown').value,
+        // Changed from dropdown to the new input ID
+        name: document.getElementById('sup-name-input').value.trim(), 
         contactPerson: document.getElementById('sup-contact-dropdown').value,
         contactDetails: document.getElementById('sup-email-dropdown').value,
         address: document.getElementById('sup-address-dropdown').value
     };
 
-    // Validation
+    // 2. Validation: Check if the typed/selected name is empty
     if (!supData.name) {
-        alert("Please select a Supplier Name.");
+        alert("Please enter or select a Supplier Name.");
         return;
     }
 
-    // Save to database
+    // 3. Save to database logic
     if (window.editSuppIndex === -1) {
+        // Double check for duplicates if adding a new entry
+        const isDuplicate = supplierDb.some(s => s.name.toLowerCase() === supData.name.toLowerCase());
+        if (isDuplicate) {
+            if (!confirm("A supplier with this name already exists. Save anyway?")) return;
+        }
         supplierDb.push(supData);
     } else {
         supplierDb[window.editSuppIndex] = supData;
     }
 
+    // 4. Persistence and UI Refresh
     localStorage.setItem('supplier_records', JSON.stringify(supplierDb));
     window.renderSupplierTable();
     window.toggleSupplierForm(); // Close form
+    
+    // Optional: Refresh the datalist suggestions for other forms
+    if (window.refreshSupplierList) window.refreshSupplierList();
+};
+
+window.editSupplier = function(index) {
+    window.editSuppIndex = index;
+    const supp = supplierDb[index];
+    
+    // Show form
+    document.getElementById('sup-form-container').style.display = 'block';
+    
+    // If you still use other dropdowns (contact, email, etc.), populate them
+    if (window.populateSupplierDropdowns) window.populateSupplierDropdowns();
+
+    // Populate the form fields with existing data
+    document.getElementById('sup-id-input').value = supp.id;
+    // Targeting the new input ID instead of the dropdown
+    document.getElementById('sup-name-input').value = supp.name; 
+    document.getElementById('sup-contact-dropdown').value = supp.contactPerson;
+    document.getElementById('sup-email-dropdown').value = supp.contactDetails;
+    document.getElementById('sup-address-dropdown').value = supp.address;
+    
+    // Update button text to reflect Edit mode
+    const saveBtn = document.querySelector('button[onclick="saveSupplier()"]');
+    if (saveBtn) saveBtn.innerText = "Update Supplier";
 };
 
 // Function to toggle the form visibility
@@ -5948,23 +6128,6 @@ window.populateSupplierDropdowns = function() {
 };
 
 
-window.editSupplier = function(index) {
-    window.editSuppIndex = index;
-    const supp = supplierDb[index];
-    
-    // Show form and populate with existing data
-    document.getElementById('sup-form-container').style.display = 'block';
-    window.populateSupplierDropdowns(); // Ensure dropdowns have options before setting values
-
-    document.getElementById('sup-id-input').value = supp.id;
-    document.getElementById('sup-name-dropdown').value = supp.name;
-    document.getElementById('sup-contact-dropdown').value = supp.contactPerson;
-    document.getElementById('sup-email-dropdown').value = supp.contactDetails;
-    document.getElementById('sup-address-dropdown').value = supp.address;
-    
-    const saveBtn = document.querySelector('button[onclick="saveSupplier()"]');
-    if (saveBtn) saveBtn.innerText = "Update Supplier";
-};
 
 window.renderSupplierTable = function() {
     const tbody = document.getElementById('supplier-table-body');
@@ -6817,35 +6980,75 @@ window.initSellingItem = function() {
     const form = document.getElementById('selling-prod-form');
     if (form) form.style.display = 'block'; 
     
-    editSellingIndex = -1;
-    // Refresh local reference from the updated key
-    sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
+    window.editSellingIndex = -1;
     
+    // Refresh database references
+    const sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
+    const itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
+    
+    // Calculate the next ID suffix
     const nextNum = sellingitemdb.length + 1;
     const suffix = String(nextNum).padStart(3, '0');
     
-    // 1. Auto-populate IDs
+    // 1. ALWAYS show the next ID even if no item is selected
     document.getElementById('selling-qi-id').value = "QI_" + suffix;
     document.getElementById('selling-prod-input').value = "prod_" + suffix;
 
-    // 2. Populate Supplier Dropdown
+    // 2. Populate Product Name Dropdown
+    const nameDropdown = document.getElementById('selling-name-input');
+    if (nameDropdown) {
+        nameDropdown.innerHTML = '<option value="" disabled selected>-- Select Item --</option>' + 
+            itemDb.map(item => {
+                const rawCost = String(item.cost || "0").replace(/[^0-9.]/g, '');
+                const numericCost = parseFloat(rawCost);
+                const formattedCost = isNaN(numericCost) ? "PHP 0.00" : "PHP " + numericCost.toLocaleString(undefined, {minimumFractionDigits: 2});
+                
+                return `<option value="${item.id}" data-name="${item.itemName}" data-cost="${numericCost}">
+                            ${item.id} - ${item.itemName} ${formattedCost}
+                        </option>`;
+            }).join('');
+    }
+
+    // 3. Populate Supplier Dropdown
     const supDropdown = document.getElementById('selling-sup-dropdown');
     if (supDropdown) {
-        // Load data from supplier_records
         const supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
-        
-        // Map supplier names to option tags
         supDropdown.innerHTML = '<option value="" disabled selected>Select a supplier...</option>' + 
             supplierDb.map(sup => `<option value="${sup.name}">${sup.name}</option>`).join('');
     }
 
-    // 3. Reset fields
-    document.getElementById('selling-name-input').value = ""; 
+    // 4. Reset numeric fields
     document.getElementById('selling-qty').value = "1";
     document.getElementById('selling-price-input').value = "0.00";
     
     const btn = document.getElementById('add-product-btn');
     if(btn) btn.innerHTML = '<i class="fas fa-plus"></i> Add Product';
+};
+
+window.syncSellingProductDetails = function() {
+    const dropdown = document.getElementById('selling-name-input');
+    const prodIdInput = document.getElementById('selling-prod-input');
+    const priceInput = document.getElementById('selling-price-input');
+    
+    // Get the current database length for the "Next ID" fallback
+    const sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
+    const nextSuffix = String(sellingitemdb.length + 1).padStart(3, '0');
+
+    // If nothing is selected, restore the default Product ID
+    if (!dropdown || dropdown.selectedIndex <= 0) {
+        if (prodIdInput) prodIdInput.value = "prod_" + nextSuffix;
+        if (priceInput) priceInput.value = "0.00";
+        return;
+    }
+
+    const selectedOption = dropdown.options[dropdown.selectedIndex];
+    
+    // Overwrite default ID with the specific Master Item ID (e.g., itm_005)
+    if (prodIdInput) prodIdInput.value = dropdown.value;
+
+    // Fill Price
+    const cost = selectedOption.getAttribute('data-cost');
+    if (priceInput) priceInput.value = parseFloat(cost).toFixed(2);
 };
 // --- 1. Populate Dropdown Logic (Pattern-Matched) ---
 window.populateItemDropdowns = function() {
@@ -6893,68 +7096,80 @@ window.fillItemFormFromSelling = function() {
 // --- 3. Save/Update Logic ---
 // --- 3. Save/Update Logic (Updated to share data) ---
 window.saveSellingItem = function() {
-    const prodId = document.getElementById('selling-prod-input').value;
-    const prodName = document.getElementById('selling-name-input').value;
-    const supplier = document.getElementById('selling-sup-dropdown').value; //
+    const nameDropdown = document.getElementById('selling-name-input'); // Your dropdown
+    const manualNameInput = document.getElementById('selling-name-manual-input'); // Ensure your HTML text field has this ID
+    const prodIdInput = document.getElementById('selling-prod-input');
+    
+    const supplier = document.getElementById('selling-sup-dropdown').value;
     const qty = parseFloat(document.getElementById('selling-qty').value) || 0;
     const price = parseFloat(document.getElementById('selling-price-input').value) || 0;
 
-    // Enhanced Validation
-    if (!prodId || !prodName || !supplier || qty <= 0) { //
-        alert("Please enter Product details, select a Supplier, and enter a valid quantity.");
+    let prodName = "";
+    let prodId = prodIdInput.value;
+
+    // 1. Logic to capture the correct Product Name
+    if (nameDropdown && nameDropdown.selectedIndex > 0) {
+        // If an item is selected from the dropdown, get the name from the data attribute
+        const selectedOption = nameDropdown.options[nameDropdown.selectedIndex];
+        prodName = selectedOption.getAttribute('data-name');
+        // The prodId is already synced via the dropdown's value
+    } else {
+        // FALLBACK: If no selection, use the text typed in the "Product Name" field
+        // Note: Make sure your text input ID matches what is used here
+        const textInput = document.getElementById('selling-prod-name-text'); 
+        prodName = textInput ? textInput.value.trim() : "";
+    }
+
+    // 2. Validation: Ensure we at least have a Name and a Supplier
+    if (!prodName || !supplier || qty <= 0) {
+        alert("Please provide a Product Name, select a Supplier, and enter a valid quantity.");
         return;
     }
 
     const itemData = {
         qiId: document.getElementById('selling-qi-id').value,
         quoId: "QUO0001",
-        prodId: prodId,
+        prodId: prodId || "N/A",
         prodName: prodName,
-        supplier: supplier, // Added to data object
+        supplier: supplier,
         qty: qty,
         price: price,
         total: qty * price
     };
 
-    if (editSellingIndex === -1) {
+    // 3. Save to Local Database
+    let sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
+
+    if (window.editSellingIndex === -1) {
         sellingitemdb.push(itemData);
     } else {
-        sellingitemdb[editSellingIndex] = itemData;
+        sellingitemdb[window.editSellingIndex] = itemData;
     }
 
     localStorage.setItem('selling_items', JSON.stringify(sellingitemdb));
 
-    if (typeof window.initSalesOrders === 'function') {
-        window.initSalesOrders();
-    }
-
+    // 4. Close form and refresh table
     document.getElementById('selling-prod-form').style.display = 'none';
     window.renderSellingProductTable();
 };
-
 window.renderSellingProductTable = function() {
     const tbody = document.getElementById('selling-table-body');
     const searchId = 'selling-search-input';
     if (!tbody) return;
     
-    // 1. Fetch Fresh Data
     const sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
     const searchInput = document.getElementById(searchId);
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
-    // Toggle Clear Icon Visibility
     const clearBtn = document.getElementById('selling-search-clear');
     if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
 
-    // 2. Filter Logic (Search by Name, Prod ID, Quo ID, or Supplier)
     const filteredData = sellingitemdb.filter(item => {
         return String(item.prodName || "").toLowerCase().includes(searchTerm) ||
                String(item.prodId || "").toLowerCase().includes(searchTerm) ||
-               String(item.quoId || "").toLowerCase().includes(searchTerm) ||
                String(item.supplier || "").toLowerCase().includes(searchTerm);
     });
 
-    // 3. Handle Empty Results
     if (filteredData.length === 0) {
         const message = sellingitemdb.length === 0 ? "No selling items found." : "No matching items found.";
         tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:#94a3b8;">
@@ -6964,9 +7179,7 @@ window.renderSellingProductTable = function() {
         return;
     }
 
-    // 4. Render Table Rows
     tbody.innerHTML = filteredData.map((item) => {
-        // Find the index in the ORIGINAL database to ensure actions target the correct record
         const actualIndex = sellingitemdb.findIndex(s => s.qiId === item.qiId);
 
         return `
@@ -6981,8 +7194,8 @@ window.renderSellingProductTable = function() {
                 <td style="padding:12px;"><strong>₱${Number(item.total).toLocaleString(undefined, {minimumFractionDigits: 2})}</strong></td>
                 <td style="padding:12px; text-align:center;">
                     <div style="display:flex; gap:12px; justify-content:center;">
-                        <i class="fas fa-edit" onclick="editSellingItem(${actualIndex})" style="color:#2563eb; cursor:pointer;" title="Edit"></i>
-                        <i class="fas fa-trash" onclick="deleteSellingItem(${actualIndex})" style="color:#ef4444; cursor:pointer;" title="Delete"></i>
+                        <i class="fas fa-edit" onclick="window.editSellingItem(${actualIndex})" style="color:#2563eb; cursor:pointer;" title="Edit"></i>
+                        <i class="fas fa-trash" onclick="window.deleteSellingItem(${actualIndex})" style="color:#ef4444; cursor:pointer;" title="Delete"></i>
                     </div>
                 </td>
             </tr>
@@ -6990,16 +7203,26 @@ window.renderSellingProductTable = function() {
     }).join('');
 };
 window.editSellingItem = function(index) {
+    const sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
     const item = sellingitemdb[index];
-    window.initSellingItem(); // This populates the dropdown options first
+    if (!item) return;
+
+    window.initSellingItem(); // Populates dropdowns
     
-    editSellingIndex = index;
+    window.editSellingIndex = index;
+    
+    // Set field values
     document.getElementById('selling-qi-id').value = item.qiId;
     document.getElementById('selling-prod-input').value = item.prodId;
-    document.getElementById('selling-name-input').value = item.prodName;
-    document.getElementById('selling-sup-dropdown').value = item.supplier; // Set supplier value
+    document.getElementById('selling-sup-dropdown').value = item.supplier;
     document.getElementById('selling-qty').value = item.qty;
     document.getElementById('selling-price-input').value = item.price;
+
+    // Set dropdown selection based on Product ID
+    const nameDropdown = document.getElementById('selling-name-input');
+    if (nameDropdown) {
+        nameDropdown.value = item.prodId; 
+    }
     
     document.getElementById('add-product-btn').innerHTML = '<i class="fas fa-save"></i> Update Product';
 };
@@ -7737,7 +7960,7 @@ window.generateMaintId = function() {
     const nextNum = db.length + 1;
     const paddedNum = String(nextNum).padStart(3, '0');
     const year = new Date().getFullYear();
-    document.getElementById('maint-id').value = `MS-${year}-${paddedNum}`;
+    document.getElementById('maint-id').value = `MS-${paddedNum}`;
 };
 
 // Data Persistence
@@ -7863,24 +8086,31 @@ let maintenanceVisits = JSON.parse(localStorage.getItem('maint_visits')) || [];
  * Generates sequential IDs (MV_001 & TECH_001) for the readonly form fields
  */
 window.initMaintenanceVisit = function() {
-    // Calculate the next number based on current array length
+    // 1. Calculate the next auto-generated Service ID
     const nextCount = maintenanceVisits.length + 1;
     const paddedCount = String(nextCount).padStart(3, '0');
-
-    // Generate formatted IDs
     const nextVisitId = `MV_${paddedCount}`;
-    const nextTechId = `TECH_${paddedCount}`;
 
-    // Update Form Fields
+    // 2. Identify Form Fields
     const serviceField = document.getElementById('visit-service-id');
     const techField = document.getElementById('visit-tech-id');
     const dateField = document.getElementById('visit-date');
 
+    // 3. Reset Fields for New Entry
     if (serviceField) serviceField.value = nextVisitId;
-    if (techField) techField.value = nextTechId;
-    if (dateField && !dateField.value) {
+    
+    // Reset technician dropdown to empty/default selection
+    if (techField) techField.value = ""; 
+    
+    // Set default date to today if empty
+    if (dateField) {
         dateField.value = new Date().toISOString().split('T')[0];
     }
+
+    // Reset Edit Index and Button Text just in case
+    window.editVisitIndex = -1;
+    const saveBtn = document.querySelector('button[onclick="saveVisit()"]');
+    if (saveBtn) saveBtn.innerText = "Save Visit";
 
     window.renderMaintenanceVisits();
 };
@@ -7915,36 +8145,60 @@ window.deleteVisit = function(index) {
 /**
  * Saves a new visit using the auto-generated IDs
  */
+window.editVisitIndex = -1; // -1 means creating new, otherwise stores index to edit
 window.saveVisit = function() {
     const serviceId = document.getElementById('visit-service-id').value;
     const techId = document.getElementById('visit-tech-id').value;
     const visitDate = document.getElementById('visit-date').value;
 
+    // Validation: Ensure technician and date are selected
+    if (!techId) {
+        alert("Please select a technician.");
+        return;
+    }
     if (!visitDate) {
         alert("Please select a visit date.");
         return;
     }
 
-    const newVisit = {
-        id: serviceId, // Primary ID is the MV_XXX string
+    const visitData = {
+        id: serviceId, 
         serviceId: serviceId,
-        techId: techId,
+        techId: techId, // This now takes the value from your HTML dropdown
         date: visitDate,
-        remarks: 'Scheduled'
+        remarks: window.editVisitIndex === -1 ? 'Scheduled' : maintenanceVisits[window.editVisitIndex].remarks
     };
 
-    maintenanceVisits.push(newVisit);
+    if (window.editVisitIndex === -1) {
+        maintenanceVisits.push(visitData);
+    } else {
+        maintenanceVisits[window.editVisitIndex] = visitData;
+        window.editVisitIndex = -1; 
+    }
+
     window.syncMaintStorage();
-    
-    // Refresh UI and prepare next ID in sequence
     window.renderMaintenanceVisits();
-    window.initMaintenanceVisit();
+    window.initMaintenanceVisit(); // This will clear the form for the next entry
     
-    // Hide form container
     const formContainer = document.getElementById('visit-form-container');
     if (formContainer) formContainer.style.display = 'none';
 };
 
+window.editVisit = function(index) {
+    window.editVisitIndex = index;
+    const visit = maintenanceVisits[index];
+    
+    const formContainer = document.getElementById('visit-form-container');
+    if (formContainer) formContainer.style.display = 'block';
+
+    // Populate Fields: Dropdown will match automatically if visit.techId matches an <option> value
+    document.getElementById('visit-service-id').value = visit.serviceId;
+    document.getElementById('visit-tech-id').value = visit.techId;
+    document.getElementById('visit-date').value = visit.date;
+    
+    const saveBtn = document.querySelector('button[onclick="saveVisit()"]');
+    if (saveBtn) saveBtn.innerText = "Update Visit";
+};
 /**
  * Renders the table using index-based deletion
  */
@@ -7959,7 +8213,7 @@ window.renderMaintenanceVisits = function() {
 
     tbody.innerHTML = maintenanceVisits.map((visit, index) => `
         <tr style="border-bottom: 1px solid #f1f5f9;">
-            <td><strong>${visit.id}</strong></td>
+            <td style="padding: 12px;"><strong>${visit.id}</strong></td>
             <td>${visit.serviceId}</td>
             <td>
                 <span class="status-pill" style="background:#e0f2fe; color:#0369a1; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">
@@ -7969,14 +8223,16 @@ window.renderMaintenanceVisits = function() {
             <td>${visit.date}</td>
             <td>${visit.remarks}</td>
             <td style="text-align:center;">
-                <button class="text-btn" onclick="deleteVisit(${index})" title="Delete">
-                    <i class="fas fa-trash-alt" style="color:#ef4444;"></i>
-                </button>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <i class="fas fa-edit" onclick="editVisit(${index})" 
+                       style="color: #2563eb; cursor: pointer;" title="Edit"></i>
+                    <i class="fas fa-trash-alt" onclick="deleteVisit(${index})" 
+                       style="color: #ef4444; cursor: pointer;" title="Delete"></i>
+                </div>
             </td>
         </tr>
     `).join('');
 };
-
 // Initialization on load
 document.addEventListener('DOMContentLoaded', () => {
     window.initMaintenanceVisit();
@@ -8159,7 +8415,7 @@ window.initSupportIssue = function(index = -1) {
     } else {
         // NEW MODE
         editIssueIndex = -1;
-        const nextId = `ISS_${String(supportIssues.length + 1).padStart(3, '0')}`;
+        const nextId = `IS_${String(supportIssues.length + 1).padStart(3, '0')}`;
         if (issueIdField) issueIdField.value = nextId;
         if (dateField) dateField.value = new Date().toISOString().split('T')[0];
         if (typeField) typeField.selectedIndex = 0;
@@ -9002,7 +9258,7 @@ window.initWorkOrder = function(index = -1) {
             nextNumber = Math.max(...numericIds) + 1;
         }
 
-        const nextId = `WO-${currentYear}-${String(nextNumber).padStart(3, '0')}`;
+        const nextId = `WO-${String(nextNumber).padStart(3, '0')}`;
         
         if (idField) idField.value = nextId;
         if (itemDropdown) itemDropdown.selectedIndex = 0;
@@ -9264,7 +9520,7 @@ window.renderJobCards = function() {
                 </td>
                 <td style="padding:12px; text-align:center;">
                     <button class="text-btn" onclick="initJobCard(${index})" title="Edit">
-                        <i class="fas fa-stopwatch" style="color:#2563eb;"></i>
+                        <i class="fas fa-edit" style="color:#2563eb;"></i>
                     </button>
                     <button class="text-btn" onclick="deleteJobCard(${index})" title="Delete" style="margin-left:8px;">
                         <i class="fas fa-trash-alt" style="color:#ef4444;"></i>
@@ -9482,14 +9738,19 @@ window.initStockTransfer = function(index = -1) {
     const formTitle = container.querySelector('h3');
     const submitBtn = container.querySelector('.btn-group button:first-child');
 
-    // 1. Populate Reference ID Dropdown from Invoice 'reference' field (pay-ref)
-    const invoices = JSON.parse(localStorage.getItem('invoice_records')) || [];
+    const invoices = JSON.parse(localStorage.getItem('inv_records')) || [];
+    
     refDropdown.innerHTML = '<option value="" disabled selected>Select Payment Reference</option>';
+    
     invoices.forEach(inv => {
-        // Specifically matching the 'reference' key saved during window.saveInvoice
-        const payRef = inv.reference || "N/A";
-        if(payRef !== "N/A") {
-            refDropdown.innerHTML += `<option value="${payRef}">${payRef}</option>`;
+        // Accessing 'ref' which corresponds to the 'pay-ref' input in your save function
+        const payRef = inv.ref || ""; 
+        
+        if (payRef && payRef.trim() !== "") {
+            const option = document.createElement('option');
+            option.value = payRef;
+            option.textContent = payRef;
+            refDropdown.appendChild(option);
         }
     });
 
@@ -9521,7 +9782,7 @@ window.initStockTransfer = function(index = -1) {
         
         // ID format: TRNS_xxx
         const nextNumber = stockTransfers.length + 1;
-        const formattedId = `TRNS_${String(nextNumber).padStart(3, '0')}`;
+        const formattedId = `STOCK_TRNS_${String(nextNumber).padStart(3, '0')}`;
         
         idField.value = formattedId;
         refType.value = "Invoice"; // Defaulting to Invoice since we link to payment references
@@ -10481,11 +10742,11 @@ window.editItemIndex = -1;
 window.initItem = function() {
     const idField = document.getElementById('itm-id');
     const supSelect = document.getElementById('itm-supplier');
-    const prodSelect = document.getElementById('itm-product-source');
+    const typeSelect = document.getElementById('itm-type');
+    const uomSelect = document.getElementById('itm-uom');
     
     // Fetch records
     const supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
-    const productDb = JSON.parse(localStorage.getItem('product_records')) || [];
     const itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
 
     // Populate Supplier Dropdown
@@ -10494,10 +10755,16 @@ window.initItem = function() {
             supplierDb.map(sup => `<option value="${sup.name}">${sup.id} - ${sup.name}</option>`).join('');
     }
 
-    // Generate Sequential ID for new entries
-    if (idField && window.editItemIndex === -1) {
-        const nextNum = (itemDb.length + 1).toString().padStart(3, '0');
-        idField.value = `ITM-${nextNum}`;
+    // Reset Dropdowns for New Entries
+    if (window.editItemIndex === -1) {
+        if (typeSelect) typeSelect.selectedIndex = 0;
+        if (uomSelect) uomSelect.selectedIndex = 0;
+        
+        // Generate Sequential ID
+        if (idField) {
+            const nextNum = (itemDb.length + 1).toString().padStart(3, '0');
+            idField.value = `ITM-${nextNum}`;
+        }
     }
 
     // Attach real-time calculation listener
@@ -10529,26 +10796,32 @@ window.editItem = function(index) {
     // 5. Populate fields
     document.getElementById('itm-id').value = item.id;
     document.getElementById('itm-name').value = item.itemName;
+    document.getElementById('itm-type').value = item.type || "";      // Added Type
     document.getElementById('itm-supplier').value = item.supplier || "";
+    document.getElementById('itm-uom').value = item.uom || "";        // Added UOM
     document.getElementById('itm-unit').value = item.unitQty;
     
-    // Remove ₱ and commas so the number input can display the value
-    const numericCost = item.cost.replace(/[₱,]/g, '');
+    // Safety check: ensure cost is a string before calling .replace
+    const rawCost = String(item.cost || "0");
+    const numericCost = rawCost.replace(/[₱,]/g, '');
     document.getElementById('itm-cost').value = numericCost;
 };
 
-// --- Updated Save Item (with Supplier & Edit handling) ---
+// --- Updated Save Item (with Type, UOM, & Validation) ---
 window.saveItem = function() {
     const itemData = {
         id: document.getElementById('itm-id').value,
         itemName: document.getElementById('itm-name').value.trim(),
+        type: document.getElementById('itm-type').value,              // Added Type
         supplier: document.getElementById('itm-supplier').value,
+        uom: document.getElementById('itm-uom').value,                // Added UOM
         unitQty: document.getElementById('itm-unit').value || 0,
         cost: `₱${parseFloat(document.getElementById('itm-cost').value || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`
     };
 
-    if (!itemData.itemName || !itemData.supplier || itemData.unitQty <= 0) {
-        return alert("Please fill in all required fields (Name, Supplier, and Quantity).");
+    // Updated Validation to include new dropdowns
+    if (!itemData.itemName || !itemData.type || !itemData.supplier || !itemData.uom) {
+        return alert("Please fill in all required fields (Name, Type, Supplier, and UOM).");
     }
 
     // Re-sync database before saving
@@ -10564,8 +10837,12 @@ window.saveItem = function() {
     }
 
     localStorage.setItem('items_records', JSON.stringify(itemDb));
-    window.renderItemTable();
-    window.toggleItemForm(false); // Closes form and usually resets title to "Add New Item"
+    
+    // Refresh both views if they exist
+    if (typeof window.renderItemTable === "function") window.renderItemTable();
+    if (typeof window.renderItemTableViewOnly === "function") window.renderItemTableViewOnly();
+    
+    window.toggleItemForm(false); 
 };
 
 // 2. Auto-fill and Calculate from Master
@@ -10625,52 +10902,83 @@ window.renderItemTable = function() {
     const storageKey = 'items_records';
     const searchId = 'item-search-input';
     const tbodyId = 'item-table-body';
+    const chartId = 'item-horizontal-chart-view'; // Updated to match your view-only container ID if needed
     
     const tbody = document.getElementById(tbodyId);
+    const chartContainer = document.getElementById(chartId);
     if (!tbody) return;
 
-    // 1. Fetch Fresh Data from Storage
+    // 1. Fetch Fresh Data
     const masterDb = JSON.parse(localStorage.getItem(storageKey)) || [];
     const searchInput = document.getElementById(searchId);
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
-    // Toggle Clear Icon Visibility
     const clearBtn = document.getElementById('item-search-clear');
     if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
 
-    // 2. Filter Logic (Search by ID, Name, or Supplier)
+    // 2. Filter Logic (Updated to include Type)
     const filteredData = masterDb.filter(item => {
         const idMatch = String(item.id || "").toLowerCase().includes(searchTerm);
         const nameMatch = String(item.itemName || "").toLowerCase().includes(searchTerm);
         const supplierMatch = String(item.supplier || "").toLowerCase().includes(searchTerm);
-        return idMatch || nameMatch || supplierMatch;
+        const typeMatch = String(item.type || "").toLowerCase().includes(searchTerm);
+        return idMatch || nameMatch || supplierMatch || typeMatch;
     });
 
-    // 3. Handle Empty Results
+    // 3. Render Chart (Updated for dynamic UOM display)
+    if (chartContainer) {
+        if (filteredData.length === 0) {
+            chartContainer.innerHTML = `<div style="width:100%; text-align:center; color:#94a3b8; font-size:0.8rem;">No data to chart</div>`;
+        } else {
+            const colors = ['#2563eb', '#7c3aed', '#db2777', '#ea580c', '#16a34a', '#0891b2', '#4f46e5'];
+            const maxQty = Math.max(...filteredData.map(i => Number(i.unitQty) || 0), 1);
+            
+            chartContainer.innerHTML = filteredData.map((item, index) => {
+                const qty = Number(item.unitQty) || 0;
+                const widthPercent = (qty / maxQty) * 100;
+                const barColor = colors[index % colors.length];
+                
+                return `
+                    <div style="display: flex; align-items: center; width: 100%; gap: 15px; margin-bottom: 8px;">
+                        <div style="width: 120px; font-size: 0.75rem; color: #475569; font-weight: 600; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.itemName}">
+                            ${item.itemName}
+                        </div>
+                        <div style="flex-grow: 1; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: ${widthPercent}%; height: 12px; background: ${barColor}; border-radius: 0 10px 10px 0; transition: width 0.6s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></div>
+                            <span style="font-size: 0.7rem; font-weight: 800; color: #1e293b;">
+                                ${qty.toLocaleString()} <small style="color:#64748b; font-weight:400;">${item.uom || 'pcs'}</small>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    // 4. Handle Empty Table Results
     if (filteredData.length === 0) {
         const message = masterDb.length === 0 ? "No items registered." : "No matching items found.";
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">${message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#94a3b8;">${message}</td></tr>`;
         return;
     }
 
-    // 4. Render Table Rows
+    // 5. Render Table Rows (Updated with Type and UOM)
     tbody.innerHTML = filteredData.map((item) => {
-        // Find the index in the ORIGINAL database to ensure actions work correctly
+        // Find actual index in the master database for editing/deleting
         const actualIndex = masterDb.findIndex(i => i.id === item.id);
-
+        
         return `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                 <td style="padding: 12px;"><strong>${item.id}</strong></td>
                 <td style="padding: 12px;">${item.itemName}</td>
+                <td style="padding: 12px;"><span style="font-size: 0.75rem; padding: 4px 8px; background: #f1f5f9; border-radius: 4px; color: #475569;">${item.type || 'N/A'}</span></td>
                 <td style="padding: 12px; color: #64748b; font-size: 0.85rem;">${item.supplier || 'N/A'}</td>
-                <td style="padding: 12px;">${item.unitQty} pcs</td>
-                <td style="padding: 12px; font-weight: 600;">${item.cost}</td>
+                <td style="padding: 12px; font-weight: 600;">${item.unitQty} <span style="font-size: 0.75rem; font-weight: 400; color: #94a3b8;">${item.uom || 'pcs'}</span></td>
+                <td style="padding: 12px; font-weight: 600; color: #2563eb;">${item.cost}</td>
                 <td style="padding: 12px; text-align: center;">
-                    <div style="display: flex; gap: 12px; justify-content: center;">
-                        <i class="fas fa-edit" onclick="window.editItem(${actualIndex})" 
-                           style="color: #2563eb; cursor: pointer;" title="Edit"></i>
-                        <i class="fas fa-trash-alt" onclick="window.deleteItem(${actualIndex})" 
-                           style="color: #ef4444; cursor: pointer;" title="Delete"></i>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <i class="fas fa-edit" onclick="window.editItem(${actualIndex})" style="color: #2563eb; cursor: pointer;" title="Edit"></i>
+                        <i class="fas fa-trash-alt" onclick="window.deleteItem(${actualIndex})" style="color: #ef4444; cursor: pointer;" title="Delete"></i>
                     </div>
                 </td>
             </tr>
@@ -11001,7 +11309,7 @@ window.initLandedCost = function() {
         : 1;
     
     const suffix = nextNum.toString().padStart(3, '0');
-    document.getElementById('lcv-id-display').value = `LCV-2026-${suffix}`;
+    document.getElementById('lcv-id-display').value = `LCV-${suffix}`;
     
     // 2. Get PR Records and Populate Dropdown
     const prRecords = JSON.parse(localStorage.getItem('pr_records')) || [];
@@ -11466,153 +11774,175 @@ window.renderPayrollCompTable = function() {
             </tr>`;
     }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">No components configured.</td></tr>';
 };
-// --- PAYROLL ENTRY GLOBAL STATE ---
+// Global State - updated variable name
 let payrollEntryDb = JSON.parse(localStorage.getItem('payroll_entry_records')) || [];
-// --- STATE & TOGGLE ---
-window.editPeIndex = -1;
 
-window.togglePayrollEntryForm = function(show) {
-    const container = document.getElementById('payroll-entry-form-container');
-    const isShowing = show !== undefined ? show : container.style.display === 'none';
-    
-    if (isShowing) {
-        container.style.display = 'block';
-        window.populatePeJournalDropdown();
-        
-        if (window.editPeIndex === -1) {
-            window.clearPeForm();
-            window.initPayrollEntryId();
-            document.getElementById('pe-submit-btn').innerText = "Process Batch";
-        }
-    } else {
-        container.style.display = 'none';
-        window.editPeIndex = -1; // Critical: resets the tracker so next open is a "New" entry
-    }
-};
-
-// --- PROCESS LOGIC ---
-window.processPayroll = function() {
-    const date = document.getElementById('pe-date').value;
-    const jvId = document.getElementById('pe-jv-id').value;
-    const payrollId = document.getElementById('pe-id').value;
-
-    if (!date || !jvId) return alert("Please select a date and Journal Entry ID.");
-
-    const data = {
-        id: payrollId,
-        date: date,
-        jvId: jvId,
-        status: "Submitted"
-    };
-
-    if (window.editPeIndex === -1) {
-        payrollEntryDb.push(data);
-    } else {
-        payrollEntryDb[window.editPeIndex] = data;
-    }
-
-    localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
-    window.renderPayrollEntryTable();
-    window.togglePayrollEntryForm(false); // Closes form and resets index
-};
-
-// --- EDIT TRIGGER ---
-window.editPayrollEntry = function(index) {
-    window.editPeIndex = index;
-    const item = payrollEntryDb[index];
-    
-    window.togglePayrollEntryForm(true);
-    
-    document.getElementById('pe-id').value = item.id;
-    document.getElementById('pe-date').value = item.date;
-    document.getElementById('pe-jv-id').value = item.jvId;
-    document.getElementById('pe-submit-btn').innerText = "Update Record";
-};
-window.clearPeForm = function() {
-    document.getElementById('pe-date').value = new Date().toISOString().split('T')[0];
-    document.getElementById('pe-jv-id').value = "";
-};
-// --- INITIALIZATION ---
 window.initPayrollEntry = function() {
-    window.initPayrollEntryId();
-    window.populatePeJournalDropdown();
-    window.renderPayrollEntryTable();
-};
-
-window.initPayrollEntryId = function() {
-    const idField = document.getElementById('pe-id');
-    if (!idField) return;
+    const idField = document.getElementById('pe-payroll-id');
+    const dateField = document.getElementById('pe-post-date');
     
-    let nextNum = 1;
-    if (payrollEntryDb.length > 0) {
-        const ids = payrollEntryDb.map(item => {
-            const parts = item.id.split('-');
-            return parseInt(parts[parts.length - 1]) || 0;
-        });
-        nextNum = Math.max(...ids) + 1;
+    // 1. Increment Payroll ID based on the updated global variable length
+    const nextNum = payrollEntryDb.length + 1;
+    const paddedNum = String(nextNum).padStart(3, '0');
+    if (idField) idField.value = `PAYROLL_${paddedNum}`;
+    
+    // 2. Set default date to today
+    if (dateField) {
+        dateField.value = new Date().toISOString().split('T')[0];
     }
-    idField.value = `PR-2026-${String(nextNum).padStart(3, '0')}`;
+    
+    // 3. Refresh dropdowns and table
+    window.populatePeJournalDropdown();
+    window.renderPayrollHistory();
 };
 
+window.editPayrollIndex = -1;
+
+/**
+ * Fetches JV IDs from journal_entries_records
+ */
 window.populatePeJournalDropdown = function() {
     const dropdown = document.getElementById('pe-jv-id');
-    // Pulling IDs from the Accounts module storage
-    const jvDb = JSON.parse(localStorage.getItem('journal_entries_records')) || [];
-    
+    if (!dropdown) return;
+
+    // Pull from the exact key used by your Accounts/JV module
+    const rawData = localStorage.getItem('journal_entries_records');
+    const journalEntriesDb = JSON.parse(rawData) || [];
+
+    // Reset dropdown
     dropdown.innerHTML = '<option value="" disabled selected>Select Journal Entry</option>';
-    jvDb.forEach(jv => {
-        dropdown.innerHTML += `<option value="${jv.id}">${jv.id}</option>`;
+
+    if (journalEntriesDb.length === 0) {
+        dropdown.innerHTML += '<option value="" disabled>No Journal Entries found in Accounts</option>';
+        return;
+    }
+
+    // Map through the same data used in your renderJVTable
+    journalEntriesDb.forEach(jv => {
+        const option = document.createElement('option');
+        // Using jv.id because that is what displays in your table <td>
+        option.value = jv.id; 
+        option.textContent = `${jv.id} (${jv.type})`; 
+        dropdown.appendChild(option);
     });
 };
-window.deletePayrollEntry = function(index) {
-    // Triggers the floating red popup banner
-    requestDelete("Are you sure you want to delete this payroll batch?", () => {
-        // Fetch latest to avoid stale data
-        payrollEntryDb = JSON.parse(localStorage.getItem('payroll_entry_records')) || [];
-        
-        payrollEntryDb.splice(index, 1);
-        localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
-        
-        window.renderPayrollEntryTable();
-        window.initPayrollEntryId();
-    });
+
+window.editPayroll = function(index) {
+    window.editPayrollIndex = index;
+    const batch = payrollEntryDb[index];
+    
+    // 1. Show the form using the updated toggle function name if necessary
+    const form = document.getElementById('payroll-form-container');
+    if (form) form.style.display = 'block';
+
+    // 2. Populate fields
+    document.getElementById('pe-payroll-id').value = batch.payrollId;
+    document.getElementById('pe-post-date').value = batch.postDate;
+    
+    // 3. Refresh dropdown from journalEntriesDb then select the saved JV ID
+    window.populatePeJournalDropdown();
+    document.getElementById('pe-jv-id').value = batch.jvId;
+    
+    // 4. Update Button UI
+    const saveBtn = document.querySelector('button[onclick="processPayrollBatch()"]');
+    if (saveBtn) saveBtn.innerText = "Update Batch";
 };
-window.renderPayrollEntryTable = function() {
-    const tbody = document.getElementById('payroll-entry-table-body');
+
+window.processPayrollBatch = function() {
+    const payrollId = document.getElementById('pe-payroll-id').value;
+    const postDate = document.getElementById('pe-post-date').value;
+    const jvId = document.getElementById('pe-jv-id').value;
+
+    if (!jvId) return alert("Please link a Journal Entry from Accounts.");
+
+    const batchData = {
+        payrollId,
+        postDate,
+        jvId,
+        status: 'Processed'
+    };
+
+    if (window.editPayrollIndex === -1) {
+        payrollEntryDb.push(batchData);
+    } else {
+        payrollEntryDb[window.editPayrollIndex] = batchData;
+        window.editPayrollIndex = -1; 
+    }
+
+    // Save and Refresh using payroll_entry_records key
+    localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
+    window.renderPayrollHistory();
+    
+    // Use the specific toggle function name you defined earlier
+    if (typeof window.togglePayrollEntryForm === 'function') {
+        window.togglePayrollEntryForm(false);
+    } else {
+        const form = document.getElementById('payroll-form-container');
+        if (form) form.style.display = 'none';
+    }
+};
+window.togglePayrollEntryForm = function(forceOpen) {
+    const form = document.getElementById('payroll-form-container');
+    if (!form) return;
+
+    const isHidden = (form.style.display === 'none' || form.style.display === '');
+    const shouldShow = (forceOpen === true) ? true : isHidden;
+
+    if (shouldShow) {
+        form.style.display = 'block';
+        
+        // REFRESH DATA EVERY TIME FORM OPENS
+        window.populatePeJournalDropdown(); 
+        
+        if (window.editPayrollIndex === -1) {
+            window.initPayrollEntry();
+        }
+    } else {
+        form.style.display = 'none';
+        window.editPayrollIndex = -1;
+    }
+};
+
+window.renderPayrollHistory = function() {
+    const tbody = document.getElementById('payroll-history-body');
     if (!tbody) return;
 
-    // 1. Get the search term from the search-container
-    const searchTerm = document.getElementById('pe-search-input')?.value.toLowerCase() || "";
+    if (payrollEntryDb.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">No payroll history found.</td></tr>`;
+        return;
+    }
 
-    // 2. Filter the database based on Payroll ID or JV ID
-    const filteredData = payrollEntryDb.filter(item => 
-        item.id.toLowerCase().includes(searchTerm) || 
-        item.jvId.toLowerCase().includes(searchTerm)
-    );
-
-    // 3. Render the filtered results
-    tbody.innerHTML = filteredData.map((item) => {
-        // Find the original index in the main database for edit/delete accuracy
-        const actualIdx = payrollEntryDb.findIndex(p => p.id === item.id);
-
-        return `
-            <tr style="border-bottom: 1px solid #f1f5f9; font-size: 14px;">
-                <td style="padding: 12px; color: #1e293b;"><strong>${item.id}</strong></td>
-                <td style="padding: 12px;">${item.date}</td>
-                <td style="padding: 12px;">${item.jvId}</td>
-                <td style="padding: 12px;">
-                    <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;">
-                        ${item.status.toUpperCase()}
-                    </span>
-                </td>
-                <td style="padding: 12px; text-align: center;">
-                    <i class="fas fa-edit" onclick="window.editPayrollEntry(${actualIdx})" style="color: #2563eb; cursor: pointer; margin-right: 12px;"></i>
-                    <i class="fas fa-trash-alt" onclick="window.deletePayrollEntry(${actualIdx})" style="color: #ef4444; cursor: pointer;"></i>
-                </td>
-            </tr>`;
-    }).join('') || `<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">
-                        ${searchTerm ? 'No matching payroll entry found' : 'No payroll history found.'}
-                    </td></tr>`;
+    tbody.innerHTML = payrollEntryDb.map((batch, index) => `
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px; font-weight: 600;">${batch.payrollId}</td>
+            <td style="padding: 12px;">${batch.postDate}</td>
+            <td style="padding: 12px; color: #2563eb; font-weight: 500;">${batch.jvId}</td>
+            <td style="padding: 12px;">
+                <span style="background: #ecfdf5; color: #059669; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+                    ${batch.status}
+                </span>
+            </td>
+            <td style="padding: 12px; text-align: center;">
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="editPayroll(${index})" style="background:none; border:none; color:#2563eb; cursor:pointer;" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deletePayroll(${index})" style="background:none; border:none; color:#ef4444; cursor:pointer;" title="Delete">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+};
+window.deletePayroll = function(index) {
+    requestDelete("Are you sure you want to delete this payroll record?", () => {
+        // Splice from the new global variable
+        payrollEntryDb.splice(index, 1);
+        localStorage.setItem('payroll_entry_records', JSON.stringify(payrollEntryDb));
+        window.renderPayrollHistory();
+        window.initPayrollEntry(); // Recalculate next ID
+    });
 };
 // --- STATE MANAGEMENT ---
 let expenseDb = JSON.parse(localStorage.getItem('expense_claims_records')) || [];
@@ -11651,7 +11981,7 @@ window.initExpenseId = function() {
         });
         nextNum = Math.max(...ids) + 1;
     }
-    idField.value = `EXP-2026-${String(nextNum).padStart(3, '0')}`;
+    idField.value = `EXP-${String(nextNum).padStart(3, '0')}`;
 };
 
 window.populateExpEmployeeDropdown = function() {
@@ -11741,6 +12071,57 @@ window.clearExpForm = function() {
     document.getElementById('exp-type').value = "Travel";
     document.getElementById('exp-amount').value = "";
 };
+window.renderItemTableViewOnly = function() {
+    const storageKey = 'items_records';
+    const searchId = 'item-search-input-view'; 
+    const tbodyId = 'item-table-body-view';    
+    const clearBtnId = 'item-search-clear-view';
+    
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+
+    // 1. Fetch Fresh Data
+    const masterDb = JSON.parse(localStorage.getItem(storageKey)) || [];
+    const searchInput = document.getElementById(searchId);
+    const clearBtn = document.getElementById(clearBtnId);
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+    // Toggle Clear Button Visibility (matches your search style)
+    if (clearBtn) {
+        clearBtn.style.display = searchTerm ? 'block' : 'none';
+    }
+
+    // 2. Filter Logic
+    const filteredData = masterDb.filter(item => {
+        const idMatch = String(item.id || "").toLowerCase().includes(searchTerm);
+        const nameMatch = String(item.itemName || "").toLowerCase().includes(searchTerm);
+        const supplierMatch = String(item.supplier || "").toLowerCase().includes(searchTerm);
+        return idMatch || nameMatch || supplierMatch;
+    });
+
+    // 4. Render Table Rows (No Action Column + NaN Fix)
+    if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">No matching records found.</td></tr>`;
+    } else {
+        tbody.innerHTML = filteredData.map((item) => {
+            // FIX: Robust number parsing to prevent ₱NaN
+            const rawCost = parseFloat(String(item.cost || "").replace(/[^0-9.]/g, ''));
+            const formattedCost = isNaN(rawCost) 
+                ? "₱0.00" 
+                : `₱${rawCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            return `
+                <tr style="border-bottom: 1px solid #f1f5f9; background: #fff;">
+                    <td style="padding: 12px; color: #475569; font-family: monospace;">${item.id || '—'}</td>
+                    <td style="padding: 12px; font-weight: 500; color: #1e293b;">${item.itemName || 'Unnamed Item'}</td>
+                    <td style="padding: 12px; color: #64748b;">${item.supplier || '—'}</td>
+                    <td style="padding: 12px; font-weight: 600; color: #059669;">${item.unitQty || 0} pcs</td>
+                    <td style="padding: 12px; color: #1e293b;">${formattedCost}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+};
 const toDashFormat = (prefix, id) => {
     if (!id) return "";
     // Removes any existing prefix and non-digits, then re-applies the dash format
@@ -11765,8 +12146,8 @@ function showView(viewId) {
         renderSalaryStructTable();
         window.initSalaryStructId();
     } else if (viewId === 'payroll-entry-view') {
-        renderPayrollEntryTable();
-        window.initPayrollEntryId();
+        renderPayrollHistory();
+        window.initPayrollEntry();
     } else if (viewId === 'journal-entries-view') {
         renderJVTable();
         window.initJournalEntry();
@@ -11805,15 +12186,7 @@ function showView(viewId) {
         window.renderMatReqTable();
         window.initMatReq();
     } else if (viewId === 'items-view') {
-    // Standardize the grid/table rendering
-    if (typeof window.renderItemTable === 'function') {
-        window.renderItemTable();
-    }
-
-    // Populate the dropdown with latest data from selling_items
-    if (typeof window.populateItemDropdowns === 'function') {
-        window.populateItemDropdowns();
-    }
+    renderItemTableViewOnly();
 } else if (viewId === 'warehouses-view') {
     // This ensures usage is recalculated from stock_records every time you switch to this view
     window.renderWhSummaryTable(); 
@@ -11905,20 +12278,14 @@ else if (viewId === 'returns-view') {
     if (issueForm) issueForm.style.display = 'none';
 } // Add or update this specific block in your main view switch logic
 else if (viewId === 'item-master-view') {
-    // 1. Refresh the table data from item_master_records
-    if (typeof window.renderItemMasterTable === 'function') {
-        window.renderItemMasterTable();
-    }
-    
-    // 2. Prepare the form for a potential new entry (Generates Next ID)
-    if (typeof window.initItemMaster === 'function') {
-        window.initItemMaster();
+    // Standardize the grid/table rendering
+    if (typeof window.renderItemTable === 'function') {
+        window.renderItemTable();
     }
 
-    // 3. Ensure the registration form is hidden by default for a clean view
-    const masterForm = document.getElementById('item-form-container');
-    if (masterForm) {
-        masterForm.style.display = 'none';
+    // Populate the dropdown with latest data from selling_items
+    if (typeof window.populateItemDropdowns === 'function') {
+        window.populateItemDropdowns();
     }
 } else if (viewId === 'op-master-view') {
     window.renderOpMaster();
