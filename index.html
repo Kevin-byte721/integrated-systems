@@ -4762,7 +4762,7 @@ document.getElementById('lead-save-btn').innerText = "Save Lead";
     document.querySelectorAll('#lead-form-container input:not([readonly]), #lead-form-container select').forEach(i => i.value = "");
 };
 // --- 1. Consolidated Auto-Login and View Fix ---
-/*
+
 window.onload = function() {
     const deptSelect = document.getElementById('dept-select');
     const passwordInput = document.getElementById('password-input');
@@ -4775,7 +4775,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     }
-}; */ 
+};  */
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -5153,18 +5153,15 @@ window.saveJournalEntry = function() {
     // Update the UI Table
     renderJVTable();
 
-    // --- PREPARE FOR NEXT ENTRY ---
+    // --- UPDATED: CLOSE FORM AFTER SAVE ---
     
-    // 1. Clear the amount field
+    // 1. Clear the fields to ensure a clean state for next opening
     amountField.value = '';
     
-    // 2. Generate the NEXT ID with the clean "JV-" prefix
-    idField.value = generateNextId(journalEntriesDb, "JV-");
+    // 2. Close the JV Form using your toggle function
+    window.toggleJVForm(false);
     
-    // 3. Keep focus for fast data entry
-    amountField.focus();
-    
-    console.log("Record saved. Ready for next ID: " + idField.value);
+    console.log("Record saved and form closed.");
 };
 
 // 4. EDIT & DELETE
