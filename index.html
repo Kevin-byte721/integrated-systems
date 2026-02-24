@@ -731,7 +731,51 @@
     </div>
 </div>
         </main>`;
-        
+const hrdashboard1HTML = `
+<div class="dashboard-wrapper" style="display: flex; height: 100vh; width: 100%; font-family: 'Inter', sans-serif;">
+    <div class="sidebar" style="width: 280px; background: #1e293b; color: white; padding: 25px; display: flex; flex-direction: column; flex-shrink: 0;">
+        <div class="sidebar-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 35px; padding-left: 5px;">
+            <i class="fas fa-shield-alt" style="font-size: 22px; color: #3b82f6;"></i>
+            <h2 style="font-size: 1.2rem; font-weight: 800; margin: 0; letter-spacing: -0.5px;">Human Resources</h2>
+        </div>
+
+        <div class="nav-group" style="display: flex; flex-direction: column; gap: 4px;">
+            <div class="nav-item" onclick="window.showHrSection('registration')" style="padding: 12px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <i class="fas fa-user-plus" style="width: 20px;"></i> 
+                <span>Employee Registration</span>
+            </div>
+            <div class="nav-item" onclick="window.showHrSection('payroll')" style="padding: 12px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <i class="fas fa-sliders-h" style="width: 20px;"></i> 
+                <span>Payroll Components</span>
+            </div>
+            <div class="nav-item" onclick="window.showHrSection('salary')" style="padding: 12px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <i class="fas fa-file-invoice-dollar" style="width: 20px;"></i> 
+                <span>Salary Structures</span>
+            </div>
+            <div class="nav-item" onclick="window.showHrSection('entry')" style="padding: 12px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <i class="fas fa-money-check-alt" style="width: 20px;"></i> 
+                <span>Payroll Entry</span>
+            </div>
+            <div class="nav-item" onclick="window.showHrSection('expenses')" style="padding: 12px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <i class="fas fa-receipt" style="width: 20px;"></i> 
+                <span>Expense Claims</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content" style="flex: 1; padding: 40px; background: #f8fafc; overflow-y: auto;">
+        <div id="hr-content-area">
+            <h2 style="color: #1e293b; margin-bottom: 20px;">Employee Overview</h2>
+            <div class="search-container" style="margin-bottom: 25px;">
+                <input type="text" placeholder="Filter by ID, Name, or Department..." id="hr-search" 
+                       style="padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; width: 300px;">
+            </div>
+            <div id="employee-table-container">
+                </div>
+        </div>
+    </div>
+</div>
+`;        
 // --- DATABASE INITIALIZATION ---
 // Load saved data or start with an empty list
 
@@ -1950,11 +1994,11 @@ const buyingDashboardHTML = `
                 <input type="text" id="selling-qi-id" readonly style="background: #f8fafc; width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; color: #475569;">
             </div>
             <div class="input-box">
-                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Product ID</label>
+                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Product ID / Item ID</label>
                 <input type="text" id="selling-prod-input" readonly style="background: #f8fafc; width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; color: #475569;">
             </div>
             <div class="input-box" style="grid-column: span 2;">
-    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Select Product Name</label>
+    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Select Item</label>
     <div style="position: relative;">
         <select id="selling-name-input" onchange="window.syncSellingProductDetails()" 
                 style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; appearance: none; cursor: pointer;">
@@ -1964,8 +2008,8 @@ const buyingDashboardHTML = `
     </div>
 </div>
             <div class="input-box" style="grid-column: span 2;">
-                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Product Name</label>
-                <input type="text" id="selling-prod-name-text" placeholder="e.g. Bigas (ITM-010)" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Product Name / Item Name</label>
+                <input type="text" id="selling-prod-name-text" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
             </div>
             <div class="input-box" style="grid-column: span 2;">
     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Supplier</label>
@@ -1973,6 +2017,15 @@ const buyingDashboardHTML = `
         <option value="" disabled selected>Select a supplier...</option>
     </select>
 </div>
+<div class="input-box" style="grid-column: span 2;">
+        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Warehouse Source</label>
+        <div style="position: relative;">
+            <select id="selling-wh-dropdown" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; appearance: none; cursor: pointer;">
+                <option value="" disabled selected>-- Select Warehouse --</option>
+            </select>
+            <i class="fas fa-warehouse" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+        </div>
+    </div>
             <div class="input-box">
                 <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Quantity</label>
                 <input type="number" id="selling-qty" min="1" value="1" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
@@ -2040,49 +2093,49 @@ const buyingDashboardHTML = `
     </div>
 
     <div id="so-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #2563eb; position: relative; z-index: 100;">
-        <h3 id="so-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">New Sales Order</h3>
+    <h3 id="so-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">New Sales Order</h3>
+    
+    <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600;">Sales Order ID</label>
+            <input type="text" id="so-id" readonly style="background:#f8fafc; width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-weight: bold;">
+        </div>
         
-        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Sales Order ID</label>
-                <input type="text" id="so-id" readonly style="background:#f8fafc; width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-weight: bold;">
-            </div>
-            
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Customer</label>
-                <select id="so-dropdown" onchange="window.syncCustomerAddress()" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-                    <option value="" disabled selected>-- Select Customer --</option>
-                </select>
-            </div>
-            <div class="input-box" style="grid-column: span 2;">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Select Product</label>
-                <select id="so-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-                    <option value="" disabled selected>-- Select Product --</option>
-                </select>
-            </div>
-
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Shipping Address</label>
-                <input type="text" id="so-address" readonly style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; color:#64748b;">
-            </div>
-
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Quantity</label>
-                <input type="number" id="so-quantity" value="1" min="1" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-            </div>
-
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Order Date</label>
-                <input type="date" id="so-date" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-            </div>
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600;">Customer</label>
+            <select id="so-dropdown" onchange="window.syncCustomerAddress()" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                <option value="" disabled selected>-- Select Customer --</option>
+            </select>
         </div>
 
-        <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-            <button onclick="window.toggleSOForm(false)" style="padding: 10px 24px; background: #f1f5f9; color: #64748b; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
-            <button onclick="window.saveSalesOrder()" style="padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Order</button>
+        <div class="input-box" style="grid-column: span 2;">
+            <label style="display:block; margin-bottom:5px; font-weight:600;">Select Product</label>
+            <select id="so-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                <option value="" disabled selected>-- Select Product --</option>
+            </select>
+        </div>
+
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600;">Shipping Address</label>
+            <input type="text" id="so-address" readonly style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; color:#64748b;">
+        </div>
+
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600;">Quantity</label>
+            <input type="number" id="so-quantity" value="1" min="1" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+        </div>
+
+        <div class="input-box">
+            <label style="display:block; margin-bottom:5px; font-weight:600;">Order Date</label>
+            <input type="date" id="so-date" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
         </div>
     </div>
 
+    <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+        <button onclick="window.toggleSOForm(false)" style="padding: 10px 24px; background: #f1f5f9; color: #64748b; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+        <button id="so-save-btn" onclick="window.saveSalesOrder()" style="padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Order</button>
+    </div>
+</div>
     <div class="content-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <button onclick="window.toggleSOForm(true)" style="background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
@@ -2547,89 +2600,67 @@ const buyingDashboardHTML = `
         </table>
     </div>
 </div>
-<div id="stock-balance-view" style="display:none;">
+<div id="stock-balance-view" style="display:none; padding: 20px;">
     <div class="header" style="margin-bottom: 25px;">
-        <h1 style="color: #1e293b; font-size: 1.5rem; font-weight: 800;">Stock Balance</h1>
-        <p style="color: #64748b;">Monitor real-time inventory levels across all warehouse locations.</p>
+        <h1 style="color: #1e293b; font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">Stock Balance</h1>
+        <p style="color: #64748b; font-size: 0.95rem;">Monitor real-time inventory levels across all warehouse locations.</p>
     </div>
-<div class="search-container" style="position: relative; display: flex; align-items: center; width: 340px; margin-bottom: 20px;">
-    <i class="fas fa-search" style="position: absolute; left: 14px; color: #94a3b8; pointer-events: none; font-size: 14px;"></i>
-    
-    <input type="text" 
-           placeholder="Search Item Name, ID, or Warehouse..." 
-           id="stock-balance-search" 
-           oninput="window.renderStockBalanceTable()" 
-           style="width: 100%; padding: 11px 40px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s;"
-           onfocus="this.style.borderColor='#2563eb'"
-           onblur="this.style.borderColor='#cbd5e1'">
 
-    <i class="fas fa-times-circle" 
-       id="stock-search-clear"
-       onclick="document.getElementById('stock-balance-search').value=''; window.renderStockBalanceTable();" 
-       style="position: absolute; right: 14px; color: #cbd5e1; cursor: pointer; display: none; font-size: 16px;">
-    </i>
-</div>
-    <div id="stock-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #10b981;">
+    <div class="search-container" style="position: relative; display: flex; align-items: center; width: 340px; margin-bottom: 30px;">
+        <i class="fas fa-search" style="position: absolute; left: 14px; color: #94a3b8; pointer-events: none; font-size: 14px;"></i>
+        <input type="text" 
+               placeholder="Search Item Name, ID, or Warehouse..." 
+               id="stock-balance-search" 
+               oninput="window.renderStockBalanceViewOnly()" 
+               style="width: 100%; padding: 11px 40px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s;"
+               onfocus="this.style.borderColor='#2563eb'">
+        <i class="fas fa-times-circle" 
+           id="stock-search-clear"
+           onclick="document.getElementById('stock-balance-search').value=''; window.renderStockBalanceViewOnly();" 
+           style="position: absolute; right: 14px; color: #cbd5e1; cursor: pointer; display: none;">
+        </i>
+    </div>
+
+    <div id="stock-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #10b981; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
         <h3 id="stock-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">Stock Adjustment / Reconciliation</h3>
-        
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Item</label>
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Product/Item</label>
                 <select id="stock-item-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff;"></select>
             </div>
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Product</label>
-                <select id="stock-pr-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff;"></select>
-            </div>
-
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Select Warehouse</label>
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Warehouse</label>
                 <select id="stock-wh-id" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background-color: #fff;"></select>
             </div>
-
             <div class="input-box">
                 <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Qty on Hand</label>
-                <div style="position: relative;">
-                    <input type="number" id="stock-qty" placeholder="0" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-                    <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: #94a3b8; font-weight: 600;">pcs</span>
-                </div>
-            </div>
-
-            <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Reserved</label>
-                <div style="position: relative;">
-                    <input type="number" id="stock-reserved" value="0" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-                    <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: #94a3b8; font-weight: 600;">pcs</span>
-                </div>
+                <input type="number" id="stock-qty" placeholder="0" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
             </div>
         </div>
-
-        <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+        <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end;">
             <button onclick="window.toggleStockForm(false)" style="background: #f1f5f9; color: #64748b; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Cancel</button>
             <button onclick="window.saveStock()" style="background: #10b981; color: white; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Update Stock</button>
         </div>
     </div>
 
-    <div class="content-card">
+    <div class="content-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="font-weight: 700; color: #1e293b;">Inventory Overview</h3>
-            <button onclick="window.toggleStockForm(true)" style="background: #10b981; color: white; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer;">
-                <i class="fas fa-sync-alt"></i> Reconcile Stock
-            </button>
+            <h3 style="color: #1e293b; font-weight: 700; font-size: 1.1rem;">Inventory Overview</h3>
         </div>
-        <table style="width: 100%; border-collapse: collapse;">
+
+        <table style="width:100%; border-collapse: collapse;">
             <thead>
-                <tr style="background: #f8fafc; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.85rem;">
-                    <th style="text-align: left; padding: 15px;">ITEM ID / PRODUCT ID</th>
-                    <th style="text-align: left; padding: 15px;">WAREHOUSE</th>
-                    <th style="text-align: left; padding: 15px;">QTY ON HAND</th>
-                    <th style="text-align: left; padding: 15px;">RESERVED</th>
-                    <th style="text-align: left; padding: 15px;">AVAILABLE</th>
-                    <th style="text-align: left; padding: 15px;">STATUS</th>
-                    <th style="text-align: center; padding: 15px;">ACTIONS</th>
+                <tr style="text-align:left; color:#64748b; font-size:0.75rem; border-bottom: 1px solid #f1f5f9; text-transform: uppercase; letter-spacing: 0.025em;">
+                    <th style="padding:15px; font-weight: 600;">Item ID / Product ID</th>
+                    <th style="padding:15px; font-weight: 600;">Warehouse</th>
+                    <th style="padding:15px; font-weight: 600;">Qty on Hand</th>
+                    <th style="padding:15px; font-weight: 600;">Reserved</th>
+                    <th style="padding:15px; font-weight: 600;">Available</th>
+                    <th style="padding:15px; font-weight: 600;">Status</th>
                 </tr>
             </thead>
-            <tbody id="stock-table-body"></tbody>
+            <tbody id="stock-balance-view-body">
+                </tbody>
         </table>
     </div>
 </div>
@@ -2653,14 +2684,20 @@ const buyingDashboardHTML = `
         <option value="" disabled selected>-- Select Supplier --</option>
         </select>
 </div>
+<div class="input-box">
+    <label style="display:block; margin-bottom:5px; font-weight:600;">Warehouse</label>
+    <select id="pr-warehouse-dropdown" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px;"></select>
+</div>
             <div class="input-box">
                 <label style="display:block; margin-bottom:5px; font-weight:600;">Receipt Date</label>
                 <input type="date" id="pr-date" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px;">
             </div>
             <div class="input-box">
-                <label style="display:block; margin-bottom:5px; font-weight:600;">Warehouse</label>
-                <select id="pr-warehouse-dropdown" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px;"></select>
-            </div>
+            <label style="display:block; margin-bottom:5px; font-weight:600; color: #1e293b;">Total Receipt Value</label>
+            <input type="text" id="pr-total-value" readonly 
+                   style="background: #f1f5f9; border: 1px solid #cbd5e1; width:100%; padding:8px; border-radius:6px; font-weight: 700; color: #0f172a;" 
+                   placeholder="₱0.00">
+        </div>
         </div>
         <div style="margin-top: 20px; display: flex; gap: 10px;">
             <button class="text-btn" onclick="saveReceipt()" style="background: #f59e0b; color: white; padding: 8px 16px; border-radius:6px;">Save Receipt</button>
@@ -2693,15 +2730,16 @@ const buyingDashboardHTML = `
         </div>
         <table>
             <thead>
-                <tr>
-                    <th>RECEIPT ID</th>
-                    <th>SUPPLIER</th>
-                    <th>RECEIPT DATE</th>
-                    <th>WAREHOUSE</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
+    <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
+        <th style="padding: 12px; font-weight: 600; color: #475569;">RECEIPT ID</th>
+        <th style="padding: 12px; font-weight: 600; color: #475569;">SUPPLIER</th>
+        <th style="padding: 12px; font-weight: 600; color: #475569;">RECEIPT DATE</th>
+        <th style="padding: 12px; font-weight: 600; color: #475569;">WAREHOUSE</th>
+        <th style="padding: 12px; font-weight: 600; color: #475569;">TOTAL AMOUNT</th>
+        <th style="padding: 12px; font-weight: 600; color: #475569;">STATUS</th>
+        <th style="padding: 12px; font-weight: 600; color: #475569; text-align: center;">ACTIONS</th>
+    </tr>
+</thead>
             <tbody id="pr-table-body"></tbody>
         </table>
     </div>
@@ -4737,7 +4775,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     }
-}; */
+}; */ 
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -4783,7 +4821,6 @@ function finalizeLogin() {
     if (loginUI) loginUI.style.display = 'none';
     if (dashUI) dashUI.style.display = 'flex';
 }
-// --- 4. Module Loader & Admin Master Hub Return ---
 function loadModule(moduleKey) {
     const container = document.getElementById('dashboard-container');
     const moduleMap = {
@@ -4794,25 +4831,50 @@ function loadModule(moduleKey) {
         'selling': sellingDashboardHTML,
         'service': serviceDashboardHTML,
         'mfg': manufacturingDashboardHTML,
-        'hr': hrdashboardHTML,
+        'hr': hrdashboardHTML, 
         'project': projectDashboardHTML
     };
 
+    // 1. Set the HTML
     container.innerHTML = moduleMap[moduleKey];
-    if (moduleKey === 'hr') renderEmployeeTable();
 
-    // If logged in as admin, inject the 'Return to Master Hub' button
-    if (isAdmin) {
-        const sidebar = container.querySelector('.nav-group');
-        if(sidebar) {
-            const hubBtn = document.createElement('div');
-            hubBtn.className = 'nav-item';
-            hubBtn.style.color = '#2563eb';
-            hubBtn.style.fontWeight = 'bold';
-            hubBtn.innerHTML = '<i class="fas fa-th"></i> Return to Master Hub';
-            hubBtn.onclick = () => { container.innerHTML = adminMasterHubHTML; };
-            sidebar.prepend(hubBtn);
+    // 2. Use a timeout to ensure DOM is ready before injecting
+    setTimeout(() => {
+        if (isAdmin) {
+            const navGroup = container.querySelector('.nav-group');
+            
+            if (navGroup) {
+                // Check if button already exists to prevent duplicates
+                if (navGroup.querySelector('.admin-hub-btn')) return;
+
+                const hubBtn = document.createElement('div');
+                hubBtn.className = 'nav-item admin-hub-btn'; // Added specific class
+                
+                // Styling to match your sidebar
+                hubBtn.style.color = '#3b82f6';
+                hubBtn.style.fontWeight = 'bold';
+                hubBtn.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+                hubBtn.style.marginBottom = '10px';
+                hubBtn.style.paddingBottom = '12px';
+                hubBtn.style.cursor = 'pointer';
+                
+                hubBtn.innerHTML = '<i class="fas fa-th-large"></i> Return to Master Hub';
+                
+                hubBtn.onclick = () => { 
+                    container.innerHTML = adminMasterHubHTML; 
+                };
+                
+                navGroup.prepend(hubBtn);
+                console.log("Admin button injected successfully into " + moduleKey);
+            } else {
+                console.error("Could not find .nav-group in " + moduleKey);
+            }
         }
+    }, 10); // 10ms is enough to let the DOM settle
+
+    // 3. Run module specific logic
+    if (moduleKey === 'hr' && typeof renderEmployeeTable === 'function') {
+        renderEmployeeTable();
     }
 }
 // --- STATE MANAGEMENT ---
@@ -6188,305 +6250,115 @@ window.renderSupplierTable = function() {
 };
 window.deleteSupplier = function(index) {
     // Triggers the floating red popup banner instead of window.confirm
-    requestDelete("Are you sure you want to delete this supplier?", () => {
-        
+    requestDelete("Are you sure you want to delete this supplier?", () => {        
         // 1. Fetch the latest data from storage
         let supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
-        
         // 2. Remove the supplier from the local array
         supplierDb.splice(index, 1);
-        
         // 3. Sync the updated records with localStorage
         localStorage.setItem('supplier_records', JSON.stringify(supplierDb));
-        
         // 4. Re-run initialization to refresh the table and ID sequence
         if (typeof window.initSupplier === 'function') {
             window.initSupplier();
         }
     });
 };
-// --- Global Scope Initialization ---
-let stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
-let editStockIndex = -1;
-
-
-/**
- * Initialize Stock Balance Module
- * Syncs databases and prepares the UI for viewing/editing.
- */
-window.initStockBalance = function() {
-    // 1. Sync
-    stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
-    
-    // 2. REFRESH TABLE (It's already here!)
-    if (typeof window.renderStockBalanceTable === 'function') {
-        window.renderStockBalanceTable();
-    }
-    
-    // 3. Update Dropdowns
-    if (typeof window.populateStockDropdowns === 'function') {
-        window.populateStockDropdowns();
-    }
-    
-    // 4. Reset Form
-    editStockIndex = -1;
-    window.toggleStockForm(false);
-};
-/**
- * 1. Populate Dropdowns from Other Modules
- * Pulls Item IDs from 'items_records' and Warehouse Names from 'warehouse_records'
- */
-/**
- * 1. Populate Dropdowns with Auto-Pairing Logic
- * Syncs the 'stock-qty' field with 'unitQty' from items_records upon selection.
- */
-window.populateStockDropdowns = function() {
-    const itemSelect = document.getElementById('stock-item-select');
-    const whSelect = document.getElementById('stock-wh-id');
-    const prSelect = document.getElementById('stock-pr-select');
-    const qtyInput = document.getElementById('stock-qty');
-    
-    const products = JSON.parse(localStorage.getItem('selling_items')) || [];
-    const items = JSON.parse(localStorage.getItem('items_records')) || [];
-    const warehouses = JSON.parse(localStorage.getItem('warehouse_records')) || [];
-
-    // 1. Map Items from items_records
-    itemSelect.innerHTML = '<option value="" disabled selected>-- Select Item --</option>' + 
-        items.map(i => `<option value="${i.id}">${i.id} - ${i.itemName}</option>`).join('');
-    
-    // 2. Map Products from selling_items (Unique List)
-    const uniqueProdIds = [...new Set(products.map(p => p.prodId))];
-    prSelect.innerHTML = '<option value="" disabled selected>-- Select Product --</option>' + 
-        uniqueProdIds.map(id => {
-            const prod = products.find(p => p.prodId === id);
-            return `<option value="${id}">${id} - ${prod.prodName}</option>`;
-        }).join('');
-        
-    // 3. Map Warehouses
-    whSelect.innerHTML = '<option value="" disabled selected>-- Select Warehouse --</option>' + 
-        warehouses.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
-
-    // --- Pairing Logic for MASTER ITEMS ---
-    itemSelect.onchange = function() {
-        if (itemSelect.value) {
-            // Visual Feedback: Reset the Product dropdown
-            prSelect.selectedIndex = 0; 
-            
-            const selectedItem = items.find(i => i.id === itemSelect.value);
-            if (selectedItem) {
-                qtyInput.value = selectedItem.unitQty;
-            }
-        }
-    };
-
-    // --- Pairing & Computation Logic for SELLING PRODUCTS ---
-    prSelect.onchange = function() {
-        if (prSelect.value) {
-            // Visual Feedback: Reset the Master Item dropdown
-            itemSelect.selectedIndex = 0;
-
-            const selectedId = prSelect.value;
-            
-            // Compute Total Master Quantity from selling_items database
-            const totalQty = products
-                .filter(p => p.prodId === selectedId)
-                .reduce((sum, p) => sum + (parseFloat(p.qty) || 0), 0);
-
-            // Auto-fill the Stock Adjustment Quantity
-            qtyInput.value = totalQty;
-        }
-    };
-};
-
-/**
- * 2. Save Stock (Reconciliation)
- * Saves the paired quantity and reserved units to stock_records.
- */
-window.saveStock = function() {
-    // 1. Capture inputs from both potential sources
-    const itemSelectValue = document.getElementById('stock-item-select').value;
-    const prodSelectValue = document.getElementById('stock-pr-select').value;
-    const whId = document.getElementById('stock-wh-id').value;
-    const qty = document.getElementById('stock-qty').value;
-    const reserved = document.getElementById('stock-reserved').value;
-
-    // 2. Determine the Final ID: Prioritize Item Select, fallback to Product Select
-    // This allows the user to use either dropdown
-    const finalItemId = itemSelectValue || prodSelectValue;
-
-    // 3. Validation: Must have an ID (from either source) and a Warehouse
-    if (!finalItemId) {
-        return alert("Please select either an Item or a Product.");
-    }
-    if (!whId) {
-        return alert("Please select a warehouse.");
-    }
-
-    const stockData = { 
-        itemId: finalItemId, 
-        whId: whId, 
-        qty: Number(qty), 
-        reserved: Number(reserved),
-        // Track the source for record-keeping
-        source: itemSelectValue ? 'Master Item' : 'Selling Product',
-        lastUpdated: new Date().toISOString()
-    };
-
-    let stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
-
-    if (editStockIndex === -1) {
-        stockDb.push(stockData);
-    } else {
-        stockDb[editStockIndex] = stockData;
-    }
-
-    // 4. Persist and Refresh
-    localStorage.setItem('stock_records', JSON.stringify(stockDb));
-    
-    
-    window.toggleStockForm(false);
-    window.renderStockBalanceTable();
-};
-
-/**
- * 2. Toggle Form
- */
-window.toggleStockForm = function(show) {
-    const container = document.getElementById('stock-form-container');
-    if (show === undefined) show = container.style.display === 'none';
-    container.style.display = show ? 'block' : 'none';
-
-    if (show) {
-        window.populateStockDropdowns();
-        if (editStockIndex === -1) {
-            document.getElementById('stock-form-title').innerText = "Stock Adjustment / Reconciliation";
-        }
-    } else {
-        editStockIndex = -1;
-        document.getElementById('stock-qty').value = '';
-        document.getElementById('stock-reserved').value = '0';
-    }
-};
-
-/**
- * 3. Render Table
- */
-/**
- * Updated Render Stock Balance Table
- * Sources "Qty on Hand" from items_records.unitQty using itemId as the link.
- */
-window.renderStockBalanceTable = function() {
-    const tbody = document.getElementById('stock-table-body');
-    const searchId = 'stock-balance-search'; // Matches the HTML ID below
+window.renderStockBalanceViewOnly = function() {
+    const tbody = document.getElementById('stock-balance-view-body');
+    const searchInput = document.getElementById('stock-balance-search');
+    const clearBtn = document.getElementById('stock-search-clear');
     if (!tbody) return;
 
     // Load necessary databases
-    const stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
-    const itemsDb = JSON.parse(localStorage.getItem('items_records')) || [];
     const sellingDb = JSON.parse(localStorage.getItem('selling_items')) || [];
-    
-    const searchInput = document.getElementById(searchId);
+    const soDb = JSON.parse(localStorage.getItem('so_records')) || [];
+    const whDb = JSON.parse(localStorage.getItem('warehouse_records')) || [];
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
-    // Toggle Clear Icon Visibility
-    const clearBtn = document.getElementById('stock-search-clear');
+    // Toggle Search Clear Icon
     if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
 
-    // 1. Prepare Data with Resolved Names for Filtering
-    // We map the data first so the search can "see" the resolved names
-    const enrichedData = stockDb.map((stockEntry, index) => {
-        const sellingInfo = sellingDb.find(s => s.prodId === stockEntry.itemId);
-        const masterInfo = itemsDb.find(i => i.id === stockEntry.itemId);
-        const displayName = sellingInfo ? sellingInfo.prodName : (masterInfo ? masterInfo.itemName : "Unknown Item");
-        
-        return { 
-            ...stockEntry, 
-            displayName, 
-            originalIndex: index,
-            masterInfo // Kept for Qty fallback logic
-        };
+    // 1. Create a Warehouse Lookup Map
+    const warehouseMap = {};
+    whDb.forEach(wh => {
+        warehouseMap[wh.id] = wh.name;
     });
 
-    // 2. Filter Logic (Search by Resolved Name, Item ID, or Warehouse)
-    const filteredData = enrichedData.filter(entry => {
-        return entry.displayName.toLowerCase().includes(searchTerm) || 
-               String(entry.itemId || "").toLowerCase().includes(searchTerm) ||
-               String(entry.whId || "").toLowerCase().includes(searchTerm);
+    // 2. Process Inventory Data
+    const inventory = {};
+    sellingDb.forEach(item => {
+        const id = item.prodId;
+        if (!inventory[id]) {
+            const whId = item.warehouse || 'WH_001';
+            const whName = warehouseMap[whId] || 'Main Warehouse'; 
+
+            inventory[id] = {
+                id: id,
+                name: item.prodName,
+                warehouseName: whName,
+                warehouseId: whId, // Store ID separately for display
+                onHand: 0,
+                reserved: 0
+            };
+        }
+        inventory[id].onHand += Number(item.qty) || 0;
     });
 
-    // 3. Handle Empty Results
-    if (filteredData.length === 0) {
-        const message = stockDb.length === 0 ? "No stock records found." : "No matching stock found.";
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#94a3b8;">
-            <i class="fas fa-boxes" style="display:block; font-size:24px; margin-bottom:10px; opacity:0.3;"></i>
-            ${message}
-        </td></tr>`;
+    // 3. Calculate Reserved from Sales Orders
+    soDb.forEach(so => {
+        const pidMatch = so.productId ? so.productId.split(' - ')[0] : ""; 
+        if (inventory[pidMatch]) {
+            inventory[pidMatch].reserved += Number(so.qty) || 0;
+        }
+    });
+
+    // 4. Filter logic
+    const inventoryArray = Object.values(inventory).filter(item => {
+        return item.name.toLowerCase().includes(searchTerm) || 
+               item.id.toLowerCase().includes(searchTerm) || 
+               item.warehouseName.toLowerCase().includes(searchTerm) ||
+               item.warehouseId.toLowerCase().includes(searchTerm);
+    });
+
+    // 5. Render Table Rows
+    if (inventoryArray.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">No matching inventory records found.</td></tr>`;
         return;
     }
 
-    // 4. Render Table Rows
-    tbody.innerHTML = filteredData.map((entry) => {
-        // Use enriched properties
-        const onHand = Number(entry.qty) || (entry.masterInfo ? Number(entry.masterInfo.unitQty) : 0);
-        const reserved = Number(entry.reserved) || 0;
-        const available = onHand - reserved;
+    tbody.innerHTML = inventoryArray.map(item => {
+        const available = item.onHand - item.reserved;
+        const status = available <= 0 ? 'OUT OF STOCK' : (available <= 10 ? 'LOW STOCK' : 'IN STOCK');
         
-        const isLowStock = available <= 10;
-        const badgeBg = isLowStock ? '#fef3c7' : '#dcfce7';
-        const badgeColor = isLowStock ? '#92400e' : '#15803d';
-        const statusText = isLowStock ? 'LOW STOCK' : 'IN STOCK';
-        
+        const statusBg = available <= 0 ? '#fee2e2' : (available <= 10 ? '#fef9c3' : '#dcfce7');
+        const statusText = available <= 0 ? '#991b1b' : (available <= 10 ? '#854d0e' : '#166534');
+
         return `
-            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                <td style="padding:15px;">
-                    <div style="font-weight:700; color:#1e293b;">${entry.displayName}</div>
-                    <div style="font-size:11px; color:#94a3b8;">ID: ${entry.itemId}</div>
-                </td>
-                <td style="padding:15px; color:#475569;">${entry.whId}</td>
-                <td style="padding:15px; font-weight:600;">${onHand.toLocaleString()} pcs</td>
-                <td style="padding:15px; color:#ef4444;">${reserved.toLocaleString()} pcs</td>
-                <td style="padding:15px; color:#10b981; font-weight:700;">${available.toLocaleString()} pcs</td>
-                <td style="padding:15px;">
-                     <span style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:12px; font-size:0.7rem; font-weight:700; border: 1px solid transparent;">
-                        ${statusText}
-                     </span>
-                </td>
-                <td style="padding:15px; text-align:center;">
-                    <div style="flex; gap:15px; justify-content:center; display:flex;">
-                        <i class="fas fa-edit" onclick="window.editStock(${entry.originalIndex})" style="color:#2563eb; cursor:pointer; font-size:14px;" title="Edit"></i>
-                        <i class="fas fa-trash-alt" onclick="window.deleteStock(${entry.originalIndex})" style="color:#ef4444; cursor:pointer; font-size:14px;" title="Delete"></i>
-                    </div>
-                </td>
-            </tr>`;
+        <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+            <td style="padding:15px;">
+                <div style="font-weight:700; color:#1e293b;">${item.name}</div>
+                <div style="font-size:11px; color:#94a3b8;">ID: ${item.id}</div>
+            </td>
+            <td style="padding:15px;">
+                <div style="font-weight:600; color:#475569;">${item.warehouseName}</div>
+                <div style="font-size:11px; color:#94a3b8;">ID: ${item.warehouseId}</div>
+            </td>
+            <td style="padding:15px; font-weight:700; color:#1e293b;">${item.onHand.toLocaleString()} pcs</td>
+            <td style="padding:15px; color:#ef4444; font-weight:600;">${item.reserved.toLocaleString()} pcs</td>
+            <td style="padding:15px; color:#10b981; font-weight:700;">${available.toLocaleString()} pcs</td>
+            <td style="padding:15px;">
+                <span style="background:${statusBg}; color:${statusText}; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700;">
+                    ${status}
+                </span>
+            </td>
+            <td style="padding:15px; text-align:center;">
+                <div style="display:flex; gap:12px; justify-content:center;">
+                    <i class="fas fa-edit" onclick="window.editStockItem('${item.id}')" style="color: #2563eb; cursor: pointer; font-size:14px;" title="Edit"></i>
+                    <i class="fas fa-trash" onclick="window.deleteStockItem('${item.id}')" style="color: #ef4444; cursor: pointer; font-size:14px;" title="Delete"></i>
+                </div>
+            </td>
+        </tr>`;
     }).join('');
-};
-/**
- * 4. Save Stock Logic
- */
-
-
-window.editStock = function(index) {
-    stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
-    const item = stockDb[index];
-    editStockIndex = index;
-    window.toggleStockForm(true);
-    
-    // Ensure dropdowns are populated before setting values
-    setTimeout(() => {
-        document.getElementById('stock-item-select').value = item.itemId;
-        document.getElementById('stock-wh-id').value = item.whId;
-        document.getElementById('stock-qty').value = item.qty;
-        document.getElementById('stock-reserved').value = item.reserved;
-    }, 0);
-};
-
-window.deleteStock = function(index) {
-    requestDelete("Remove this stock record?", () => {
-        stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
-        stockDb.splice(index, 1);
-        localStorage.setItem('stock_records', JSON.stringify(stockDb));
-        window.renderStockBalanceTable();
-    });
 };
 
 window.prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
@@ -6504,32 +6376,71 @@ window.getNextPrId = function() {
 };
 
 window.initPr = function() {
-    // Sync the main database
+    // 1. Sync the main database records for Purchase Receipts
     window.prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
     
-    // Refresh Table
+    // 2. Refresh the table UI to show current records
     window.renderPrTable();
 
-    // Populate Dropdowns from other modules
+    // 3. Reset the Total Value field to empty
+    // This prevents showing a total before selections are made.
+    const totalInput = document.getElementById('pr-total-value');
+    if (totalInput) {
+        totalInput.value = ""; 
+    }
+
+    // 4. Identify the dropdown elements
     const supplierDropdown = document.getElementById('pr-supplier-dropdown');
     const whDropdown = document.getElementById('pr-warehouse-dropdown');
     
-    // Pull Suppliers from supplier_records (matches your saveSupplier logic)
+    // 5. Add event listeners to trigger the calculation only on change
+    // The total will only display once both have a value.
+    if (supplierDropdown) {
+        supplierDropdown.onchange = window.updatePurchaseReceiptTotal;
+    }
+    if (whDropdown) {
+        whDropdown.onchange = window.updatePurchaseReceiptTotal;
+    }
+
+    // 6. Populate Suppliers from supplier_records
     const suppliers = JSON.parse(localStorage.getItem('supplier_records')) || [];
     if (supplierDropdown) {
-        supplierDropdown.innerHTML = '<option value="">-- Select Supplier --</option>' + 
+        supplierDropdown.innerHTML = '<option value="" disabled selected>-- Select Supplier --</option>' + 
             suppliers.map(s => `<option value="${s.name}">${s.id} - ${s.name}</option>`).join('');
     }
 
-    // Pull Warehouses from warehouse_records
+    // 7. Populate Warehouses from warehouse_records
     const warehouses = JSON.parse(localStorage.getItem('warehouse_records')) || [];
     if (whDropdown) {
-        whDropdown.innerHTML = '<option value="">-- Select Warehouse --</option>' + 
+        whDropdown.innerHTML = '<option value="" disabled selected>-- Select Warehouse --</option>' + 
             warehouses.map(w => `<option value="${w.name}">${w.id} - ${w.name}</option>`).join('');
     }
 
-    // Reset Form State
+    // 8. Reset Form State to creation mode
     window.editPrIndex = -1;
+};
+window.updatePurchaseReceiptTotal = function() {
+    const totalInput = document.getElementById('pr-total-value');
+    const supplier = document.getElementById('pr-supplier-dropdown').value;
+    const warehouse = document.getElementById('pr-warehouse-dropdown').value;
+    
+    if (!totalInput) return;
+
+    // Only show total if both Supplier and Warehouse are selected
+    if (!supplier || !warehouse) {
+        totalInput.value = ""; 
+        return;
+    }
+
+    const sellingDb = JSON.parse(localStorage.getItem('selling_items')) || [];
+    
+    // Calculate total from selling_items
+    const grandTotal = sellingDb.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+    
+    totalInput.value = `₱${grandTotal.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
 };
 
 window.renderPrTable = function() {
@@ -6546,7 +6457,7 @@ window.renderPrTable = function() {
     const clearBtn = document.getElementById('pr-search-clear');
     if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
 
-    // 2. Filter Logic (Search by ID, Supplier, or Warehouse)
+    // 2. Filter Logic (Now includes searching by Total Amount as well)
     const filteredData = window.prDb.filter(pr => {
         const idMatch = String(pr.id || "").toLowerCase().includes(searchTerm);
         const supplierMatch = String(pr.supplier || "").toLowerCase().includes(searchTerm);
@@ -6556,18 +6467,22 @@ window.renderPrTable = function() {
 
     // 3. Handle Empty Results
     if (filteredData.length === 0) {
-        const message = window.prDb.length === 0 ? "No receipts found." : "No matching receipts found.";
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">
             <i class="fas fa-file-invoice" style="display:block; font-size:24px; margin-bottom:10px; opacity:0.3;"></i>
-            ${message}
+            No receipts found.
         </td></tr>`;
         return;
     }
 
-    // 4. Render Table Rows
+    // 4. Render Table Rows (Added Total Value Column)
     tbody.innerHTML = filteredData.map((pr) => {
-        // Find the index in the ORIGINAL database to ensure actions work correctly
         const actualIndex = window.prDb.findIndex(item => item.id === pr.id);
+        
+        // Format the total amount for the table
+        const formattedTotal = Number(pr.totalValue || 0).toLocaleString(undefined, {
+            style: 'currency',
+            currency: 'PHP'
+        });
 
         return `
             <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
@@ -6575,6 +6490,7 @@ window.renderPrTable = function() {
                 <td style="padding:12px;">${pr.supplier}</td>
                 <td style="padding:12px;">${pr.date}</td>
                 <td style="padding:12px;">${pr.warehouse}</td>
+                <td style="padding:12px; font-weight:700; color:#1e293b;">${formattedTotal}</td>
                 <td style="padding:12px;"><span class="status-pill" style="background: #dcfce7; color: #166534; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700;">RECEIVED</span></td>
                 <td style="padding:12px; text-align:center;">
                     <div style="display:flex; gap:15px; justify-content:center;">
@@ -6587,56 +6503,71 @@ window.renderPrTable = function() {
     }).join('');
 };
 window.togglePrForm = function() {
+
     const container = document.getElementById('pr-form-container');
+
     const title = document.querySelector('#pr-form-container h3');
-    
+
+   
+
     if (container.style.display === 'none') {
+
         // Ensure data is fresh
+
         window.initPr();
-        
+
+       
+
         if (window.editPrIndex === -1) {
+
             document.getElementById('pr-id-input').value = window.getNextPrId();
+
             document.getElementById('pr-date').valueAsDate = new Date();
+
             if (title) title.innerText = "New Purchase Receipt";
+
         }
+
         container.style.display = 'block';
+
     } else {
+
         container.style.display = 'none';
+
         window.editPrIndex = -1;
+
     }
+
 };
 
-// --- Updated Save Receipt ---
 window.saveReceipt = function() {
-    // Capture data from the form
+    // Helper to extract raw number from the formatted readonly currency input
+    const rawTotal = document.getElementById('pr-total-value').value.replace(/[^0-9.]/g, '');
+
     const prData = {
         id: document.getElementById('pr-id-input').value,
         supplier: document.getElementById('pr-supplier-dropdown').value,
         date: document.getElementById('pr-date').value,
-        warehouse: document.getElementById('pr-warehouse-dropdown').value
+        warehouse: document.getElementById('pr-warehouse-dropdown').value,
+        totalValue: parseFloat(rawTotal) || 0 // Store as number for future calculations
     };
 
-    // Validation
     if (!prData.supplier || !prData.warehouse || !prData.date) {
         return alert("Please fill in all fields.");
     }
 
-    // Re-sync prDb from localStorage before saving to avoid overwriting other changes
     window.prDb = JSON.parse(localStorage.getItem('pr_records')) || [];
 
     if (window.editPrIndex === -1) {
-        // Create new record
         window.prDb.push(prData);
     } else {
-        // Update existing record
         window.prDb[window.editPrIndex] = prData;
-        window.editPrIndex = -1; // Reset edit index immediately after update
+        window.editPrIndex = -1;
     }
 
-    // Save back to localStorage and refresh UI
     localStorage.setItem('pr_records', JSON.stringify(window.prDb));
     window.renderPrTable();
-    window.togglePrForm(); // This will close the form
+    window.togglePrForm();
 };
 
 // --- Updated Edit Receipt ---
@@ -6982,19 +6913,15 @@ window.initSellingItem = function() {
     
     window.editSellingIndex = -1;
     
-    // Refresh database references
     const sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
     const itemDb = JSON.parse(localStorage.getItem('items_records')) || [];
     
-    // Calculate the next ID suffix
     const nextNum = sellingitemdb.length + 1;
     const suffix = String(nextNum).padStart(3, '0');
     
-    // 1. ALWAYS show the next ID even if no item is selected
     document.getElementById('selling-qi-id').value = "QI_" + suffix;
     document.getElementById('selling-prod-input').value = "prod_" + suffix;
 
-    // 2. Populate Product Name Dropdown
     const nameDropdown = document.getElementById('selling-name-input');
     if (nameDropdown) {
         nameDropdown.innerHTML = '<option value="" disabled selected>-- Select Item --</option>' + 
@@ -7003,13 +6930,18 @@ window.initSellingItem = function() {
                 const numericCost = parseFloat(rawCost);
                 const formattedCost = isNaN(numericCost) ? "PHP 0.00" : "PHP " + numericCost.toLocaleString(undefined, {minimumFractionDigits: 2});
                 
-                return `<option value="${item.id}" data-name="${item.itemName}" data-cost="${numericCost}">
+                // Added data-supplier and data-unit (itm-unit) attributes
+                return `<option value="${item.id}" 
+                                data-name="${item.itemName}" 
+                                data-cost="${numericCost}"
+                                data-supplier="${item.supplier || ''}"
+                                data-unit="${item.unitQty || 1}">
                             ${item.id} - ${item.itemName} ${formattedCost}
                         </option>`;
             }).join('');
     }
 
-    // 3. Populate Supplier Dropdown
+    // Populate Supplier Dropdown (Keep this so users can still manually change it)
     const supDropdown = document.getElementById('selling-sup-dropdown');
     if (supDropdown) {
         const supplierDb = JSON.parse(localStorage.getItem('supplier_records')) || [];
@@ -7017,24 +6949,35 @@ window.initSellingItem = function() {
             supplierDb.map(sup => `<option value="${sup.name}">${sup.name}</option>`).join('');
     }
 
-    // 4. Reset numeric fields
     document.getElementById('selling-qty').value = "1";
     document.getElementById('selling-price-input').value = "0.00";
+    // Clear the manual text field if it exists
+    const textInput = document.getElementById('selling-prod-name-text');
+    if (textInput) textInput.value = "";
     
     const btn = document.getElementById('add-product-btn');
     if(btn) btn.innerHTML = '<i class="fas fa-plus"></i> Add Product';
+
+    // Add this inside your window.initSellingItem function
+const whDropdown = document.getElementById('selling-wh-dropdown');
+if (whDropdown) {
+    const warehouseDb = JSON.parse(localStorage.getItem('warehouse_records')) || [];
+    whDropdown.innerHTML = '<option value="" disabled selected>-- Select Warehouse --</option>' + 
+        warehouseDb.map(wh => `<option value="${wh.id}">${wh.id} - ${wh.name}</option>`).join('');
+}
 };
 
 window.syncSellingProductDetails = function() {
     const dropdown = document.getElementById('selling-name-input');
     const prodIdInput = document.getElementById('selling-prod-input');
     const priceInput = document.getElementById('selling-price-input');
+    const supDropdown = document.getElementById('selling-sup-dropdown');
+    const qtyInput = document.getElementById('selling-qty');
+    const textInput = document.getElementById('selling-prod-name-text');
     
-    // Get the current database length for the "Next ID" fallback
     const sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
     const nextSuffix = String(sellingitemdb.length + 1).padStart(3, '0');
 
-    // If nothing is selected, restore the default Product ID
     if (!dropdown || dropdown.selectedIndex <= 0) {
         if (prodIdInput) prodIdInput.value = "prod_" + nextSuffix;
         if (priceInput) priceInput.value = "0.00";
@@ -7043,12 +6986,25 @@ window.syncSellingProductDetails = function() {
 
     const selectedOption = dropdown.options[dropdown.selectedIndex];
     
-    // Overwrite default ID with the specific Master Item ID (e.g., itm_005)
+    // 1. Sync Product ID and Manual Name field
     if (prodIdInput) prodIdInput.value = dropdown.value;
+    if (textInput) textInput.value = selectedOption.getAttribute('data-name');
 
-    // Fill Price
+    // 2. Sync Price
     const cost = selectedOption.getAttribute('data-cost');
     if (priceInput) priceInput.value = parseFloat(cost).toFixed(2);
+
+    // 3. Sync Supplier
+    const supplier = selectedOption.getAttribute('data-supplier');
+    if (supDropdown && supplier) {
+        supDropdown.value = supplier;
+    }
+
+    // 4. Sync Quantity/Unit
+    const unit = selectedOption.getAttribute('data-unit');
+    if (qtyInput && unit) {
+        qtyInput.value = unit;
+    }
 };
 // --- 1. Populate Dropdown Logic (Pattern-Matched) ---
 window.populateItemDropdowns = function() {
@@ -7125,13 +7081,21 @@ window.saveSellingItem = function() {
         alert("Please provide a Product Name, select a Supplier, and enter a valid quantity.");
         return;
     }
+    const warehouse = document.getElementById('selling-wh-dropdown').value;
+
+    // Add warehouse to validation
+    if (!prodName || !supplier || !warehouse || qty <= 0) {
+        alert("Please provide Product Name, Supplier, Warehouse, and valid Quantity.");
+        return;
+    }
 
     const itemData = {
         qiId: document.getElementById('selling-qi-id').value,
         quoId: "QUO0001",
-        prodId: prodId || "N/A",
+        prodId: document.getElementById('selling-prod-input').value,
         prodName: prodName,
         supplier: supplier,
+        warehouse: warehouse, // SAVED DATA
         qty: qty,
         price: price,
         total: qty * price
@@ -7164,21 +7128,25 @@ window.renderSellingProductTable = function() {
     const clearBtn = document.getElementById('selling-search-clear');
     if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
 
+    // 1. Filter Logic (Now includes Warehouse search)
     const filteredData = sellingitemdb.filter(item => {
         return String(item.prodName || "").toLowerCase().includes(searchTerm) ||
                String(item.prodId || "").toLowerCase().includes(searchTerm) ||
-               String(item.supplier || "").toLowerCase().includes(searchTerm);
+               String(item.supplier || "").toLowerCase().includes(searchTerm) ||
+               String(item.warehouse || "").toLowerCase().includes(searchTerm);
     });
 
+    // 2. Handle Empty Results
     if (filteredData.length === 0) {
         const message = sellingitemdb.length === 0 ? "No selling items found." : "No matching items found.";
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:#94a3b8;">
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:30px; color:#94a3b8;">
             <i class="fas fa-search-dollar" style="display:block; font-size:24px; margin-bottom:10px; opacity:0.3;"></i>
             ${message}
         </td></tr>`;
         return;
     }
 
+    // 3. Render Table Rows
     tbody.innerHTML = filteredData.map((item) => {
         const actualIndex = sellingitemdb.findIndex(s => s.qiId === item.qiId);
 
@@ -7187,9 +7155,14 @@ window.renderSellingProductTable = function() {
                 <td style="padding:12px;">${item.qiId}</td>
                 <td style="padding:12px;"><strong>${item.quoId}</strong></td>
                 <td style="padding:12px;">${item.prodId}</td>
-                <td style="padding:12px;">${item.prodName}</td>
+                <td style="padding:12px;">
+                    <div style="font-weight: 600; color: #1e293b;">${item.prodName}</div>
+                    <div style="font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                        <i class="fas fa-warehouse" style="font-size: 9px;"></i> ${item.warehouse || 'No Warehouse'}
+                    </div>
+                </td>
                 <td style="padding:12px; color: #64748b; font-size: 0.85rem;">${item.supplier || 'N/A'}</td>
-                <td style="padding:12px;">${item.qty} pcs</td>
+                <td style="padding:12px; text-align:center;">${item.qty} pcs</td>
                 <td style="padding:12px;">₱${Number(item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 <td style="padding:12px;"><strong>₱${Number(item.total).toLocaleString(undefined, {minimumFractionDigits: 2})}</strong></td>
                 <td style="padding:12px; text-align:center;">
@@ -7207,26 +7180,37 @@ window.editSellingItem = function(index) {
     const item = sellingitemdb[index];
     if (!item) return;
 
-    window.initSellingItem(); // Populates dropdowns
+    window.initSellingItem(); // Populates dropdowns and resets form
     
     window.editSellingIndex = index;
     
-    // Set field values
+    // 1. Set standard field values
     document.getElementById('selling-qi-id').value = item.qiId;
     document.getElementById('selling-prod-input').value = item.prodId;
     document.getElementById('selling-sup-dropdown').value = item.supplier;
     document.getElementById('selling-qty').value = item.qty;
     document.getElementById('selling-price-input').value = item.price;
+document.getElementById('selling-wh-dropdown').value = item.warehouse || "";
+    // 2. Autofill the Product Name text field (CRITICAL FIX)
+    // Use the ID of your manual input field (from your screenshots: "Acer Laptop")
+    const nameTextField = document.getElementById('selling-prod-name-text'); 
+    if (nameTextField) {
+        nameTextField.value = item.prodName;
+    }
 
-    // Set dropdown selection based on Product ID
+    // 3. Set dropdown selection if the item exists in the Master List
     const nameDropdown = document.getElementById('selling-name-input');
     if (nameDropdown) {
+        // This will only work if the prodId matches an option in your dropdown
         nameDropdown.value = item.prodId; 
     }
     
-    document.getElementById('add-product-btn').innerHTML = '<i class="fas fa-save"></i> Update Product';
+    // Change button text to indicate update mode
+    const addBtn = document.getElementById('add-product-btn');
+    if (addBtn) {
+        addBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
+    }
 };
-
 window.deleteSellingItem = function(index) {
     requestDelete("Remove this item from quotation?", () => {
         sellingitemdb = JSON.parse(localStorage.getItem('selling_items')) || [];
@@ -7390,7 +7374,58 @@ window.saveSalesOrder = function() {
     window.renderSoTable();
     window.toggleSOForm(false);
 };
+window.editSalesOrder = function(index) {
+    const soDb = JSON.parse(localStorage.getItem('so_records')) || [];
+    const so = soDb[index];
+    if (!so) return;
 
+    // 1. Set global index and show the form
+    editSoIndex = index;
+    window.toggleSOForm(true);
+
+    // 2. Load basic text/number fields
+    document.getElementById('so-id').value = so.id;
+    document.getElementById('so-address').value = so.address || "";
+    document.getElementById('so-quantity').value = so.qty;
+    document.getElementById('so-date').value = so.date || "";
+
+    // 3. FORCE LOAD: Customer Dropdown
+    const customerDropdown = document.getElementById('so-dropdown');
+    if (customerDropdown) {
+        // Try setting value directly first
+        customerDropdown.value = so.customer;
+        
+        // If that fails, loop through options to find a text match
+        if (customerDropdown.selectedIndex === -1) {
+            for (let i = 0; i < customerDropdown.options.length; i++) {
+                if (customerDropdown.options[i].text === so.customer) {
+                    customerDropdown.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    // 4. FORCE LOAD: Product Dropdown (Matches stored long string)
+    const itemSelect = document.getElementById('so-item-select');
+    if (itemSelect) {
+        // Your soDb stores the full text: "prod_001 - Playstation 5 ₱ 30,790.00"
+        for (let i = 0; i < itemSelect.options.length; i++) {
+            // Check both text and value to be safe
+            if (itemSelect.options[i].text === so.productId || itemSelect.options[i].value === so.productId) {
+                itemSelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    // 5. Update UI appearance
+    document.getElementById('so-form-title').innerText = "Edit Sales Order";
+    const saveBtn = document.getElementById('so-save-btn');
+    if (saveBtn) {
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Update Order';
+    }
+};
 /* --- UPDATED RENDER TABLE --- */
 window.renderSoTable = function() {
     const tbody = document.getElementById('so-table-body');
@@ -11437,49 +11472,55 @@ window.initWarehouse = function() {
  */
 window.renderWhSummaryTable = function() {
     const tbody = document.getElementById('wh-table-body');
-    const searchId = 'wh-search-input'; // Ensure this matches your HTML ID
+    const searchId = 'wh-search-input';
     if (!tbody) return;
 
-    // 1. Fetch Fresh Data
+    // 1. Fetch Fresh Data from synchronized sources
     const warehouseDb = JSON.parse(localStorage.getItem('warehouse_records')) || [];
-    const stockDb = JSON.parse(localStorage.getItem('stock_records')) || [];
+    const sellingDb = JSON.parse(localStorage.getItem('selling_items')) || []; // Stock added
+    const soDb = JSON.parse(localStorage.getItem('so_records')) || []; // Stock reserved
+    
     const searchInput = document.getElementById(searchId);
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
-    // Toggle Clear Icon Visibility
     const clearBtn = document.getElementById('wh-search-clear');
     if (clearBtn) clearBtn.style.display = searchTerm ? 'block' : 'none';
 
-    // 2. Filter Logic (Search by ID, Name, or Location)
+    // 2. Filter Logic
     const filteredData = warehouseDb.filter(wh => {
-        const idMatch = String(wh.id || "").toLowerCase().includes(searchTerm);
-        const nameMatch = String(wh.name || "").toLowerCase().includes(searchTerm);
-        const locMatch = String(wh.location || "").toLowerCase().includes(searchTerm);
-        return idMatch || nameMatch || locMatch;
+        return String(wh.id || "").toLowerCase().includes(searchTerm) ||
+               String(wh.name || "").toLowerCase().includes(searchTerm) ||
+               String(wh.location || "").toLowerCase().includes(searchTerm);
     });
 
-    // 3. Handle Empty States
     if (filteredData.length === 0) {
-        const message = warehouseDb.length === 0 ? "No warehouses found." : "No matching warehouses found.";
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#94a3b8;">
-            <i class="fas fa-warehouse" style="display:block; font-size:24px; margin-bottom:10px; opacity:0.3;"></i>
-            ${message}
-        </td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#94a3b8;">No results found.</td></tr>`;
         return;
     }
 
-    // 4. Render Table Rows
+    // 3. Render Table Rows
     tbody.innerHTML = filteredData.map((wh) => {
-        // Essential: Find the index in the ORIGINAL database for edit/delete actions
         const actualIndex = warehouseDb.findIndex(item => item.id === wh.id);
 
         // SYNCHRONIZATION LOGIC
-        const totalStockInWh = stockDb
-            .filter(stock => stock.whId === wh.name) 
-            .reduce((sum, stock) => sum + (Number(stock.qty) || 0), 0);
+        // Get Total Qty currently assigned to this warehouse from Selling Items
+        const totalQtyOnHand = sellingDb
+            .filter(item => item.warehouse === wh.id || item.warehouse === wh.name)
+            .reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
 
+        // Get Total Reserved Qty from Sales Orders for items in this warehouse
+        // This assumes your SO product match includes warehouse context or product IDs
+        const totalReserved = soDb
+            .filter(so => {
+                const pidMatch = so.productId.split(' - ')[0];
+                return sellingDb.some(s => s.prodId === pidMatch && (s.warehouse === wh.id || s.warehouse === wh.name));
+            })
+            .reduce((sum, so) => sum + (Number(so.qty) || 0), 0);
+
+        // Calculation: Current Usage = On Hand - Reserved
+        const currentUsage = totalQtyOnHand - totalReserved;
         const capacity = Number(wh.capacity) || 0;
-        const usagePercent = capacity > 0 ? Math.round((totalStockInWh / capacity) * 100) : 0;
+        const usagePercent = capacity > 0 ? Math.round((currentUsage / capacity) * 100) : 0;
         const usageColor = usagePercent > 90 ? '#ef4444' : usagePercent > 70 ? '#f59e0b' : '#10b981';
 
         return `
@@ -11488,11 +11529,14 @@ window.renderWhSummaryTable = function() {
                 <td style="padding: 15px;">${wh.name}</td>
                 <td style="padding: 15px;">${wh.location}</td>
                 <td style="padding: 15px;">
-                    <div style="font-weight: 700; color: #1e293b;">${totalStockInWh.toLocaleString()} / ${capacity.toLocaleString()} pcs</div>
+                    <div style="font-weight: 700; color: #1e293b;">${currentUsage.toLocaleString()} / ${capacity.toLocaleString()} pcs</div>
                     <div style="width: 100%; background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 5px; overflow: hidden;">
-                        <div style="width: ${Math.min(usagePercent, 100)}%; background: ${usageColor}; height: 100%;"></div>
+                        <div style="width: ${Math.min(Math.max(usagePercent, 0), 100)}%; background: ${usageColor}; height: 100%;"></div>
                     </div>
-                    <small style="color: #64748b; font-size: 0.7rem;">${usagePercent}% full</small>
+                    <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                        <small style="color: #64748b; font-size: 0.65rem;">${usagePercent}% capacity</small>
+                        <small style="color: #94a3b8; font-size: 0.65rem;">Res: ${totalReserved}</small>
+                    </div>
                 </td>
                 <td style="padding: 15px;">
                     <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
@@ -11501,8 +11545,8 @@ window.renderWhSummaryTable = function() {
                 </td>
                 <td style="padding: 15px; text-align: center;">
                     <div style="display: flex; gap: 15px; justify-content: center;">
-                        <i class="fas fa-edit" onclick="window.editWarehouse(${actualIndex})" style="color: #2563eb; cursor: pointer; font-size: 1.1rem;"></i>
-                        <i class="fas fa-trash" onclick="window.deleteWarehouse(${actualIndex})" style="color: #ef4444; cursor: pointer; font-size: 1.1rem;"></i>
+                        <i class="fas fa-edit" onclick="window.editWarehouse(${actualIndex})" style="color: #2563eb; cursor: pointer;"></i>
+                        <i class="fas fa-trash" onclick="window.deleteWarehouse(${actualIndex})" style="color: #ef4444; cursor: pointer;"></i>
                     </div>
                 </td>
             </tr>`;
@@ -12191,10 +12235,7 @@ function showView(viewId) {
     // This ensures usage is recalculated from stock_records every time you switch to this view
     window.renderWhSummaryTable(); 
 } else if (viewId === 'stock-balance-view') {
-    // This single call handles EVERYTHING: sync, render, and dropdowns.
-    if (typeof window.initStockBalance === 'function') {
-        window.initStockBalance();
-    }
+    renderStockBalanceViewOnly();
 } else if (viewId === 'purchase-receipts-view') {
     // Consolidated entry point for the Purchase Receipt module
     if (typeof window.initPr === 'function') {
