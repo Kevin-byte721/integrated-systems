@@ -3227,11 +3227,15 @@ const buyingDashboardHTML = `
                             <input type="text" id="maint-id" readonly style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:#f1f5f9; color:#475569; font-weight:600;">
                         </div>
                         <div class="input-box">
-                            <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Sales Order ID</label>
-                            <select id="maint-so-id" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
-                                <option value="">Select Sales Order</option>
-                            </select>
-                        </div>
+    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">
+        Sales Order ID
+    </label>
+    <select id="maint-so-id" 
+            onchange="window.handleMaintSOChange(this.value)"
+            style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white; cursor:pointer;">
+        <option value="">Select Sales Order</option>
+    </select>
+</div>
                         <div class="input-box">
                             <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Service Type</label>
                             <select id="maint-type" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;">
@@ -3364,10 +3368,14 @@ const buyingDashboardHTML = `
                 </div>
 
                 <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Sales Order ID</label>
-                    <select id="claim-so-id" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background: white;">
-                        </select>
-                </div>
+    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">
+        Sales Order ID
+    </label>
+    <select id="claim-so-id" 
+            style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; background:white; cursor:pointer; font-size:14px;">
+        <option value="" disabled selected>Select Sales Order</option>
+    </select>
+</div>
 
                 <div class="input-box">
                     <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Claim Date</label>
@@ -3423,9 +3431,14 @@ const buyingDashboardHTML = `
                     <input type="text" id="issue-id-display" readonly style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background-color: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div class="input-box">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Sales Order ID</label>
-                    <select id="issue-so-id" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px; background:white;"></select>
-                </div>
+    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">
+        Sales Order
+    </label>
+    <select id="issue-so-id" 
+            style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; background:white; cursor:pointer; font-size:14px;">
+        <option value="" disabled selected>Select Sales Order</option>
+    </select>
+</div>
                 <div class="input-box">
                     <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:5px;">Date</label>
                     <input type="date" id="issue-date-input" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:4px;">
@@ -4775,7 +4788,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     }
-};  */
+}; */  
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -7952,22 +7965,29 @@ window.initMaintView = function() {
     window.populateMaintSO();
 };
 
-// Pulls Sales Order IDs into the form dropdown
 window.populateMaintSO = function() {
     const soSelect = document.getElementById('maint-so-id');
     if (!soSelect) return;
     
-    // Fetch from sales_orders_records specifically
-    const soRecords = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    // 1. Fetch from 'so_records' (matching your render function)
+    const soRecords = JSON.parse(localStorage.getItem('so_records')) || [];
     
+    // 2. Clear and set default
     soSelect.innerHTML = '<option value="">Select Sales Order</option>';
+    
+    // 3. Populate
     soRecords.forEach(so => {
-        // Use so.id or whatever key matches your Sales Order record structure
-        const option = document.createElement('option');
-        option.value = so.id;
-        option.textContent = so.id;
-        soSelect.appendChild(option);
+        // Use so.id as seen in your <td><strong>${so.id}</strong></td>
+        if (so.id) {
+            const option = document.createElement('option');
+            option.value = so.id;
+            // We'll show the ID and Customer name so it's easier to pick
+            option.textContent = `${so.id} (${so.customer || 'No Customer'})`;
+            soSelect.appendChild(option);
+        }
     });
+    
+    console.log("Dropdown synced with so_records. Count:", soRecords.length);
 };
 
 // Form Visibility & ID Logic
@@ -7976,6 +7996,9 @@ window.toggleMaintForm = function(show) {
     const title = document.getElementById('maint-form-title');
     
     if (show) {
+        // Refresh the SO list every time the form opens to ensure it's current
+        window.populateMaintSO();
+        
         container.style.display = 'block';
         if (window.editMaintIndex === -1) {
             title.innerText = "New Service Request";
@@ -7991,25 +8014,30 @@ window.generateMaintId = function() {
     const db = JSON.parse(localStorage.getItem('maint_records')) || [];
     const nextNum = db.length + 1;
     const paddedNum = String(nextNum).padStart(3, '0');
-    const year = new Date().getFullYear();
     document.getElementById('maint-id').value = `MS-${paddedNum}`;
 };
 
 // Data Persistence
 window.saveMaintRequest = function() {
     const db = JSON.parse(localStorage.getItem('maint_records')) || [];
-    const record = {
-        id: document.getElementById('maint-id').value,
-        soId: document.getElementById('maint-so-id').value,
-        type: document.getElementById('maint-type').value,
-        date: document.getElementById('maint-date').value,
-        status: (window.editMaintIndex === -1) ? "Pending" : db[window.editMaintIndex].status
-    };
+    
+    const idField = document.getElementById('maint-id');
+    const soIdField = document.getElementById('maint-so-id');
+    const typeField = document.getElementById('maint-type');
+    const dateField = document.getElementById('maint-date');
 
-    if (!record.soId || !record.date) {
+    if (!soIdField.value || !dateField.value) {
         alert("Please select a Sales Order and Request Date.");
         return;
     }
+
+    const record = {
+        id: idField.value,
+        soId: soIdField.value,
+        type: typeField.value,
+        date: dateField.value,
+        status: (window.editMaintIndex === -1) ? "Pending" : db[window.editMaintIndex].status
+    };
 
     if (window.editMaintIndex === -1) {
         db.push(record);
@@ -8018,22 +8046,21 @@ window.saveMaintRequest = function() {
     }
 
     localStorage.setItem('maint_records', JSON.stringify(db));
+    
+    // CLOSE FORM after saving [Success Path]
     window.toggleMaintForm(false);
     window.renderMaintTable();
+    console.log("Maintenance record saved successfully.");
 };
 
-// Table Rendering with Actions - Direct Database Mapping
+// Table Rendering
 window.renderMaintTable = function() {
     const tbody = document.querySelector('#maint-table tbody');
     if (!tbody) return;
 
-    // Load original database
     const db = JSON.parse(localStorage.getItem('maint_records')) || [];
-    
-    // Reset table content
     tbody.innerHTML = '';
 
-    // Handle Empty State
     if (db.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -8044,7 +8071,6 @@ window.renderMaintTable = function() {
         return;
     }
 
-    // Direct render loop - index is now always aligned with storage
     db.forEach((item, index) => {
         const row = `
             <tr style="border-bottom: 1px solid #f1f5f9;">
@@ -8054,14 +8080,14 @@ window.renderMaintTable = function() {
                 <td style="padding:12px;">${item.date}</td>
                 <td style="padding:12px;">
                     <span class="status-pill" style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">
-                        ${item.status ? item.status.toUpperCase() : 'PENDING'}
+                        ${(item.status || 'PENDING').toUpperCase()}
                     </span>
                 </td>
                 <td style="padding:12px; text-align:center;">
-                    <button class="text-btn" onclick="window.editMaintRequest(${index})" title="Edit" style="background:none; border:none; cursor:pointer; color:#2563eb; margin-right:12px;">
+                    <button onclick="window.editMaintRequest(${index})" title="Edit" style="background:none; border:none; cursor:pointer; color:#2563eb; margin-right:12px;">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="text-btn" onclick="window.deleteMaintRequest(${index})" title="Delete" style="background:none; border:none; cursor:pointer; color:#ef4444;">
+                    <button onclick="window.deleteMaintRequest(${index})" title="Delete" style="background:none; border:none; cursor:pointer; color:#ef4444;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -8069,12 +8095,14 @@ window.renderMaintTable = function() {
         tbody.innerHTML += row;
     });
 };
+
 window.editMaintRequest = function(index) {
     const db = JSON.parse(localStorage.getItem('maint_records')) || [];
     const item = db[index];
     if (item) {
         window.editMaintIndex = index;
-        window.toggleMaintForm(true);
+        window.toggleMaintForm(true); // This will also call populateMaintSO()
+        
         document.getElementById('maint-form-title').innerText = "Edit Service Request";
         document.getElementById('maint-id').value = item.id;
         document.getElementById('maint-so-id').value = item.soId;
@@ -8084,31 +8112,20 @@ window.editMaintRequest = function(index) {
 };
 
 window.deleteMaintRequest = function(index) {
-    // Uses your custom requestDelete utility for consistent UI
     requestDelete("Are you sure you want to delete this maintenance record?", () => {
         let db = JSON.parse(localStorage.getItem('maint_records')) || [];
-        
-        // Remove the specific record from the array
         db.splice(index, 1);
-        
-        // Update LocalStorage
         localStorage.setItem('maint_records', JSON.stringify(db));
-        
-        // Refresh the UI instantly
         window.renderMaintTable(); 
-        
-        // Recalculate IDs for the next entry instantly
-        if (window.editMaintIndex === -1) {
-            window.generateMaintId(); 
-        }
     });
 };
 
 window.clearMaintForm = function() {
     window.editMaintIndex = -1;
     const soSelect = document.getElementById('maint-so-id');
+    const dateInput = document.getElementById('maint-date');
     if (soSelect) soSelect.selectedIndex = 0;
-    document.getElementById('maint-date').value = '';
+    if (dateInput) dateInput.value = '';
 };
 // --- DATABASE INITIALIZATION ---
 let maintenanceVisits = JSON.parse(localStorage.getItem('maint_visits')) || [];
@@ -8323,10 +8340,43 @@ window.initWarrantyClaim = function(index = -1) {
         if (formTitle) formTitle.textContent = "Log New Warranty Claim";
         if (submitBtn) submitBtn.textContent = "Submit Claim";
     }
+    // --- REFRESH DROPDOWN ---
+    window.populateWarrantySO();
 
+    if (index > -1) {
+        // EDIT MODE logic...
+        const data = warrantyClaims[index];
+        if (soSelect) soSelect.value = data.salesOrderId;
+    } else {
+        // NEW MODE logic...
+        // Ensure dropdown resets to placeholder
+        if (soSelect) soSelect.selectedIndex = 0;
+    }
     window.renderWarrantyClaims();
 };
+window.populateWarrantySO = function() {
+    const soSelect = document.getElementById('claim-so-id');
+    if (!soSelect) return;
 
+    // 1. Fetch Sales Order records
+    const soRecords = JSON.parse(localStorage.getItem('so_records')) || [];
+
+    // 2. Clear existing options
+    soSelect.innerHTML = '<option value="" disabled selected>Select Sales Order</option>';
+
+    // 3. Populate with ID and Customer Name
+    soRecords.forEach(so => {
+        if (so.id) {
+            const option = document.createElement('option');
+            option.value = so.id;
+            // Display: "SO-2026-001 (John Doe)"
+            option.textContent = `${so.id} (${so.customer || 'No Customer'})`;
+            soSelect.appendChild(option);
+        }
+    });
+
+    console.log(`Warranty SO Dropdown updated with ${soRecords.length} orders.`);
+};
 /**
  * Handles Saving (Create) and Updating (Edit)
  */
@@ -8423,19 +8473,26 @@ window.initSupportIssue = function(index = -1) {
     const formTitle = document.querySelector('#issue-form-container h3');
     const submitBtn = document.querySelector('#issue-form-container .btn-group button:first-child');
 
-    // Populate Sales Order Dropdown
-    const salesOrders = JSON.parse(localStorage.getItem('sales_orders_records')) || [];
+    // 1. POPULATE SALES ORDER DROPDOWN
+    // Updated to pull from 'so_records' to match your main Sales Order database
+    const salesOrders = JSON.parse(localStorage.getItem('so_records')) || [];
+    
     if (soDropdown) {
         soDropdown.innerHTML = '<option value="" disabled selected>Select Sales Order</option>';
         salesOrders.forEach(order => {
-            soDropdown.innerHTML += `<option value="${order.id}">${order.id}</option>`;
+            const option = document.createElement('option');
+            option.value = order.id;
+            // Matches your SO structure: ID and Customer Name
+            option.textContent = `${order.id} (${order.customer || 'No Customer'})`;
+            soDropdown.appendChild(option);
         });
     }
 
     if (index > -1) {
-        // EDIT MODE
+        // --- EDIT MODE ---
         editIssueIndex = index;
         const data = supportIssues[index];
+        
         if (issueIdField) issueIdField.value = data.id;
         if (soDropdown) soDropdown.value = data.salesOrderId;
         if (dateField) dateField.value = data.date;
@@ -8443,21 +8500,49 @@ window.initSupportIssue = function(index = -1) {
         
         if (formTitle) formTitle.textContent = "Edit Support Issue";
         if (submitBtn) submitBtn.textContent = "Update Issue";
+        
         document.getElementById('issue-form-container').style.display = 'block';
     } else {
-        // NEW MODE
+        // --- NEW MODE ---
         editIssueIndex = -1;
+        
+        // Generate Sequential ID: IS_001, IS_002, etc.
         const nextId = `IS_${String(supportIssues.length + 1).padStart(3, '0')}`;
+        
         if (issueIdField) issueIdField.value = nextId;
         if (dateField) dateField.value = new Date().toISOString().split('T')[0];
         if (typeField) typeField.selectedIndex = 0;
+        if (soDropdown) soDropdown.selectedIndex = 0; // Reset dropdown to placeholder
         
         if (formTitle) formTitle.textContent = "Log New Support Issue";
         if (submitBtn) submitBtn.textContent = "Save Issue";
     }
+    
     window.renderSupportIssues();
 };
+window.populateIssueSO = function() {
+    const soSelect = document.getElementById('issue-so-id');
+    if (!soSelect) return;
 
+    // 1. Fetch Sales Order records from the central database
+    const soRecords = JSON.parse(localStorage.getItem('so_records')) || [];
+
+    // 2. Clear existing options and set placeholder
+    soSelect.innerHTML = '<option value="" disabled selected>Select Sales Order</option>';
+
+    // 3. Populate with ID and Customer Name for context
+    soRecords.forEach(so => {
+        if (so.id) {
+            const option = document.createElement('option');
+            option.value = so.id;
+            // Display: "SO-2026-001 (John Doe)"
+            option.textContent = `${so.id} (${so.customer || 'No Customer'})`;
+            soSelect.appendChild(option);
+        }
+    });
+
+    console.log(`Issue SO Dropdown synced. Found ${soRecords.length} orders.`);
+};
 /**
  * Saves or Updates Support Issue
  */
