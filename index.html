@@ -4794,7 +4794,6 @@ function showDashboard() {
         } 
         else if (selectedUser === "hr_user") { 
             container.innerHTML = hrdashboardHTML; 
-            renderEmployeeTable(); 
         }
         else if (selectedUser === "acc_user") { container.innerHTML = accountsDashboardHTML; }
         else if (selectedUser === "crm_user") { container.innerHTML = crmDashboardHTML; }
@@ -4871,10 +4870,6 @@ function loadModule(moduleKey) {
         }
     }, 10); // 10ms is enough to let the DOM settle
 
-    // 3. Run module specific logic
-    if (moduleKey === 'hr' && typeof renderEmployeeTable === 'function') {
-        renderEmployeeTable();
-    }
 }
 // --- STATE MANAGEMENT ---
 let salaryStructDb = JSON.parse(localStorage.getItem('salary_structures_records')) || [];
