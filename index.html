@@ -9723,6 +9723,18 @@ window.initStockExchange = function(index = -1) {
         if (submitBtn) submitBtn.textContent = "Post Issue";
     }
 };
+window.toggleStockForm = function(show) {
+    const form = document.getElementById('stock-form-container');
+    if (form) {
+        form.style.display = show ? 'block' : 'none';
+        if (show) form.scrollIntoView({ behavior: 'smooth' });
+    }
+    // If closing the form, reset the Save button state
+    if (!show) {
+        const saveBtn = document.getElementById('stock-save-btn');
+        if (saveBtn) saveBtn.innerText = "Post Issue";
+    }
+};
 window.saveStockExchange = function() {
     let currentDb = JSON.parse(localStorage.getItem('stock_exchange_records')) || [];
 
