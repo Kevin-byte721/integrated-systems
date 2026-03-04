@@ -12093,11 +12093,24 @@ window.initExpenseId = function() {
 
 window.populateExpEmployeeDropdown = function() {
     const dropdown = document.getElementById('exp-emp-id');
+    if (!dropdown) return;
+
+    // 1. Fetch fresh data from the HR Employee database
     const empDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
-    dropdown.innerHTML = '<option value="" disabled selected>Select Registered Employee</option>';
-    empDb.forEach(emp => {
-        dropdown.innerHTML += `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`;
-    });
+
+    // 2. Filter for Active employees only to keep the dropdown clean
+    const activeEmployees = empDb.filter(emp => emp.status === 'Active');
+
+    // 3. Generate HTML options using the 'id' (from the reg-id field) and 'name'
+    const optionsHTML = activeEmployees.map(emp => 
+        `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`
+    ).join('');
+
+    // 4. Update the dropdown with a placeholder and the fresh data
+    dropdown.innerHTML = `
+        <option value="" disabled selected>Select Registered Employee</option>
+        ${optionsHTML}
+    `;
 };
 
 // --- CRUD OPERATIONS ---
