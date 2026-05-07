@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -346,9 +345,9 @@
             <div class="logo-area"><i class="fas fa-shield-halved"></i>Human Resources</div>
             <div class="nav-group">
                 <div class="nav-item" id="nav-reg" onclick="showView('registration-view')"><i class="fas fa-user-plus"></i>Employee Registration</div>
-                <div class="nav-item" id="nav-pay-comp" onclick="showView('payroll-comp-view')"><i class="fas fa-sliders"></i>Payroll Components</div>
+                <!--div class="nav-item" id="nav-pay-comp" onclick="showView('payroll-comp-view')"><i class="fas fa-sliders"></i>Payroll Components</div-->
                 <div class="nav-item" id="nav-sal-struct" onclick="showView('salary-struct-view')"><i class="fas fa-file-invoice-dollar"></i>Salary Structures</div>
-                <div class="nav-item" id="nav-pay-entry" onclick="showView('payroll-entry-view')"><i class="fas fa-money-check-dollar"></i> Payroll Entry</div>
+                <!--div class="nav-item" id="nav-pay-entry" onclick="showView('payroll-entry-view')"><i class="fas fa-money-check-dollar"></i> Payroll Entry</div-->
                 <div class="nav-item" id="nav-exp-claim" onclick="showView('expense-claim-view')"><i class="fas fa-receipt"></i> Expense Claims</div>
             </div>
             
@@ -4290,40 +4289,77 @@ window.renderPayrollComponentsTable = function() {
             </td>
         </tr>`).join('');
 };
-
 // --- HR MODULE STATE ---
 let employeeDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
 window.editEmpIndex = -1;
 
-// --- INITIALIZATION ---
+// --- INITIALIZATION & SAMPLE DATA ---
 window.initEmployeeId = function() {
     const idField = document.getElementById('reg-id');
-    
-    // Prevent overwriting the ID if we are currently in Edit Mode
     if (!idField || (window.editEmpIndex !== undefined && window.editEmpIndex !== -1)) return;
 
-    // 1. Fetch fresh data from storage using the correct key
-    const currentDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+    let currentDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
     
-    let nextNum = 1; // Default starting number
-
+    // --- ADD 4 CONST SAMPLE EMPLOYEES IF EMPTY ---
+if (currentDb.length === 0) {
+    currentDb = [
+        { 
+            id: "EMP_001", 
+            fname: "Gabriel Andrei V.", 
+            lname: "Alcoran", 
+            name: "Alcoran, Gabriel Andrei V.", 
+            dept: "IT Department", 
+            status: "Active", 
+            contact: "0917-111-2222", 
+            email: "g.alcoran@company.ph" 
+        },
+        { 
+            id: "EMP_002", 
+            fname: "Jeremiah A.", 
+            lname: "Cuenco", 
+            name: "Cuenco, Jeremiah A.", 
+            dept: "IT Department", 
+            status: "Active", 
+            contact: "0917-333-4444", 
+            email: "j.cuenco@company.ph" 
+        },
+        { 
+            id: "EMP_003", 
+            fname: "Kevin R.", 
+            lname: "De Jesus", 
+            name: "De Jesus, Kevin R.", 
+            dept: "IT Department", 
+            status: "Active", 
+            contact: "0917-555-6666", 
+            email: "k.dejesus@company.ph" 
+        },
+        { 
+            id: "EMP_004", 
+            fname: "Patrick John A.", 
+            lname: "Labindalawa", 
+            name: "Labindalawa, Patrick John A.", 
+            dept: "IT Department", 
+            status: "Active", 
+            contact: "0917-777-8888", 
+            email: "p.labindalawa@company.ph" 
+        }
+    ];
+    localStorage.setItem('hr_employee_records', JSON.stringify(currentDb));
+}
+    
+    let nextNum = 1; 
     if (currentDb.length > 0) {
-        // 2. Extract numeric suffixes from all IDs
         const existingNums = currentDb.map(emp => {
-            // This regex finds the digits at the end of the string (e.g., "EMP_002" -> "002")
             const match = String(emp.id).match(/\d+$/);
             return match ? parseInt(match[0], 10) : 0;
         });
-        
-        // 3. Find the highest existing number and add 1
-        // This prevents ID reuse even if the last employee was deleted
         const maxNum = Math.max(...existingNums);
         nextNum = maxNum >= 1 ? maxNum + 1 : 1;
     }
 
-    // 4. Set the field value with EMP_ prefix and 3-digit padding (001, 002, etc.)
     idField.value = `EMP_${String(nextNum).padStart(3, '0')}`;
 };
+
 // --- UPDATED TOGGLE ---
 window.toggleEmployeeForm = function(show) {
     const container = document.getElementById('employee-form-container');
@@ -4334,7 +4370,7 @@ window.toggleEmployeeForm = function(show) {
         if (window.editEmpIndex === -1) {
             document.getElementById('employee-form-title').innerText = "Add New Employee";
             window.clearForm();
-            window.initEmployeeId(); // Trigger the increment logic here
+            window.initEmployeeId(); 
         } else {
             document.getElementById('employee-form-title').innerText = "Edit Employee Profile";
         }
@@ -4345,13 +4381,14 @@ window.toggleEmployeeForm = function(show) {
 };
 
 window.clearForm = function() {
-    ['reg-fname', 'reg-lname', 'reg-dept'].forEach(id => {
+    ['reg-fname', 'reg-lname', 'reg-dept', 'reg-contact', 'reg-email'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.value = '';
     });
     const status = document.getElementById('reg-status');
     if(status) status.value = 'Active';
 };
+
 window.saveEmployee = function() {
     const fn = document.getElementById('reg-fname').value.trim();
     const ln = document.getElementById('reg-lname').value.trim();
@@ -4370,50 +4407,36 @@ window.saveEmployee = function() {
         email: email      
     };
 
-    // 1. Load fresh DB to ensure we don't overwrite other sessions
-    let employeeDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+    let db = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
 
-    // 2. Logic to Save or Update
     if (window.editEmpIndex === -1) {
-        employeeDb.push(empData);
+        db.push(empData);
     } else {
-        employeeDb[window.editEmpIndex] = empData;
+        db[window.editEmpIndex] = empData;
     }
 
-    // 3. Save to LocalStorage
-    localStorage.setItem('hr_employee_records', JSON.stringify(employeeDb));
+    localStorage.setItem('hr_employee_records', JSON.stringify(db));
     
-    // 4. REFRESH the table view immediately
     if (typeof window.renderEmployeeTable === "function") {
         window.renderEmployeeTable();
     }
 
-    // 5. RESET form state and increment ID for the next user
-    window.editEmpIndex = -1; // Clear edit index
-    if (typeof window.initEmployeeId === "function") {
-        window.initEmployeeId(); // This ensures the ID jumps to the next number (e.g., EMP_004)
-    }
-
-    // 6. Close the form
+    window.editEmpIndex = -1; 
     window.toggleEmployeeForm(false);
 };
 window.editEmployee = function(index) {
-    // Reload DB to get latest data
-    const employeeDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
-    const emp = employeeDb[index];
+    const db = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+    const emp = db[index];
     if (!emp) return;
 
     window.editEmpIndex = index;
-    const names = emp.name.split(' ');
 
-    // Populate standard fields
+    // Directly assign the stored properties to the form fields
     document.getElementById('reg-id').value = emp.id;
-    document.getElementById('reg-fname').value = names[0] || '';
-    document.getElementById('reg-lname').value = names.slice(1).join(' ') || '';
+    document.getElementById('reg-fname').value = emp.fname || ''; 
+    document.getElementById('reg-lname').value = emp.lname || ''; 
     document.getElementById('reg-dept').value = emp.dept;
     document.getElementById('reg-status').value = emp.status;
-
-    // Populate new fields (handling cases where older records might not have them)
     document.getElementById('reg-contact').value = emp.contact || '';
     document.getElementById('reg-email').value = emp.email || '';
 
@@ -4422,12 +4445,12 @@ window.editEmployee = function(index) {
 
 window.deleteEmployee = function(index) {
     requestDelete("Remove this employee record?", () => {
-        employeeDb.splice(index, 1);
-        localStorage.setItem('hr_employee_records', JSON.stringify(employeeDb));
+        let db = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+        db.splice(index, 1);
+        localStorage.setItem('hr_employee_records', JSON.stringify(db));
         window.renderEmployeeTable();
     });
 };
-
 // --- RENDERING ---
 window.renderEmployeeTable = function() {
     const tbody = document.getElementById('employee-list-body');
@@ -4440,43 +4463,45 @@ window.renderEmployeeTable = function() {
 
     const filtered = employeeDb.filter(emp => 
         emp.id.toLowerCase().includes(searchTerm) || 
-        emp.name.toLowerCase().includes(searchTerm) ||
-        (emp.email && emp.email.toLowerCase().includes(searchTerm)) || // Searchable Email
-        (emp.contact && emp.contact.includes(searchTerm))              // Searchable Contact
+        (emp.fname && emp.fname.toLowerCase().includes(searchTerm)) || 
+        (emp.lname && emp.lname.toLowerCase().includes(searchTerm)) ||
+        (emp.email && emp.email.toLowerCase().includes(searchTerm)) || 
+        (emp.contact && emp.contact.includes(searchTerm))
     );
 
     tbody.innerHTML = filtered.map((emp) => {
-        // Match by ID to ensure we target the correct record in the master list for Edit/Delete
+        // Find the actual index in the master list for Edit/Delete
         const actualIndex = employeeDb.findIndex(e => e.id === emp.id);
         const stCls = emp.status === 'Active' ? 'background:#dcfce7; color:#166534;' : 'background:#fee2e2; color:#991b1b;';
         
-        // Inside your renderEmployeeTable mapping function:
-return `
-    <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px;">
-        <td style="padding:12px;"><strong>${emp.id}</strong></td>
-        <td style="padding:12px;">${emp.name}</td>
-        <td style="padding:12px;">
-            <div style="font-weight:600; color:#1e293b;">${emp.dept}</div>
-        </td>
-        <td style="padding:12px; color: #475569; font-size: 12px;">
-            ${emp.email || '---'}
-        </td>
-        <td style="padding:12px; color: #64748b; font-size: 12px;">
-            ${emp.contact || '---'}
-        </td>
-        <td style="padding:12px;">
-            <span style="${stCls} padding:4px 8px; border-radius:12px; font-size:10px; font-weight:700;">
-                ${emp.status.toUpperCase()}
-            </span>
-        </td>
-        <td style="padding:12px; text-align:center;">
-            <i class="fas fa-edit" onclick="editEmployee(${actualIndex})" title="Edit" 
-               style="color:#2563eb; cursor:pointer; margin-right:15px;"></i>
-            <i class="fas fa-trash-alt" onclick="deleteEmployee(${actualIndex})" title="Delete" 
-               style="color:#ef4444; cursor:pointer;"></i>
-        </td>
-    </tr>`;
-    }).join('') || '<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No records found matching your search.</td></tr>';
+        // Combine First Name and Last Name for display
+        const fullName = `${emp.fname} ${emp.lname}`;
+
+        return `
+            <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px;">
+                <td style="padding:12px;"><strong>${emp.id}</strong></td>
+                <td style="padding:12px;">${fullName}</td> <td style="padding:12px;">
+                    <div style="font-weight:600; color:#1e293b;">${emp.dept}</div>
+                </td>
+                <td style="padding:12px; color: #475569; font-size: 12px;">
+                    ${emp.email || '---'}
+                </td>
+                <td style="padding:12px; color: #64748b; font-size: 12px;">
+                    ${emp.contact || '---'}
+                </td>
+                <td style="padding:12px;">
+                    <span style="${stCls} padding:4px 8px; border-radius:12px; font-size:10px; font-weight:700;">
+                        ${emp.status.toUpperCase()}
+                    </span>
+                </td>
+                <td style="padding:12px; text-align:center;">
+                    <i class="fas fa-edit" onclick="editEmployee(${actualIndex})" title="Edit" 
+                       style="color:#2563eb; cursor:pointer; margin-right:15px;"></i>
+                    <i class="fas fa-trash-alt" onclick="deleteEmployee(${actualIndex})" title="Delete" 
+                       style="color:#ef4444; cursor:pointer;"></i>
+                </td>
+            </tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center; padding:20px; color:#94a3b8;">No records found matching your search.</td></tr>';
 };
 window.savePayrollComponent = function() {
     const nameSelect = document.getElementById('pay-comp-name');
@@ -4761,7 +4786,7 @@ document.getElementById('lead-save-btn').innerText = "Save Lead";
     document.querySelectorAll('#lead-form-container input:not([readonly]), #lead-form-container select').forEach(i => i.value = "");
 };
 // --- 1. Consolidated Auto-Login and View Fix ---
-/*
+
 window.onload = function() {
     const deptSelect = document.getElementById('dept-select');
     const passwordInput = document.getElementById('password-input');
@@ -4774,7 +4799,7 @@ window.onload = function() {
         // Trigger the functional login sequence
         showDashboard();
     } 
-};   */
+};   
 
 // --- 2. Refined Dashboard Controller ---
 function showDashboard() {
@@ -4909,17 +4934,28 @@ window.initSalaryStructId = function() {
     const idField = document.getElementById('ss-id');
     if (!idField || window.editSsIndex !== -1) return;
     
+    // --- INITIALIZE WITH 4 SAMPLE RECORDS ---
+    if (salaryStructDb.length === 0) {
+        salaryStructDb = [
+            { id: "Salary_Struct_001", empId: "EMP_001", empName: "Gabriel Andrei V. Alcoran", ctc: 35000 },
+            { id: "Salary_Struct_002", empId: "EMP_002", empName: "Jeremiah A. Cuenco", ctc: 32000 },
+            { id: "Salary_Struct_003", empId: "EMP_003", empName: "Kevin R. De Jesus", ctc: 45000 },
+            { id: "Salary_Struct_004", empId: "EMP_004", empName: "Patrick John A. Labindalawa", ctc: 32000 }
+        ];
+        localStorage.setItem('salary_structures_records', JSON.stringify(salaryStructDb));
+    }
+    
     let nextNum = 1;
     if (salaryStructDb.length > 0) {
         const ids = salaryStructDb.map(item => {
-            const parts = item.id.split('-');
-            return parseInt(parts[parts.length - 1]) || 0;
+            const parts = item.id.split('_');
+            const lastPart = parts[parts.length - 1];
+            return parseInt(lastPart) || 0;
         });
         nextNum = Math.max(...ids) + 1;
     }
     idField.value = `Salary_Struct_${String(nextNum).padStart(3, '0')}`;
 };
-
 // --- EDIT & SAVE ---
 window.editSalaryStruct = function(index) {
     window.editSsIndex = index;
@@ -9723,6 +9759,18 @@ window.initStockExchange = function(index = -1) {
         if (submitBtn) submitBtn.textContent = "Post Issue";
     }
 };
+window.toggleStockForm = function(show) {
+    const form = document.getElementById('stock-form-container');
+    if (form) {
+        form.style.display = show ? 'block' : 'none';
+        if (show) form.scrollIntoView({ behavior: 'smooth' });
+    }
+    // If closing the form, reset the Save button state
+    if (!show) {
+        const saveBtn = document.getElementById('stock-save-btn');
+        if (saveBtn) saveBtn.innerText = "Post Issue";
+    }
+};
 window.saveStockExchange = function() {
     let currentDb = JSON.parse(localStorage.getItem('stock_exchange_records')) || [];
 
@@ -12075,10 +12123,20 @@ window.toggleExpenseForm = function(show) {
         window.editExpIndex = -1;
     }
 };
-
 window.initExpenseId = function() {
     const idField = document.getElementById('exp-id');
     if (!idField || window.editExpIndex !== -1) return;
+    
+    // --- INITIALIZE WITH FILTERED SAMPLE DATA ---
+    if (expenseDb.length === 0) {
+        expenseDb = [
+            { id: "EXP-001", empId: "EMP_001", type: "Travel", amount: 1500.00 },
+            { id: "EXP-002", empId: "EMP_002", type: "Meal", amount: 450.50 },
+            { id: "EXP-003", empId: "EMP_003", type: "Supplies", amount: 1200.00 },
+            { id: "EXP-004", empId: "EMP_004", type: "Utilities", amount: 2500.00 }
+        ];
+        localStorage.setItem('expense_claims_records', JSON.stringify(expenseDb));
+    }
     
     let nextNum = 1;
     if (expenseDb.length > 0) {
@@ -12093,11 +12151,24 @@ window.initExpenseId = function() {
 
 window.populateExpEmployeeDropdown = function() {
     const dropdown = document.getElementById('exp-emp-id');
+    if (!dropdown) return;
+
+    // 1. Fetch fresh data from the HR Employee database
     const empDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
-    dropdown.innerHTML = '<option value="" disabled selected>Select Registered Employee</option>';
-    empDb.forEach(emp => {
-        dropdown.innerHTML += `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`;
-    });
+
+    // 2. Filter for Active employees only to keep the dropdown clean
+    const activeEmployees = empDb.filter(emp => emp.status === 'Active');
+
+    // 3. Generate HTML options using the 'id' (from the reg-id field) and 'name'
+    const optionsHTML = activeEmployees.map(emp => 
+        `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`
+    ).join('');
+
+    // 4. Update the dropdown with a placeholder and the fresh data
+    dropdown.innerHTML = `
+        <option value="" disabled selected>Select Registered Employee</option>
+        ${optionsHTML}
+    `;
 };
 
 // --- CRUD OPERATIONS ---
@@ -12145,32 +12216,44 @@ window.deleteExpenseClaim = function(index) {
         window.initExpenseId();
     });
 };
-
-// --- RENDERING ---
 window.renderExpenseTable = function() {
     const tbody = document.getElementById('expense-table-body');
     const search = document.getElementById('exp-search-input')?.value.toLowerCase() || "";
     if (!tbody) return;
 
+    // Fetch HR DB to link names to IDs
+    const empDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+
     const filtered = expenseDb.filter(item => 
         item.id.toLowerCase().includes(search) || item.empId.toLowerCase().includes(search)
     );
 
-    tbody.innerHTML = filtered.map((item, idx) => `
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-            <td style="padding:12px;"><strong>${item.id}</strong></td>
-            <td style="padding:12px;">${item.empId}</td>
-            <td style="padding:12px;">${item.type}</td>
-            <td style="padding:12px;">PHP ${item.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-            <td style="padding:12px; text-align:center;">
-                <button onclick="editExpenseClaim(${idx})" style="background:none; border:none; color:#2563eb; cursor:pointer; margin-right:10px;">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button onclick="deleteExpenseClaim(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer;">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>`).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px;">No claims found.</td></tr>';
+    tbody.innerHTML = filtered.map((item) => {
+        // Find the employee name based on the ID
+        const emp = empDb.find(e => e.id === item.empId);
+        const displayName = emp ? `${emp.fname} ${emp.lname}` : "Unknown Employee";
+        
+        const actualIdx = expenseDb.findIndex(exp => exp.id === item.id);
+
+        return `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding:12px;"><strong>${item.id}</strong></td>
+                <td style="padding:12px;">
+                    <div style="font-weight:600;">${item.empId}</div>
+                    <div style="font-size:11px; color:#64748b;">${displayName}</div>
+                </td>
+                <td style="padding:12px;">${item.type}</td>
+                <td style="padding:12px; font-weight:700;">PHP ${item.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td style="padding:12px; text-align:center;">
+                    <button onclick="editExpenseClaim(${actualIdx})" style="background:none; border:none; color:#2563eb; cursor:pointer; margin-right:10px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteExpenseClaim(${actualIdx})" style="background:none; border:none; color:#ef4444; cursor:pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+    }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px;">No claims found.</td></tr>';
 };
 
 window.clearExpForm = function() {
