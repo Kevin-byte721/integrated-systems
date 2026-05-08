@@ -361,16 +361,16 @@
 
         <main class="main-container"> 
 
-            <div id="registration-view" style="">
+<div id="registration-view" style="">
     <div class="header">
         <h1>Employee Registration</h1>
-        <p>Manage employee profiles, departmental assignments, and employment status.</p>
+        <p>Manage employee profiles and organizational assignments.</p>
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px;">
         <div class="search-container" style="position: relative; display: flex; align-items: center; width: 340px;">
             <i class="fas fa-search" style="position: absolute; left: 14px; color: #94a3b8; font-size: 14px;"></i>
-            <input type="text" placeholder="Search Emp ID, Name, or Dept..." id="emp-search-input" oninput="window.renderEmployeeTable()" 
+            <input type="text" placeholder="Search Emp ID or Name..." id="emp-search-input" oninput="window.renderEmployeeTable()" 
                    style="width: 100%; padding: 11px 40px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none;">
         </div>
 
@@ -379,63 +379,98 @@
             <i class="fas fa-user-plus"></i> Add Employee
         </button>
     </div>
-    <div id="employee-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #2563eb;">
-    <h3 id="employee-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">Add New Employee</h3>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-    <div class="input-box">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Employee ID</label>
-        <input type="text" id="reg-id" readonly 
-               style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; font-family: monospace; font-weight: bold; color: #1e293b;">
-    </div>
-    <div class="input-box">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">First Name</label>
-        <input type="text" id="reg-fname" placeholder="Juan" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-    </div>
-    <div class="input-box">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Last Name</label>
-        <input type="text" id="reg-lname" placeholder="Dela Cruz" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-    </div>
-    <div class="input-box">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Department</label>
-        <input type="text" id="reg-dept" placeholder="IT / HR" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-    </div>
-    <div class="input-box">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Contact Number</label>
-        <input type="tel" id="reg-contact" placeholder="0917-000-0000" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-    </div>
-    <div class="input-box">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Email Address</label>
-        <input type="email" id="reg-email" placeholder="juan.delacruz@company.com" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
-    </div>
-    <div class="input-box">
-        <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Status</label>
-        <select id="reg-status" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#fff;">
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-    </div>
-</div>
 
-    <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-        <button onclick="window.toggleEmployeeForm(false)" style="background: #f1f5f9; color: #64748b; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Cancel</button>
-        <button onclick="window.saveEmployee()" style="background: #2563eb; color: white; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Save Employee</button>
+    <div id="employee-form-container" class="content-card" style="display: none; margin-bottom: 25px; border-left: 4px solid #2563eb;">
+        <h3 id="employee-form-title" style="margin-bottom: 20px; color: #1e293b; font-weight: 700;">Add New Employee</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+            
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">*Employee ID</label>
+                <input type="text" id="reg-id" readonly 
+                       style="background: #f8fafc; border: 1px solid #cbd5e1; width:100%; padding:10px; border-radius:6px; font-family: monospace; font-weight: bold; color: #1e293b;">
+            </div>
+            <div class="input-box" style="grid-column: span 2;">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Status</label>
+                <select id="reg-status" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; background:#fff;">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">*First Name</label>
+                <input type="text" id="reg-fname" placeholder="Juan" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Middle Name</label>
+                <input type="text" id="reg-mname" placeholder="Santos" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">*Last Name</label>
+                <input type="text" id="reg-lname" placeholder="Dela Cruz" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Job Title</label>
+                <input list="job-titles" id="reg-jobtitle" placeholder="Select or type..." style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                <datalist id="job-titles">
+                    <option value="Software Engineer">
+                    <option value="Marketing Manager">
+                    <option value="Sales Associate">
+                    <option value="Financial Analyst">
+                    <option value="Project Manager">
+                    <option value="Operations Coordinator">
+                </datalist>
+            </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Position</label>
+                <input list="positions" id="reg-position" placeholder="Select or type..." style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                <datalist id="positions">
+                    <option value="Regular Full-Time">
+                    <option value="Regular Part-Time">
+                    <option value="Contractual">
+                    <option value="Probationary">
+                </datalist>
+            </div>
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Branch</label>
+                <input list="branches" id="reg-branch" placeholder="Select or type..." style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+                <datalist id="branches">
+                    <option value="Main Office">
+                    <option value="Lipa City Branch">
+                    <option value="Batangas City Branch">
+                </datalist>
+            </div>
+
+            <div class="input-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Contact Number</label>
+                <input type="tel" id="reg-contact" placeholder="09XX-XXX-XXXX" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div class="input-box" style="grid-column: span 2;">
+                <label style="display:block; margin-bottom:5px; font-weight:600; color: #475569;">Email Address</label>
+                <input type="email" id="reg-email" placeholder="email@company.com" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+        </div>
+
+        <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+            <button onclick="window.toggleEmployeeForm(false)" style="background: #f1f5f9; color: #64748b; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Cancel</button>
+            <button onclick="window.saveEmployee()" style="background: #2563eb; color: white; padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Save Employee</button>
+        </div>
     </div>
-</div>
 
     <div class="content-card">
         <table style="width:100%; border-collapse: collapse;">
             <thead>
-    <tr style="text-align: left; border-bottom: 2px solid #e2e8f0; background: #f8fafc;">
-        <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Emp ID</th>
-        <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Full Name</th>
-        <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Department</th>
-        <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Email</th>
-        <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Contact No.</th>
-        <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Status</th>
-        <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; text-align: center;">Actions</th>
-    </tr>
-</thead>
+                <tr style="text-align: left; border-bottom: 2px solid #e2e8f0; background: #f8fafc;">
+                    <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 700;">Emp ID</th>
+                    <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 700;">Full Name</th>
+                    <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 700;">Job Title</th>
+                    <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 700;">Branch</th>
+                    <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 700;">Status</th>
+                    <th style="padding: 12px; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 700; text-align: center;">Actions</th>
+                </tr>
+            </thead>
             <tbody id="employee-list-body"></tbody>
         </table>
     </div>
@@ -4297,71 +4332,37 @@ window.editEmpIndex = -1;
 // --- INITIALIZATION & SAMPLE DATA ---
 window.initEmployeeId = function() {
     const idField = document.getElementById('reg-id');
-    if (!idField || (window.editEmpIndex !== undefined && window.editEmpIndex !== -1)) return;
-
     let currentDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
-    
-    // --- ADD 4 CONST SAMPLE EMPLOYEES IF EMPTY ---
-if (currentDb.length === 0) {
-    currentDb = [
-        { 
-            id: "EMP_001", 
-            fname: "Gabriel Andrei V.", 
-            lname: "Alcoran", 
-            name: "Alcoran, Gabriel Andrei V.", 
-            dept: "IT Department", 
-            status: "Active", 
-            contact: "0917-111-2222", 
-            email: "g.alcoran@company.ph" 
-        },
-        { 
-            id: "EMP_002", 
-            fname: "Jeremiah A.", 
-            lname: "Cuenco", 
-            name: "Cuenco, Jeremiah A.", 
-            dept: "IT Department", 
-            status: "Active", 
-            contact: "0917-333-4444", 
-            email: "j.cuenco@company.ph" 
-        },
-        { 
-            id: "EMP_003", 
-            fname: "Kevin R.", 
-            lname: "De Jesus", 
-            name: "De Jesus, Kevin R.", 
-            dept: "IT Department", 
-            status: "Active", 
-            contact: "0917-555-6666", 
-            email: "k.dejesus@company.ph" 
-        },
-        { 
-            id: "EMP_004", 
-            fname: "Patrick John A.", 
-            lname: "Labindalawa", 
-            name: "Labindalawa, Patrick John A.", 
-            dept: "IT Department", 
-            status: "Active", 
-            contact: "0917-777-8888", 
-            email: "p.labindalawa@company.ph" 
-        }
-    ];
-    localStorage.setItem('hr_employee_records', JSON.stringify(currentDb));
-}
-    
-    let nextNum = 1; 
-    if (currentDb.length > 0) {
+
+    // 1. Generate Sample Data if Storage is Empty
+    if (currentDb.length === 0) {
+        const jobTitles = ["Software Engineer", "Marketing Manager", "Sales Associate", "Financial Analyst", "Project Manager"];
+        const branches = ["Main Office", "Lipa City Branch", "Batangas City Branch"];
+        const positions = ["Regular Full-Time", "Regular Part-Time", "Contractual", "Probationary"];
+        const random = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+        currentDb = [
+            { id: "EMP_001", fname: "Gabriel Andrei", mname: "V.", lname: "Alcoran", jobtitle: random(jobTitles), position: random(positions), branch: random(branches), status: "Active", contact: "0917-111-2222", email: "g.alcoran@company.ph" },
+            { id: "EMP_002", fname: "Jeremiah", mname: "A.", lname: "Cuenco", jobtitle: random(jobTitles), position: random(positions), branch: random(branches), status: "Active", contact: "0917-333-4444", email: "j.cuenco@company.ph" },
+            { id: "EMP_003", fname: "Kevin", mname: "R.", lname: "De Jesus", jobtitle: random(jobTitles), position: random(positions), branch: random(branches), status: "Active", contact: "0917-555-6666", email: "k.dejesus@company.ph" },
+            { id: "EMP_004", fname: "Patrick John", mname: "A.", lname: "Labindalawa", jobtitle: random(jobTitles), position: random(positions), branch: random(branches), status: "Active", contact: "0917-777-8888", email: "p.labindalawa@company.ph" }
+        ];
+        localStorage.setItem('hr_employee_records', JSON.stringify(currentDb));
+    }
+
+    // 2. Calculate and Set Next ID for the Form
+    if (idField && window.editEmpIndex === -1) {
         const existingNums = currentDb.map(emp => {
             const match = String(emp.id).match(/\d+$/);
             return match ? parseInt(match[0], 10) : 0;
         });
-        const maxNum = Math.max(...existingNums);
-        nextNum = maxNum >= 1 ? maxNum + 1 : 1;
+        const maxNum = existingNums.length > 0 ? Math.max(...existingNums) : 0;
+        const nextNum = maxNum + 1;
+        idField.value = `EMP_${String(nextNum).padStart(3, '0')}`;
     }
-
-    idField.value = `EMP_${String(nextNum).padStart(3, '0')}`;
 };
 
-// --- UPDATED TOGGLE ---
+// --- FORM CONTROLS ---
 window.toggleEmployeeForm = function(show) {
     const container = document.getElementById('employee-form-container');
     const isShowing = show !== undefined ? show : container.style.display === 'none';
@@ -4382,7 +4383,7 @@ window.toggleEmployeeForm = function(show) {
 };
 
 window.clearForm = function() {
-    ['reg-fname', 'reg-lname', 'reg-dept', 'reg-contact', 'reg-email'].forEach(id => {
+    ['reg-fname', 'reg-mname', 'reg-lname', 'reg-jobtitle', 'reg-position', 'reg-branch', 'reg-contact', 'reg-email'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.value = '';
     });
@@ -4393,19 +4394,20 @@ window.clearForm = function() {
 window.saveEmployee = function() {
     const fn = document.getElementById('reg-fname').value.trim();
     const ln = document.getElementById('reg-lname').value.trim();
-    const contact = document.getElementById('reg-contact').value.trim(); 
-    const email = document.getElementById('reg-email').value.trim();     
-    const currentId = document.getElementById('reg-id').value;
-
+    
     if (!fn || !ln) return alert("Please enter First and Last name.");
 
     const empData = {
-        id: currentId,
-        name: `${fn} ${ln}`,
-        dept: document.getElementById('reg-dept').value || "General",
+        id: document.getElementById('reg-id').value,
+        fname: fn,
+        mname: document.getElementById('reg-mname').value.trim(),
+        lname: ln,
+        jobtitle: document.getElementById('reg-jobtitle').value || "Staff",
+        position: document.getElementById('reg-position').value || "Regular Full-Time",
+        branch: document.getElementById('reg-branch').value || "Main Office",
         status: document.getElementById('reg-status').value,
-        contact: contact, 
-        email: email      
+        contact: document.getElementById('reg-contact').value.trim(),
+        email: document.getElementById('reg-email').value.trim()
     };
 
     let db = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
@@ -4417,14 +4419,11 @@ window.saveEmployee = function() {
     }
 
     localStorage.setItem('hr_employee_records', JSON.stringify(db));
-    
-    if (typeof window.renderEmployeeTable === "function") {
-        window.renderEmployeeTable();
-    }
-
+    window.renderEmployeeTable();
     window.editEmpIndex = -1; 
     window.toggleEmployeeForm(false);
 };
+
 window.editEmployee = function(index) {
     const db = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
     const emp = db[index];
@@ -4432,17 +4431,20 @@ window.editEmployee = function(index) {
 
     window.editEmpIndex = index;
 
-    // Directly assign the stored properties to the form fields
     document.getElementById('reg-id').value = emp.id;
     document.getElementById('reg-fname').value = emp.fname || ''; 
+    document.getElementById('reg-mname').value = emp.mname || ''; 
     document.getElementById('reg-lname').value = emp.lname || ''; 
-    document.getElementById('reg-dept').value = emp.dept;
+    document.getElementById('reg-jobtitle').value = emp.jobtitle || '';
+    document.getElementById('reg-position').value = emp.position || '';
+    document.getElementById('reg-branch').value = emp.branch || '';
     document.getElementById('reg-status').value = emp.status;
     document.getElementById('reg-contact').value = emp.contact || '';
     document.getElementById('reg-email').value = emp.email || '';
 
     window.toggleEmployeeForm(true);
 };
+
 
 window.deleteEmployee = function(index) {
     requestDelete("Remove this employee record?", () => {
@@ -4452,58 +4454,57 @@ window.deleteEmployee = function(index) {
         window.renderEmployeeTable();
     });
 };
-// --- RENDERING ---
 window.renderEmployeeTable = function() {
     const tbody = document.getElementById('employee-list-body');
-    const searchInput = document.getElementById('emp-search-input');
-    const searchTerm = searchInput?.value.toLowerCase() || "";
+    const searchTerm = document.getElementById('emp-search-input')?.value.toLowerCase() || "";
     if (!tbody) return;
 
-    // Refresh the local variable from the correct storage key
-    const employeeDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
+    const currentDb = JSON.parse(localStorage.getItem('hr_employee_records')) || [];
 
-    const filtered = employeeDb.filter(emp => 
+    const filtered = currentDb.filter(emp => 
         emp.id.toLowerCase().includes(searchTerm) || 
-        (emp.fname && emp.fname.toLowerCase().includes(searchTerm)) || 
-        (emp.lname && emp.lname.toLowerCase().includes(searchTerm)) ||
-        (emp.email && emp.email.toLowerCase().includes(searchTerm)) || 
-        (emp.contact && emp.contact.includes(searchTerm))
+        emp.fname.toLowerCase().includes(searchTerm) || 
+        emp.lname.toLowerCase().includes(searchTerm) ||
+        (emp.jobtitle && emp.jobtitle.toLowerCase().includes(searchTerm)) ||
+        (emp.branch && emp.branch.toLowerCase().includes(searchTerm))
     );
 
     tbody.innerHTML = filtered.map((emp) => {
-        // Find the actual index in the master list for Edit/Delete
-        const actualIndex = employeeDb.findIndex(e => e.id === emp.id);
+        const actualIndex = currentDb.findIndex(e => e.id === emp.id);
         const stCls = emp.status === 'Active' ? 'background:#dcfce7; color:#166534;' : 'background:#fee2e2; color:#991b1b;';
-        
-        // Combine First Name and Last Name for display
-        const fullName = `${emp.fname} ${emp.lname}`;
+        const fullName = `${emp.fname} ${emp.mname ? emp.mname + ' ' : ''}${emp.lname}`;
 
         return `
-            <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px;">
-                <td style="padding:12px;"><strong>${emp.id}</strong></td>
-                <td style="padding:12px;">${fullName}</td> <td style="padding:12px;">
-                    <div style="font-weight:600; color:#1e293b;">${emp.dept}</div>
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s; vertical-align: middle;">
+                <td style="padding:15px;"><div style="font-weight: 700; color: #1e293b;">${emp.id}</div></td>
+                <td style="padding:15px;">
+                    <div style="font-weight: 600; color: #1e293b;">${fullName}</div>
+                    <div style="font-size: 11px; color: #64748b;">${emp.email || 'No email provided'}</div>
                 </td>
-                <td style="padding:12px; color: #475569; font-size: 12px;">
-                    ${emp.email || '---'}
+                <td style="padding:15px;">
+                    <div style="font-weight: 600; color: #334155;">${emp.jobtitle}</div>
+                    <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">${emp.position || '---'}</div>
                 </td>
-                <td style="padding:12px; color: #64748b; font-size: 12px;">
-                    ${emp.contact || '---'}
+                <td style="padding:15px;">
+                    <div style="color: #475569; font-size: 13px;"><i class="fas fa-map-marker-alt" style="font-size: 10px; margin-right: 4px;"></i> ${emp.branch}</div>
+                    <div style="font-size: 11px; color: #64748b;">${emp.contact || 'No contact #'}</div>
                 </td>
-                <td style="padding:12px;">
-                    <span style="${stCls} padding:4px 8px; border-radius:12px; font-size:10px; font-weight:700;">
+                <td style="padding:15px;">
+                    <span style="${stCls} padding:4px 10px; border-radius:20px; font-size:10px; font-weight:800;">
                         ${emp.status.toUpperCase()}
                     </span>
                 </td>
-                <td style="padding:12px; text-align:center;">
-                    <i class="fas fa-edit" onclick="editEmployee(${actualIndex})" title="Edit" 
-                       style="color:#2563eb; cursor:pointer; margin-right:15px;"></i>
-                    <i class="fas fa-trash-alt" onclick="deleteEmployee(${actualIndex})" title="Delete" 
-                       style="color:#ef4444; cursor:pointer;"></i>
+                <td style="padding:15px; text-align:center;">
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <i class="fas fa-edit" onclick="editEmployee(${actualIndex})" style="color:#2563eb; cursor:pointer;" title="Edit Profile"></i>
+                        <i class="fas fa-trash-alt" onclick="deleteEmployee(${actualIndex})" style="color:#ef4444; cursor:pointer;" title="Delete Record"></i>
+                    </div>
                 </td>
             </tr>`;
-    }).join('') || '<tr><td colspan="7" style="text-align:center; padding:20px; color:#94a3b8;">No records found matching your search.</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center; padding:50px; color:#94a3b8;">No records found.</td></tr>';
 };
+
+
 window.savePayrollComponent = function() {
     const nameSelect = document.getElementById('pay-comp-name');
     if (!nameSelect.value) return alert("Please select a Component Name.");
@@ -12378,8 +12379,9 @@ function showView(viewId) {
 
     // --- Auto-refresh logic for IDs and Tables ---
     if (viewId === 'registration-view') {
-        renderEmployeeTable();
+        // CRITICAL: Initialize data FIRST, then Render
         window.initEmployeeId();
+        window.renderEmployeeTable();
     } else if (viewId === 'payroll-comp-view') {
         renderPayrollComponentsTable();
         window.initPayrollCompId(); 
